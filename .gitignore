@@ -18,3 +18,4 @@
 __MACOSX
 *.versionsBackup
 saucer-bindings.dll
+saucer-bindings.pdb
