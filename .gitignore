@@ -1,0 +1,20 @@
+# IntelliJ
+*.iml
+.idea/
+
+# Eclipse
+.settings/
+.project
+.classpath
+
+# VSCode
+.vscode/settings.json
+
+# Common
+*target/
+
+# Misc
+.DS_Store
+__MACOSX
+*.versionsBackup
+saucer-bindings.dll
