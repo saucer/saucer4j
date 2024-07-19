@@ -35,3 +35,11 @@ Object.defineProperty(SAUCER, "__rpc", {
 	writable: true,
 	configurable: true,
 });
+
+Object.defineProperty(SAUCER, "close", {
+	value: function() {
+		RPC.send({ type: "CLOSE" });
+	},
+	writable: true,
+	configurable: true,
+});

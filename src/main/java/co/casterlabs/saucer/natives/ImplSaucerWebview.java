@@ -7,12 +7,17 @@ import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 
 import co.casterlabs.saucer.SaucerWebview;
+import co.casterlabs.saucer.bridge.JavascriptFunction;
+import co.casterlabs.saucer.bridge.JavascriptGetter;
+import co.casterlabs.saucer.bridge.JavascriptObject;
+import co.casterlabs.saucer.bridge.JavascriptSetter;
 import co.casterlabs.saucer.documentation.PointerType;
 import co.casterlabs.saucer.natives.ImplSaucerWebview._Native.URLChangedEventCallback;
 import co.casterlabs.saucer.utils.SaucerEmbeddedFiles;
 import lombok.NonNull;
 
 @SuppressWarnings("deprecation")
+@JavascriptObject
 class ImplSaucerWebview implements SaucerWebview {
     private static final _Native N = _SaucerNative.load(_Native.class);
 
@@ -71,21 +76,25 @@ class ImplSaucerWebview implements SaucerWebview {
 //        N.saucer_webview_on($saucer.p(), _Native.SAUCER_WEB_EVENT_DOM_READY, this.webEventDomReadyCallback);
     }
 
+    @JavascriptGetter("devtoolsVisible")
     @Override
     public boolean isDevtoolsVisible() {
         return N.saucer_webview_dev_tools($saucer.p());
     }
 
+    @JavascriptSetter("devtoolsVisible")
     @Override
     public void setDevtoolsVisible(boolean enabled) {
         N.saucer_webview_set_dev_tools($saucer.p(), enabled);
     }
 
+    @JavascriptGetter("currentUrl")
     @Override
     public String currentUrl() {
         return N.saucer_webview_url($saucer.p());
     }
 
+    @JavascriptSetter("currentUrl")
     @Override
     public void setUrl(@NonNull String url) {
         N.saucer_webview_set_url($saucer.p(), url);
@@ -98,16 +107,19 @@ class ImplSaucerWebview implements SaucerWebview {
         this.referenceToFiles = files;
     }
 
+    @JavascriptGetter("contextMenuAllowed")
     @Override
     public boolean isContextMenuAllowed() {
         return N.saucer_webview_context_menu($saucer.p());
     }
 
+    @JavascriptSetter("contextMenuAllowed")
     @Override
     public void setContextMenuAllowed(boolean enabled) {
         N.saucer_webview_set_context_menu($saucer.p(), enabled);
     }
 
+    @JavascriptFunction
     @Override
     public void executeJavaScript(@NonNull String scriptToExecute) {
         N.saucer_webview_execute($saucer.p(), scriptToExecute);

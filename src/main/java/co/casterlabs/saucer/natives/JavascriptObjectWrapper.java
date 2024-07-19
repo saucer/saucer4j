@@ -110,6 +110,7 @@ class JavascriptObjectWrapper {
             }
 
             setter.invoke(this.obj, o);
+            return;
         }
 
         Field value = this.settableValues.get(field);
@@ -122,9 +123,10 @@ class JavascriptObjectWrapper {
             }
 
             value.set(this.obj, o);
+            return;
         }
 
-        throw new IllegalArgumentException("Cannot create field: " + field + ", did you mistype something or forget an annotation?");
+        throw new IllegalArgumentException("Cannot set field: " + field + ", did you mistype something or forget an annotation?");
     }
 
     @SneakyThrows

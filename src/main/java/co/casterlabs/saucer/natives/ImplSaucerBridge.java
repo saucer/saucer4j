@@ -46,27 +46,36 @@ class ImplSaucerBridge implements SaucerBridge {
         JsonElement returnValue = null;
         boolean isError = false;
         try {
-            JavascriptObjectWrapper object = this.objects.get(message.getString("objectId"));
-            if (object == null) {
-                throw new IllegalArgumentException("Unknown object: " + message);
-            }
-
             switch (message.getString("type")) {
                 case "GET": {
-                    // RPC.get("objectid", "propertyName");
+                    JavascriptObjectWrapper object = this.objects.get(message.getString("objectId"));
+                    assert object != null : "Unknown objectId: " + message;
+
+                    // RPC.get("objectId", "propertyName");
                     returnValue = object.handleGet(message.getString("propertyName"));
                     break;
                 }
 
                 case "SET": {
-                    // RPC.set("objectid", "propertyName", newValue);
+                    JavascriptObjectWrapper object = this.objects.get(message.getString("objectId"));
+                    assert object != null : "Unknown objectId: " + message;
+
+                    // RPC.set("objectId", "propertyName", newValue);
                     object.handleSet(message.getString("propertyName"), message.get("newValue"));
                     break;
                 }
 
                 case "INVOKE": {
-                    // RPC.invoke("objectid", "functionName", Array.from(arguments));
+                    JavascriptObjectWrapper object = this.objects.get(message.getString("objectId"));
+                    assert object != null : "Unknown objectId: " + message;
+
+                    // RPC.invoke("objectId", "functionName", Array.from(arguments));
                     returnValue = object.handleInvoke(message.getString("functionName"), message.getArray("arguments"));
+                    break;
+                }
+
+                case "CLOSE": {
+                    $saucer.close();
                     break;
                 }
 
@@ -89,6 +98,7 @@ class ImplSaucerBridge implements SaucerBridge {
                 .substring(0, out.length() - 2)
                 .replace("\r", "");
 
+            System.err.printf("An error occurred whilst processing function, bubbling to JavaScript.\n%s\n", full);
             returnValue = new JsonString(full);
             isError = true;
         }
@@ -121,6 +131,9 @@ class ImplSaucerBridge implements SaucerBridge {
         this.$saucer = $saucer;
 
         N.saucer_webview_on_message($saucer.p(), this.messageCallback);
+
+        this.defineObject("saucer.webview", $saucer.webview());
+        this.defineObject("saucer.window", $saucer.window());
     }
 
     @SneakyThrows

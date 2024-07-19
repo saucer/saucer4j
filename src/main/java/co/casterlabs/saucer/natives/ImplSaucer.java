@@ -29,9 +29,9 @@ class ImplSaucer extends _SafePointer implements Saucer {
         this.setup(N.saucer_new(this.$options.p()), N::saucer_free);
 
         // These need to be initialized AFTER saucer is created.
-        this.bridge = new ImplSaucerBridge(this);
         this.webview = new ImplSaucerWebview(this);
         this.window = new ImplSaucerWindow(this);
+        this.bridge = new ImplSaucerBridge(this); // !MUST BE LAST!
 
         this.window.show(); // Show by default.
         this.window.setMinSize(new SaucerSize(800, 600));

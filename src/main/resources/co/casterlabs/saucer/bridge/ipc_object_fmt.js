@@ -32,7 +32,7 @@ const proxy = new Proxy(object, {
 
         return RPC.get(id, propertyName);
     },
-    set(obj, property, value) {
+    set(obj, propertyName, value) {
         RPC.set(id, propertyName, value);
         return value;
     },
@@ -43,6 +43,7 @@ const propertyName = path.pop();
 // Resolve the root object.
 let root = window;
 for (const part of path) {
+	if (!root[part]) root[part] = {}; // Allow setting nested on things that don't exist (yet).
 	root = root[part];
 }
 

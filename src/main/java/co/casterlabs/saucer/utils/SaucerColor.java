@@ -2,19 +2,29 @@ package co.casterlabs.saucer.utils;
 
 import java.awt.Color;
 
+import org.jetbrains.annotations.Nullable;
+
 import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 
+import co.casterlabs.rakurai.json.Rson;
+import co.casterlabs.rakurai.json.annotating.JsonClass;
+import co.casterlabs.rakurai.json.annotating.JsonSerializer;
+import co.casterlabs.rakurai.json.element.JsonArray;
+import co.casterlabs.rakurai.json.element.JsonElement;
+import co.casterlabs.rakurai.json.element.JsonObject;
+import co.casterlabs.rakurai.json.serialization.JsonParseException;
 import co.casterlabs.saucer.documentation.InternalUseOnly;
 import co.casterlabs.saucer.documentation.PointerType;
-import co.casterlabs.saucer.natives._SaucerNative;
 import co.casterlabs.saucer.natives._SafePointer;
+import co.casterlabs.saucer.natives._SaucerNative;
 import lombok.Getter;
 import lombok.NonNull;
 
 @Getter
 @PointerType
 @SuppressWarnings("deprecation")
+@JsonClass(serializer = SaucerColorSerializer.class)
 public final class SaucerColor extends _SafePointer {
     private static final _Native N = _SaucerNative.load(_Native.class);
 
@@ -123,6 +133,58 @@ public final class SaucerColor extends _SafePointer {
 
         void saucer_color_set_a(Pointer $instance, int a);
 
+    }
+
+}
+
+class SaucerColorSerializer implements JsonSerializer<SaucerColor> {
+
+    @Override
+    public @Nullable SaucerColor deserialize(@NonNull JsonElement value, @NonNull Class<?> type, @NonNull Rson rson) throws JsonParseException {
+        // array: [red,green,blue,alpha]
+        // object: {red,green,blue,alpha}
+
+        if (value.isJsonArray()) {
+            JsonArray arr = value.getAsArray();
+            assert arr.size() < 3 || arr.size() > 4 : new JsonParseException("Array must be either 3 or 4 elements for RGBA.");
+
+            SaucerColor color = new SaucerColor();
+            color.red(arr.getNumber(0).intValue());
+            color.green(arr.getNumber(1).intValue());
+            color.blue(arr.getNumber(2).intValue());
+
+            if (arr.size() == 4) {
+                color.alpha(arr.getNumber(3).intValue());
+            }
+
+            return color;
+        } else if (value.isJsonObject()) {
+            JsonObject obj = value.getAsObject();
+            assert obj.containsKey("red") && obj.containsKey("green") && obj.containsKey("blue") : new JsonParseException("Object must have  `red`, `green`, `blue`, and optionally `alpha`");
+
+            SaucerColor color = new SaucerColor();
+            color.red(obj.getNumber("red").intValue());
+            color.green(obj.getNumber("green").intValue());
+            color.blue(obj.getNumber("blue").intValue());
+
+            if (obj.containsKey("alpha")) {
+                color.alpha(obj.getNumber("alpha").intValue());
+            }
+
+            return color;
+        } else {
+            throw new JsonParseException("Must be either an array or object!");
+        }
+    }
+
+    @Override
+    public JsonElement serialize(@NonNull Object v, @NonNull Rson rson) {
+        SaucerColor value = (SaucerColor) v;
+        return new JsonObject()
+            .put("red", value.red())
+            .put("green", value.green())
+            .put("blue", value.blue())
+            .put("alpha", value.alpha());
     }
 
 }
