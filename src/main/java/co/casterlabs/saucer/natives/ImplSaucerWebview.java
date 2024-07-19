@@ -12,7 +12,7 @@ import co.casterlabs.saucer.bridge.JavascriptGetter;
 import co.casterlabs.saucer.bridge.JavascriptObject;
 import co.casterlabs.saucer.bridge.JavascriptSetter;
 import co.casterlabs.saucer.documentation.PointerType;
-import co.casterlabs.saucer.natives.ImplSaucerWebview._Native.URLChangedEventCallback;
+import co.casterlabs.saucer.natives.ImplSaucerWindow._Native.WindowVoidCallback;
 import co.casterlabs.saucer.utils.SaucerEmbeddedFiles;
 import lombok.NonNull;
 
@@ -30,49 +30,49 @@ class ImplSaucerWebview implements SaucerWebview {
      */
     private SaucerEmbeddedFiles referenceToFiles;
 
-    private VoidCallback webEventLoadFinishedCallback = () -> {
-        try {
-            if (this.eventListener == null) return;
-            this.eventListener.onLoadFinished();
-        } catch (Throwable t) {
-            t.printStackTrace();
-        }
-    };
-
-    private VoidCallback webEventLoadStartedCallback = () -> {
-        try {
-            if (this.eventListener == null) return;
-            this.eventListener.onLoadStarted();
-        } catch (Throwable t) {
-            t.printStackTrace();
-        }
-    };
-
-    private URLChangedEventCallback webEventUrlChangedCallback = (newUrl) -> {
-        try {
-            if (this.eventListener == null) return;
-            this.eventListener.onUrlChanged(newUrl);
-        } catch (Throwable t) {
-            t.printStackTrace();
-        }
-    };
-
-    private VoidCallback webEventDomReadyCallback = () -> {
-        try {
-            if (this.eventListener == null) return;
-            this.eventListener.onDomReady();
-        } catch (Throwable t) {
-            t.printStackTrace();
-        }
-    };
+//    private WebviewVoidCallback webEventLoadFinishedCallback = (Pointer $saucer) -> {
+//        try {
+//            if (this.eventListener == null) return;
+//            this.eventListener.onLoadFinished();
+//        } catch (Throwable t) {
+//            t.printStackTrace();
+//        }
+//    };
+//
+//    private WebviewVoidCallback webEventLoadStartedCallback = (Pointer $saucer) -> {
+//        try {
+//            if (this.eventListener == null) return;
+//            this.eventListener.onLoadStarted();
+//        } catch (Throwable t) {
+//            t.printStackTrace();
+//        }
+//    };
+//
+//    private WebviewURLChangedEventCallback webEventUrlChangedCallback = (Pointer $saucer, String newUrl) -> {
+//        try {
+//            if (this.eventListener == null) return;
+//            this.eventListener.onUrlChanged(newUrl);
+//        } catch (Throwable t) {
+//            t.printStackTrace();
+//        }
+//    };
+//
+//    private WebviewVoidCallback webEventDomReadyCallback = (Pointer $saucer) -> {
+//        try {
+//            if (this.eventListener == null) return;
+//            this.eventListener.onDomReady();
+//        } catch (Throwable t) {
+//            t.printStackTrace();
+//        }
+//    };
 
     ImplSaucerWebview(ImplSaucer $saucer) {
         this.$saucer = $saucer;
 
-        // TODO broken.
+        // TODO broken
 //        N.saucer_webview_on($saucer.p(), _Native.SAUCER_WEB_EVENT_LOAD_FINISHED, this.webEventLoadFinishedCallback);
 //        N.saucer_webview_on($saucer.p(), _Native.SAUCER_WEB_EVENT_LOAD_STARTED, this.webEventLoadStartedCallback);
-//        N.saucer_webview_on($saucer.p(), _Native.SAUCER_WEB_EVENT_URL_CHANGED, this.webEventUrlChangedCallback);
+//        N.saucer_webview_once($saucer.p(), _Native.SAUCER_WEB_EVENT_URL_CHANGED, this.webEventUrlChangedCallback);
 //        N.saucer_webview_on($saucer.p(), _Native.SAUCER_WEB_EVENT_DOM_READY, this.webEventDomReadyCallback);
     }
 
@@ -132,16 +132,16 @@ class ImplSaucerWebview implements SaucerWebview {
 
     // https://github.com/saucer/saucer/blob/c-bindings/bindings/include/saucer/webview.h
     static interface _Native extends Library {
-        /** Requires {@link VoidCallback} */
+        /** Requires {@link WindowVoidCallback} */
         static final int SAUCER_WEB_EVENT_LOAD_FINISHED = 0;
 
-        /** Requires {@link VoidCallback} */
+        /** Requires {@link WindowVoidCallback} */
         static final int SAUCER_WEB_EVENT_LOAD_STARTED = 1;
 
         /** Requires {@link URLChangedEventCallback} */
         static final int SAUCER_WEB_EVENT_URL_CHANGED = 2;
 
-        /** Requires {@link VoidCallback} */
+        /** Requires {@link WindowVoidCallback} */
         static final int SAUCER_WEB_EVENT_DOM_READY = 3;
 
         boolean saucer_webview_dev_tools(Pointer $saucer);
@@ -168,8 +168,16 @@ class ImplSaucerWebview implements SaucerWebview {
          * @implNote Do not inline this. The JVM needs this to always be accessible
          *           otherwise it will garbage collect and ruin our day.
          */
-        static interface URLChangedEventCallback extends Callback {
-            void callback(String newUrl);
+        static interface WebviewURLChangedEventCallback extends Callback {
+            void callback(Pointer $saucer, String newUrl);
+        }
+
+        /**
+         * @implNote Do not inline this. The JVM needs this to always be accessible
+         *           otherwise it will garbage collect and ruin our day.
+         */
+        static interface WebviewVoidCallback extends Callback {
+            void callback(Pointer $saucer);
         }
 
     }

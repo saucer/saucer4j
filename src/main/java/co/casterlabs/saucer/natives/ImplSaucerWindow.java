@@ -12,9 +12,10 @@ import co.casterlabs.saucer.bridge.JavascriptGetter;
 import co.casterlabs.saucer.bridge.JavascriptObject;
 import co.casterlabs.saucer.bridge.JavascriptSetter;
 import co.casterlabs.saucer.documentation.PointerType;
-import co.casterlabs.saucer.natives.ImplSaucerWindow._Native.BooleanCallback;
-import co.casterlabs.saucer.natives.ImplSaucerWindow._Native.CloseEventCallback;
-import co.casterlabs.saucer.natives.ImplSaucerWindow._Native.ResizeEventCallback;
+import co.casterlabs.saucer.natives.ImplSaucerWindow._Native.WindowBooleanCallback;
+import co.casterlabs.saucer.natives.ImplSaucerWindow._Native.WindowCloseEventCallback;
+import co.casterlabs.saucer.natives.ImplSaucerWindow._Native.WindowResizeEventCallback;
+import co.casterlabs.saucer.natives.ImplSaucerWindow._Native.WindowVoidCallback;
 import co.casterlabs.saucer.utils.SaucerColor;
 import co.casterlabs.saucer.utils.SaucerSize;
 import lombok.NonNull;
@@ -28,7 +29,7 @@ class ImplSaucerWindow implements SaucerWindow {
 
     private @Nullable SaucerWindowListener eventListener;
 
-    private BooleanCallback windowEventMaximizeCallback = (boolean isMaximized) -> {
+    private WindowBooleanCallback windowEventMaximizeCallback = (Pointer $saucer, boolean isMaximized) -> {
         try {
             if (this.eventListener == null) return;
             System.out.printf("maximized: %b\n", isMaximized);
@@ -36,7 +37,7 @@ class ImplSaucerWindow implements SaucerWindow {
             t.printStackTrace();
         }
     };
-    private BooleanCallback windowEventMinimizeCallback = (boolean isMinimized) -> {
+    private WindowBooleanCallback windowEventMinimizeCallback = (Pointer $saucer, boolean isMinimized) -> {
         try {
             if (this.eventListener == null) return;
             System.out.printf("minimized: %b\n", isMinimized);
@@ -45,7 +46,7 @@ class ImplSaucerWindow implements SaucerWindow {
         }
     };
 
-    private VoidCallback windowEventClosedCallback = () -> {
+    private WindowVoidCallback windowEventClosedCallback = (Pointer $saucer) -> {
         try {
             if (this.eventListener == null) return;
             this.eventListener.onClosed();
@@ -54,7 +55,7 @@ class ImplSaucerWindow implements SaucerWindow {
         }
     };
 
-    private ResizeEventCallback windowEventResizeCallback = (int width, int height) -> {
+    private WindowResizeEventCallback windowEventResizeCallback = (Pointer $saucer, int width, int height) -> {
         try {
             if (this.eventListener == null) return;
             this.eventListener.onResize(width, height);
@@ -63,7 +64,7 @@ class ImplSaucerWindow implements SaucerWindow {
         }
     };
 
-    private BooleanCallback windowEventFocusCallback = (boolean hasFocus) -> {
+    private WindowBooleanCallback windowEventFocusCallback = (Pointer $saucer, boolean hasFocus) -> {
         try {
             if (this.eventListener == null) return;
 
@@ -77,7 +78,7 @@ class ImplSaucerWindow implements SaucerWindow {
         }
     };
 
-    private CloseEventCallback windowEventCloseCallback = () -> {
+    private WindowCloseEventCallback windowEventCloseCallback = (Pointer $saucer) -> {
         try {
             if (this.eventListener == null) return false;
             return this.eventListener.shouldAvoidClosing();
@@ -90,7 +91,7 @@ class ImplSaucerWindow implements SaucerWindow {
     ImplSaucerWindow(ImplSaucer $saucer) {
         this.$saucer = $saucer;
 
-        // TODO broken.
+        // TODO broken
 //        N.saucer_window_on($saucer.p(), _Native.SAUCER_WINDOW_EVENT_MAXIMIZE, this.windowEventMaximizeCallback);
 //        N.saucer_window_on($saucer.p(), _Native.SAUCER_WINDOW_EVENT_MINIMIZE, this.windowEventMinimizeCallback);
 //        N.saucer_window_on($saucer.p(), _Native.SAUCER_WINDOW_EVENT_CLOSED, this.windowEventClosedCallback);
@@ -275,22 +276,22 @@ class ImplSaucerWindow implements SaucerWindow {
 
     // https://github.com/saucer/saucer/blob/c-bindings/bindings/include/saucer/window.h
     static interface _Native extends Library {
-        /** Requires {@link BooleanCallback} */
+        /** Requires {@link WindowBooleanCallback} */
         static final int SAUCER_WINDOW_EVENT_MAXIMIZE = 0;
 
-        /** Requires {@link BooleanCallback} */
+        /** Requires {@link WindowBooleanCallback} */
         static final int SAUCER_WINDOW_EVENT_MINIMIZE = 1;
 
-        /** Requires {@link VoidCallback} */
+        /** Requires {@link WindowVoidCallback} */
         static final int SAUCER_WINDOW_EVENT_CLOSED = 2;
 
-        /** Requires {@link ResizeEventCallback} */
+        /** Requires {@link WindowResizeEventCallback} */
         static final int SAUCER_WINDOW_EVENT_RESIZE = 3;
 
-        /** Requires {@link BooleanCallback} */
+        /** Requires {@link WindowBooleanCallback} */
         static final int SAUCER_WINDOW_EVENT_FOCUS = 4;
 
-        /** Requires {@link CloseEventCallback} */
+        /** Requires {@link WindowCloseEventCallback} */
         static final int SAUCER_WINDOW_EVENT_CLOSE = 5;
 
         boolean saucer_window_focused(Pointer $saucer);
@@ -347,24 +348,32 @@ class ImplSaucerWindow implements SaucerWindow {
          * @implNote Do not inline this. The JVM needs this to always be accessible
          *           otherwise it will garbage collect and ruin our day.
          */
-        static interface ResizeEventCallback extends Callback {
-            void callback(int width, int height);
+        static interface WindowResizeEventCallback extends Callback {
+            void callback(Pointer $saucer, int width, int height);
         }
 
         /**
          * @implNote Do not inline this. The JVM needs this to always be accessible
          *           otherwise it will garbage collect and ruin our day.
          */
-        static interface CloseEventCallback extends Callback {
-            boolean callback();
+        static interface WindowCloseEventCallback extends Callback {
+            boolean callback(Pointer $saucer);
         }
 
         /**
          * @implNote Do not inline this. The JVM needs this to always be accessible
          *           otherwise it will garbage collect and ruin our day.
          */
-        static interface BooleanCallback extends Callback {
-            void callback(boolean b);
+        static interface WindowBooleanCallback extends Callback {
+            void callback(Pointer $saucer, boolean b);
+        }
+
+        /**
+         * @implNote Do not inline this. The JVM needs this to always be accessible
+         *           otherwise it will garbage collect and ruin our day.
+         */
+        static interface WindowVoidCallback extends Callback {
+            void callback(Pointer $saucer);
         }
 
     }
