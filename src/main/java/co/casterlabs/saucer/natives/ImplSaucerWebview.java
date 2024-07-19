@@ -28,6 +28,7 @@ class ImplSaucerWebview implements SaucerWebview {
     /**
      * Avoid GC'ing too early.
      */
+    @SuppressWarnings("unused")
     private SaucerEmbeddedFiles referenceToFiles;
 
 //    private WebviewVoidCallback webEventLoadFinishedCallback = (Pointer $saucer) -> {
