@@ -58,6 +58,14 @@ public interface SaucerWebview {
     public void executeJavaScript(@NonNull String scriptToExecute);
 
     /**
+     * Reloads the current URL.
+     */
+    @ThreadSafe
+    default void reload() {
+        this.executeJavaScript("location.reload();");
+    }
+
+    /**
      * Allows you to receive events from the Webview, such as page load or
      * navigation events.
      */

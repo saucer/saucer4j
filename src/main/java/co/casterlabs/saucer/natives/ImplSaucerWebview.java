@@ -7,6 +7,7 @@ import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 
 import co.casterlabs.saucer.SaucerWebview;
+import co.casterlabs.saucer.documentation.PointerType;
 import co.casterlabs.saucer.natives.ImplSaucerWebview._Native.URLChangedEventCallback;
 import co.casterlabs.saucer.utils.SaucerEmbeddedFiles;
 import lombok.NonNull;
@@ -15,7 +16,7 @@ import lombok.NonNull;
 class ImplSaucerWebview implements SaucerWebview {
     private static final _Native N = _SaucerNative.load(_Native.class);
 
-    private final _SafePointer $saucer;
+    private final @PointerType ImplSaucer $saucer;
 
     private @Nullable SaucerWebviewListener eventListener;
 
@@ -60,7 +61,7 @@ class ImplSaucerWebview implements SaucerWebview {
         }
     };
 
-    ImplSaucerWebview(_SafePointer $saucer) {
+    ImplSaucerWebview(ImplSaucer $saucer) {
         this.$saucer = $saucer;
 
         // TODO broken.

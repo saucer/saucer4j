@@ -19,23 +19,24 @@ class ImplSaucer extends _SafePointer implements Saucer {
 
     private final _SafePointer $options;
 
-    private final ImplSaucerWebview webview;
-    private final ImplSaucerWindow window;
-    private final @PointerType ImplSaucerBridge bridge;
+    final ImplSaucerWebview webview;
+    final ImplSaucerWindow window;
+    final ImplSaucerBridge bridge;
 
     public ImplSaucer(@NonNull SaucerOptions options) {
-        // These need to be made BEFORE saucer is created.
         $options = options.toNative();
-        this.bridge = new ImplSaucerBridge();
 
-        this.setup(N.saucer_new(this.bridge.p(), this.$options.p()), N::saucer_free);
+        this.setup(N.saucer_new(this.$options.p()), N::saucer_free);
 
-        // These need to be made AFTER saucer is created.
+        // These need to be initialized AFTER saucer is created.
+        this.bridge = new ImplSaucerBridge(this);
         this.webview = new ImplSaucerWebview(this);
         this.window = new ImplSaucerWindow(this);
 
         this.window.show(); // Show by default.
         this.window.setMinSize(new SaucerSize(800, 600));
+
+        this.bridge.apply(); // Apply by default.
     }
 
     @Override
@@ -66,10 +67,10 @@ class ImplSaucer extends _SafePointer implements Saucer {
     static interface _Native extends Library {
 
         /* ---------------------------- */
-        // https://github.com/saucer/saucer/blob/c-bindings/bindings/include/saucer/smartview.h
+        // https://github.com/saucer/saucer/blob/c-bindings/bindings/include/saucer/webview.h
         /* ---------------------------- */
 
-        Pointer saucer_new(Pointer $serializer, Pointer $options);
+        Pointer saucer_new(Pointer $options);
 
         void saucer_free(Pointer $saucer);
 

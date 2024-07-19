@@ -7,6 +7,7 @@ import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 
 import co.casterlabs.saucer.SaucerWindow;
+import co.casterlabs.saucer.documentation.PointerType;
 import co.casterlabs.saucer.natives.ImplSaucerWindow._Native.BooleanCallback;
 import co.casterlabs.saucer.natives.ImplSaucerWindow._Native.CloseEventCallback;
 import co.casterlabs.saucer.natives.ImplSaucerWindow._Native.ResizeEventCallback;
@@ -18,7 +19,7 @@ import lombok.NonNull;
 class ImplSaucerWindow implements SaucerWindow {
     private static final _Native N = _SaucerNative.load(_Native.class);
 
-    private final _SafePointer $saucer;
+    private final @PointerType ImplSaucer $saucer;
 
     private @Nullable SaucerWindowListener eventListener;
 
@@ -81,7 +82,7 @@ class ImplSaucerWindow implements SaucerWindow {
         }
     };
 
-    ImplSaucerWindow(_SafePointer $saucer) {
+    ImplSaucerWindow(ImplSaucer $saucer) {
         this.$saucer = $saucer;
 
         // TODO broken.

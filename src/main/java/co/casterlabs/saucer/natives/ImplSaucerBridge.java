@@ -2,161 +2,211 @@ package co.casterlabs.saucer.natives;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import com.sun.jna.Callback;
 import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 
 import co.casterlabs.rakurai.json.Rson;
+import co.casterlabs.rakurai.json.element.JsonElement;
 import co.casterlabs.rakurai.json.element.JsonObject;
 import co.casterlabs.rakurai.json.element.JsonString;
+import co.casterlabs.rakurai.json.serialization.JsonParseException;
 import co.casterlabs.saucer.SaucerBridge;
+import co.casterlabs.saucer.bridge.JavascriptObject;
 import co.casterlabs.saucer.documentation.PointerType;
-import co.casterlabs.saucer.natives.ImplSaucerBridge._Native.FunctionCallback;
-import co.casterlabs.saucer.natives.ImplSaucerBridge._Native.ParserCallback;
+import co.casterlabs.saucer.natives.ImplSaucerBridge._Native.MessageCallback;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 
 @SuppressWarnings("deprecation")
 @PointerType
-class ImplSaucerBridge extends _SafePointer implements SaucerBridge {
+class ImplSaucerBridge implements SaucerBridge {
     private static final _Native N = _SaucerNative.load(_Native.class);
 
-    // TODO this entire class. LMAO
+    private @PointerType ImplSaucer $saucer;
 
-    private ParserCallback parserCallback = (Pointer $rawMessage) -> {
+    private Map<String, JavascriptObjectWrapper> objects = new HashMap<>();
+    private Map<String, JsonElement> constants = new HashMap<>();
+
+    private MessageCallback messageCallback = (String raw) -> {
+        JsonObject message;
         try {
-            String rawMessage = $rawMessage.getString(0);
-            JsonObject message = Rson.DEFAULT.fromJson(rawMessage, JsonObject.class);
+            message = Rson.DEFAULT.fromJson(raw, JsonObject.class);
+        } catch (JsonParseException e) {
+            e.printStackTrace();
+            return false;
+        }
 
-            if (message.containsKey("saucer:call") && message.getBoolean("saucer:call")) {
-                long id = message.getNumber("id").longValue();
-                String name = message.getString("name");
-                Pointer $rawMessageCopy = N.saucer_strdup(rawMessage); // deallocated later!!!
+        JsonElement returnValue = null;
+        boolean isError = false;
+        try {
+            JavascriptObjectWrapper object = this.objects.get(message.getString("objectId"));
+            if (object == null) {
+                throw new IllegalArgumentException("Unknown object: " + message);
+            }
 
-                return N.saucer_function_data_new(id, name, $rawMessageCopy);
+            switch (message.getString("type")) {
+                case "GET": {
+                    // RPC.get("objectid", "propertyName");
+                    returnValue = object.handleGet(message.getString("propertyName"));
+                    break;
+                }
+
+                case "SET": {
+                    // RPC.set("objectid", "propertyName", newValue);
+                    object.handleSet(message.getString("propertyName"), message.get("newValue"));
+                    break;
+                }
+
+                case "INVOKE": {
+                    // RPC.invoke("objectid", "functionName", Array.from(arguments));
+                    returnValue = object.handleInvoke(message.getString("functionName"), message.getArray("arguments"));
+                    break;
+                }
+
+                default:
+                    throw new IllegalArgumentException("Unrecognized call: " + message);
             }
         } catch (Throwable t) {
-            System.err.println("Error whilst handling message:");
-            t.printStackTrace();
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+
+            t.printStackTrace(pw);
+
+            String out = sw.toString();
+
+            pw.flush();
+            pw.close();
+            sw.flush();
+
+            String full = out
+                .substring(0, out.length() - 2)
+                .replace("\r", "");
+
+            returnValue = new JsonString(full);
+            isError = true;
         }
 
-        return Pointer.NULL;
-    };
-
-    private FunctionCallback functionCallback = (Pointer $functionData, Pointer $resolver, Pointer $rejecter) -> {
-        try {
-            _SafePointer $userData = _SafePointer.of(N.saucer_function_data_get_user_data($functionData)); // here's our deallocate ;)
-            String rawMessage = $userData.p().getString(0);
-
-            JsonObject message = Rson.DEFAULT.fromJson(rawMessage, JsonObject.class);
-
-            throw new IllegalStateException("TODO");
-//                JsonElement result = messageHandler.apply(message.getString("name"), message.getArray("params"));
-//                if (result == null) {
-//                    // Note that result being null is different from a JsonNull. We treat this as
-//                    // undefined.
-//                    N.saucer_serializer_resolve($resolver, "undefined");
-//                } else {
-//                    N.saucer_serializer_resolve($resolver, result.toString());
-//                }
-        } catch (Throwable t) {
-            String reason = getExceptionStack(t);
-            System.err.printf("An error occurred whilst processing function, bubbling to JavaScript.\n%s\n", reason);
-            N.saucer_serializer_reject($rejecter, new JsonString(reason).toString());
+        if (!message.containsKey("requestId")) {
+            return true; // Drop the response.
         }
+
+        JsonElement requestId = message.get("requestId");
+        if (isError) {
+            $saucer.webview.executeJavaScript(
+                String.format(
+                    "if (window.saucer.__rpc.waiting[%s]) window.saucer.__rpc.waiting[%s].reject(%s);",
+                    requestId, requestId, returnValue
+                )
+            );
+        } else {
+            $saucer.webview.executeJavaScript(
+                String.format(
+                    "if (window.saucer.__rpc.waiting[%s]) window.saucer.__rpc.waiting[%s].resolve(%s);",
+                    requestId, requestId, returnValue
+                )
+            );
+        }
+
+        return true;
     };
 
-    ImplSaucerBridge() {
-        this.setup(N.saucer_serializer_new(), (noop) -> {
-            // NO-OP
-        });
+    ImplSaucerBridge(ImplSaucer $saucer) {
+        this.$saucer = $saucer;
 
-        N.saucer_serializer_set_js_serializer(this.p(), "JSON.stringify");
-        N.saucer_serializer_set_parser(this.p(), this.parserCallback);
-        N.saucer_serializer_set_function(this.p(), this.functionCallback);
+        N.saucer_webview_on_message($saucer.p(), this.messageCallback);
+    }
+
+    @SneakyThrows
+    @Override
+    public synchronized void defineObject(@NonNull String name, @NonNull Object obj) {
+        assert obj.getClass().isAnnotationPresent(JavascriptObject.class) : "Class MUST be annotated with @JavascriptObject";
+
+        JavascriptObjectWrapper wrapper = new JavascriptObjectWrapper(name, obj);
+        this.objects.put(wrapper.id, wrapper);
+
+        // Look for sub-objects and register them.
+        // Note that this recurses until there are no more sub-objects.
+        for (Field f : obj.getClass().getFields()) {
+            if (f.getType().isAnnotationPresent(JavascriptObject.class)) {
+                this.defineObject(name + "." + f.getName(), f.get(obj));
+            }
+        }
+    }
+
+    @Override
+    public synchronized void defineConstant(@NonNull String name, @NonNull JsonElement obj) {
+        this.constants.put(name, obj);
+    }
+
+    @Override
+    public synchronized void apply() {
+        List<String> lines = new LinkedList<>();
+        lines.add(BridgeResources.init);
+
+        for (Map.Entry<String, JsonElement> entry : this.constants.entrySet()) {
+            lines.add(
+                String.format(
+                    "{\n"
+                        + "Object.defineProperty(window, %s, {\n"
+                        + "    value: %s,\n"
+                        + "    writable: true,\n"
+                        + "    configurable: true\n"
+                        + "});\n"
+                        + "}",
+                    new JsonString(entry.getKey()),
+                    entry.getValue()
+                )
+            );
+        }
+
+        for (JavascriptObjectWrapper object : this.objects.values()) {
+            lines.add(
+                String.format(
+                    "{\n" + BridgeResources.ipc_object_fmt + "\n}",
+                    new JsonString(object.id),
+                    new JsonString(object.path),
+                    Rson.DEFAULT.toJson(object.functions()),
+                    Rson.DEFAULT.toJson(object.properties())
+                )
+            );
+        }
+
+        String finalScript = "if (window.self === window.top) {\n" + String.join("\n\n", lines) + "\n}";
+
+        N.saucer_webview_clear_scripts($saucer.p()); // TODO Doesn't appear to do anything?
+        N.saucer_webview_inject($saucer.p(), _SaucerNative.allocString(finalScript), _Native.SAUCER_LOAD_TIME_CREATION);
+        $saucer.webview().reload();
     }
 
     static interface _Native extends Library {
-
         /* ---------------------------- */
-        // https://github.com/saucer/saucer/blob/c-bindings/bindings/include/saucer/window.h
-        /* ---------------------------- */
-
-        // TODO implement these.
-        void saucer_window_start_drag(Pointer $saucer);
-
-        void saucer_window_start_resize(Pointer $saucer, int edge);
-
-        /* ---------------------------- */
-        // https://github.com/saucer/saucer/blob/c-bindings/bindings/include/saucer/memory.h
+        // https://github.com/saucer/saucer/blob/c-bindings/bindings/include/saucer/webview.h
         /* ---------------------------- */
 
-        void saucer_alloc_free(Pointer $ptr);
+        static final int SAUCER_LOAD_TIME_CREATION = 0;
+//        static final int SAUCER_LOAD_TIME_READY = 1;
 
-        Pointer saucer_strdup(String in);
+        void saucer_webview_clear_scripts(Pointer $saucer);
 
-        /* ---------------------------- */
-        // https://github.com/saucer/saucer/blob/c-bindings/bindings/include/saucer/serializer.h
-        /* ---------------------------- */
+        void saucer_webview_inject(Pointer $saucer, Pointer $javascript, int loadTime);
 
-        static final int SAUCER_LAUNCH_POLICY_SYNC = 0;
-//      static final int SAUCER_LAUNCH_POLICY_ASYNC = 1;
-
-        void saucer_add_function(Pointer $saucer, String name, int saucerLaunchPolicy);
-
-        Pointer saucer_serializer_new();
-
-        void saucer_serializer_set_js_serializer(Pointer $serializer, String jsSerializer);
-
-        void saucer_serializer_set_parser(Pointer $serializer, ParserCallback cSerializer);
-
-        Pointer saucer_function_data_new(long id, String name, Pointer userData);
-
-        void saucer_serializer_set_function(Pointer $serializer, FunctionCallback func);
-
-        Pointer saucer_function_data_get_user_data(Pointer $functionData);
-
-        void saucer_serializer_resolve(Pointer $function, String result);
-
-        void saucer_serializer_reject(Pointer $function, String reason);
+        void saucer_webview_on_message(Pointer $saucer, MessageCallback callback);
 
         /**
          * @implNote Do not inline this. The JVM needs this to always be accessible
          *           otherwise it will garbage collect and ruin our day.
          */
-        static interface ParserCallback extends Callback {
-            Pointer callback(Pointer $rawMessage);
+        static interface MessageCallback extends Callback {
+            boolean callback(String message);
         }
 
-        /**
-         * @implNote Do not inline this. The JVM needs this to always be accessible
-         *           otherwise it will garbage collect and ruin our day.
-         */
-        static interface FunctionCallback extends Callback {
-            /**
-             * @param $functionData call
-             *                      {@link _SaucerNative#saucer_function_data_get_user_data(Pointer)};
-             */
-            void callback(Pointer $functionData, Pointer $resolver, Pointer $rejecter);
-        }
-
-    }
-
-    private static String getExceptionStack(@NonNull Throwable e) {
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-
-        e.printStackTrace(pw);
-
-        String out = sw.toString();
-
-        pw.flush();
-        pw.close();
-        sw.flush();
-
-        return out
-            .substring(0, out.length() - 2)
-            .replace("\r", "");
     }
 
 }
