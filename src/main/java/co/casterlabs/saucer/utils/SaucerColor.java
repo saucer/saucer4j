@@ -1,4 +1,4 @@
-package co.casterlabs.saucer;
+package co.casterlabs.saucer.utils;
 
 import java.awt.Color;
 
@@ -7,25 +7,25 @@ import com.sun.jna.Pointer;
 
 import co.casterlabs.saucer.documentation.InternalUseOnly;
 import co.casterlabs.saucer.documentation.PointerType;
-import co.casterlabs.saucer.impl._SaucerPointer;
-import co.casterlabs.saucer.impl._SaucerNative;
+import co.casterlabs.saucer.natives._SaucerNative;
+import co.casterlabs.saucer.natives._SafePointer;
 import lombok.Getter;
 import lombok.NonNull;
 
 @Getter
 @PointerType
 @SuppressWarnings("deprecation")
-public final class SaucerColor extends _SaucerPointer {
+public final class SaucerColor extends _SafePointer {
     private static final _Native N = _SaucerNative.load(_Native.class);
 
     @Deprecated
     @InternalUseOnly
     public SaucerColor(@NonNull Pointer pointer) {
-        super(pointer, N::saucer_color_free);
+        super.setup(pointer, N::saucer_color_free);
     }
 
     public SaucerColor() {
-        super(N.saucer_color_new(), N::saucer_color_free);
+        super.setup(N.saucer_color_new(), N::saucer_color_free);
     }
 
     public SaucerColor(int red, int green, int blue) {

@@ -1,4 +1,4 @@
-package co.casterlabs.saucer.impl;
+package co.casterlabs.saucer.natives;
 
 import java.util.Collections;
 

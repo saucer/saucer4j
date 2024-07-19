@@ -1,4 +1,4 @@
-package co.casterlabs.saucer;
+package co.casterlabs.saucer.utils;
 
 import java.nio.file.Path;
 import java.util.Collections;
@@ -11,8 +11,8 @@ import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 
 import co.casterlabs.saucer.documentation.InternalUseOnly;
-import co.casterlabs.saucer.impl._SaucerPointer;
-import co.casterlabs.saucer.impl._SaucerNative;
+import co.casterlabs.saucer.natives._SaucerNative;
+import co.casterlabs.saucer.natives._SafePointer;
 import lombok.Getter;
 import lombok.NonNull;
 
@@ -24,7 +24,7 @@ public final class SaucerOptions {
     private boolean persistientCookies = true;
     private boolean hardwareAcceleration = false;
     private final List<String> chromeFlags = new LinkedList<>();
-    private @Nullable Path storagePath = Path.of("./");
+    private @Nullable Path storagePath = Path.of("./SaucerWebview");
 
     public List<String> getChromeFlags() {
         // Immutable.
@@ -76,7 +76,7 @@ public final class SaucerOptions {
 
     @Deprecated
     @InternalUseOnly
-    public _SaucerPointer toNative() {
+    public _SafePointer toNative() {
         Pointer $instance = N.saucer_options_new();
 
         N.saucer_options_set_persistent_cookies($instance, this.persistientCookies);
@@ -88,7 +88,7 @@ public final class SaucerOptions {
 
         N.saucer_options_set_storage_path($instance, this.storagePath.toAbsolutePath().toString());
 
-        return new _SaucerPointer($instance, N::saucer_options_free);
+        return _SafePointer.of($instance, N::saucer_options_free);
     }
 
     // https://github.com/saucer/saucer/blob/c-bindings/bindings/include/saucer/options.h

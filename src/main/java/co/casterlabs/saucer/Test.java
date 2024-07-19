@@ -1,38 +1,29 @@
 package co.casterlabs.saucer;
 
-import co.casterlabs.rakurai.json.Rson;
+import co.casterlabs.saucer.utils.SaucerEmbeddedFiles;
+import co.casterlabs.saucer.utils.SaucerOptions;
 
 public class Test {
 
-    public static void main(String[] args) {
-        SaucerView view = SaucerView.create(
+    public static void main(String[] args) throws InterruptedException {
+        SaucerEmbeddedFiles files = new SaucerEmbeddedFiles()
+            .add(
+                "index.html", "text/html",
+                "<!DOCTYPE html>"
+                    + "<html>"
+                    + "<h1>Hello world!</h1>"
+                    + "<h2>With ❤️ from saucer_java</h2>"
+                    + "</html>"
+            );
+
+        Saucer view = Saucer.create(
             new SaucerOptions()
                 .hardwareAcceleration(true)
         );
 
-        view.setDevtoolsVisible(true);
-        view.setContextMenuAllowed(true);
-        view.setUrl("https://example.com");
-
-        view.addFunction("heySaucerWhatsMyUrl", (funcArgs) -> {
-            return Rson.DEFAULT.toJson(view.currentUrl());
-        });
-
-        view.addFunction("setBackground", (funcArgs) -> {
-            view.setBackground(
-                new SaucerColor(
-                    funcArgs.getNumber(0).intValue(),
-                    funcArgs.getNumber(1).intValue(),
-                    funcArgs.getNumber(2).intValue(),
-                    funcArgs.getNumber(3).intValue()
-                )
-            );
-            return null;
-        });
-
-        view.addFunction("throwAnError", (funcArgs) -> {
-            throw new Exception("An error :D");
-        });
+        view.webview().setDevtoolsVisible(true);
+        view.webview().setContextMenuAllowed(true);
+        view.webview().serve(files, "index.html");
 
         view.run();
     }

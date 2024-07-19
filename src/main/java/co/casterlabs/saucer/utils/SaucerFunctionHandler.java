@@ -1,4 +1,4 @@
-package co.casterlabs.saucer;
+package co.casterlabs.saucer.utils;
 
 import org.jetbrains.annotations.Nullable;
 
