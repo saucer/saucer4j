@@ -1,28 +1,35 @@
 package co.casterlabs.saucer.natives;
 
-import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 import co.casterlabs.commons.io.streams.StreamUtil;
+import co.casterlabs.saucer.utils.SaucerEmbeddedFiles;
+import lombok.SneakyThrows;
 
 class BridgeResources {
 
-    static String ipc_object_fmt = "";
-    static {
-        try {
-            ipc_object_fmt = StreamUtil.toString(BridgeResources.class.getResourceAsStream("/co/casterlabs/saucer/bridge/ipc_object_fmt.js"), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+    static String ipc_object_fmt = load("ipc_object_fmt.js");
+    static String init = load("init.js");
 
-    static String init = "";
-    static {
-        try {
-            init = StreamUtil.toString(BridgeResources.class.getResourceAsStream("/co/casterlabs/saucer/bridge/init.js"), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            e.printStackTrace();
+    @SneakyThrows
+    private static String load(String name) {
+        String fullPath = "co/casterlabs/saucer/natives/bridge/" + name;
+
+        InputStream in = SaucerEmbeddedFiles.class.getResourceAsStream(fullPath);
+        if (in == null) {
+            // Some IDEs mangle the resource location when launching directly. Let's try
+            // that as a backup.
+            in = SaucerEmbeddedFiles.class.getResourceAsStream("/" + fullPath);
         }
+        if (in == null) {
+            // Another mangle.
+            in = SaucerEmbeddedFiles.class.getResourceAsStream("/resources/" + fullPath);
+        }
+
+        assert in != null : "Could not locate internal resource: " + fullPath;
+
+        return StreamUtil.toString(in, StandardCharsets.UTF_8);
     }
 
 }
