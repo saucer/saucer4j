@@ -1,5 +1,7 @@
 package com.example.saucer_java;
 
+import java.io.IOException;
+
 import co.casterlabs.rakurai.json.element.JsonObject;
 import co.casterlabs.saucer.Saucer;
 import co.casterlabs.saucer.bridge.JavascriptFunction;
@@ -10,7 +12,7 @@ import co.casterlabs.saucer.utils.SaucerOptions;
 
 public class BridgeExample {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Saucer saucer = Saucer.create(
             new SaucerOptions()
                 .hardwareAcceleration(true) // May not work on all computers. You should do some testing to discover if you
@@ -22,16 +24,11 @@ public class BridgeExample {
         SaucerEmbeddedFiles files = new SaucerEmbeddedFiles()
             // Add a file named "index.html" with a simple html page.
             .add(
-                "index.html",
+                "BridgeExample.html",
                 "text/html",
-                "<!DOCTYPE html>"
-                    + "<html>"
-                    + "<h1>Hello world!</h1>"
-                    + "<button onclick='Example.openDevTools()'>Open Developer Tools</button><br />"
-                    + "<sub>With ❤️ from saucer_java</sub>"
-                    + "</html>"
+                BridgeExample.class.getResourceAsStream("/BridgeExample.html")
             );
-        saucer.webview().serve(files, "index.html"); // Tell Saucer to serve that file we made above.
+        saucer.webview().serve(files, "BridgeExample.html"); // Tell Saucer to serve that file we made above.
 
         saucer.bridge().defineConstant("thisIsAConstant", JsonObject.EMPTY_OBJECT);
         saucer.bridge().defineObject("Example", new BridgeObjectExample(saucer));
