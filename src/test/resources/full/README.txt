@@ -1,0 +1,1 @@
+Go to src/test/full_embedded_site and run `npm install` and `npm build`. Then take the CONTENTS of the resulting `build/` folder and put them in here.
