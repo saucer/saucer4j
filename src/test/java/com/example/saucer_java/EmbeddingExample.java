@@ -19,10 +19,9 @@ public class EmbeddingExample {
 
         SaucerEmbeddedFiles files = new SaucerEmbeddedFiles()
             // Add a file named "index.html" with a simple html page.
-            .add(
+            .addResource(
                 "EmbeddingExample.html",
-                "text/html",
-                EmbeddingExample.class.getResourceAsStream("/EmbeddingExample.html")
+                "text/html"
             );
         saucer.webview().serve(files, "EmbeddingExample.html"); // Tell Saucer to serve that file we made above.
 

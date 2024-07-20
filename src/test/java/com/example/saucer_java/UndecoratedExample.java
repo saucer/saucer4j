@@ -20,10 +20,9 @@ public class UndecoratedExample {
 
         SaucerEmbeddedFiles files = new SaucerEmbeddedFiles()
             // Add a file named "index.html" with a simple html page.
-            .add(
+            .addResource(
                 "UndecoratedExample.html",
-                "text/html",
-                UndecoratedExample.class.getResourceAsStream("/UndecoratedExample.html")
+                "text/html"
             );
         saucer.webview().serve(files, "UndecoratedExample.html"); // Tell Saucer to serve that file we made above.
 

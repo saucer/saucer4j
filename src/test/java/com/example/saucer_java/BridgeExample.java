@@ -23,10 +23,9 @@ public class BridgeExample {
 
         SaucerEmbeddedFiles files = new SaucerEmbeddedFiles()
             // Add a file named "index.html" with a simple html page.
-            .add(
+            .addResource(
                 "BridgeExample.html",
-                "text/html",
-                BridgeExample.class.getResourceAsStream("/BridgeExample.html")
+                "text/html"
             );
         saucer.webview().serve(files, "BridgeExample.html"); // Tell Saucer to serve that file we made above.
 

@@ -49,6 +49,34 @@ public final class SaucerEmbeddedFiles extends _SafePointer {
         return this;
     }
 
+    public SaucerEmbeddedFiles addResource(@NonNull String filename, @NonNull String mime) throws IOException {
+        return this.addResource(filename, mime, "");
+    }
+
+    public SaucerEmbeddedFiles addResource(@NonNull String basePath, @NonNull String filename, @NonNull String mime) throws IOException {
+        String fullPath = basePath + filename;
+        if (fullPath.startsWith("/")) {
+            // Strip leading slashes.
+            fullPath = basePath.substring(1);
+        }
+
+        InputStream in = SaucerEmbeddedFiles.class.getResourceAsStream(fullPath);
+        if (in == null) {
+            // Some IDEs mangle the resource location when launching directly. Let's try
+            // that as a backup.
+            in = SaucerEmbeddedFiles.class.getResourceAsStream("/" + fullPath);
+        }
+        if (in == null) {
+            // Another mangle.
+            in = SaucerEmbeddedFiles.class.getResourceAsStream("/resources/" + fullPath);
+        }
+
+        assert in != null : "Could not locate resource: " + fullPath;
+
+        this.add(filename, mime, in);
+        return this;
+    }
+
     // https://github.com/saucer/saucer/blob/c-bindings/bindings/include/saucer/embed.h
     static interface _Native extends Library {
 
