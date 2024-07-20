@@ -10,9 +10,9 @@ import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
 import co.casterlabs.commons.io.streams.StreamUtil;
+import co.casterlabs.saucer._impl._SafePointer;
+import co.casterlabs.saucer._impl._SaucerNative;
 import co.casterlabs.saucer.documentation.PointerType;
-import co.casterlabs.saucer.natives._SafePointer;
-import co.casterlabs.saucer.natives._SaucerNative;
 import co.casterlabs.saucer.utils.SaucerEmbeddedFiles._Native.size_t;
 import lombok.Getter;
 import lombok.NonNull;

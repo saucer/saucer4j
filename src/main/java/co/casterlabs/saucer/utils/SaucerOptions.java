@@ -10,9 +10,9 @@ import org.jetbrains.annotations.Nullable;
 import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 
+import co.casterlabs.saucer._impl._SafePointer;
+import co.casterlabs.saucer._impl._SaucerNative;
 import co.casterlabs.saucer.documentation.InternalUseOnly;
-import co.casterlabs.saucer.natives._SaucerNative;
-import co.casterlabs.saucer.natives._SafePointer;
 import lombok.Getter;
 import lombok.NonNull;
 

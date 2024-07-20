@@ -1,4 +1,4 @@
-package co.casterlabs.saucer.natives;
+package co.casterlabs.saucer._impl;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -18,9 +18,9 @@ import co.casterlabs.rakurai.json.element.JsonObject;
 import co.casterlabs.rakurai.json.element.JsonString;
 import co.casterlabs.rakurai.json.serialization.JsonParseException;
 import co.casterlabs.saucer.SaucerBridge;
+import co.casterlabs.saucer._impl.ImplSaucerBridge._Native.MessageCallback;
 import co.casterlabs.saucer.bridge.JavascriptObject;
 import co.casterlabs.saucer.documentation.PointerType;
-import co.casterlabs.saucer.natives.ImplSaucerBridge._Native.MessageCallback;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 

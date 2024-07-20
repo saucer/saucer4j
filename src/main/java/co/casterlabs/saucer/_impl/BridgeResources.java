@@ -1,4 +1,4 @@
-package co.casterlabs.saucer.natives;
+package co.casterlabs.saucer._impl;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -14,7 +14,7 @@ class BridgeResources {
 
     @SneakyThrows
     private static String load(String name) {
-        String fullPath = "co/casterlabs/saucer/natives/bridge/" + name;
+        String fullPath = "co/casterlabs/saucer/_impl/bridge/" + name;
 
         InputStream in = SaucerEmbeddedFiles.class.getResourceAsStream(fullPath);
         if (in == null) {

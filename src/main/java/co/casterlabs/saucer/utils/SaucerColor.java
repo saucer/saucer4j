@@ -14,10 +14,10 @@ import co.casterlabs.rakurai.json.element.JsonArray;
 import co.casterlabs.rakurai.json.element.JsonElement;
 import co.casterlabs.rakurai.json.element.JsonObject;
 import co.casterlabs.rakurai.json.serialization.JsonParseException;
+import co.casterlabs.saucer._impl._SafePointer;
+import co.casterlabs.saucer._impl._SaucerNative;
 import co.casterlabs.saucer.documentation.InternalUseOnly;
 import co.casterlabs.saucer.documentation.PointerType;
-import co.casterlabs.saucer.natives._SafePointer;
-import co.casterlabs.saucer.natives._SaucerNative;
 import lombok.Getter;
 import lombok.NonNull;
 

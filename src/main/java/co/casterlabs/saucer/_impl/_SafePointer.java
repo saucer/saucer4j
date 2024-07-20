@@ -1,4 +1,4 @@
-package co.casterlabs.saucer.natives;
+package co.casterlabs.saucer._impl;
 
 import java.util.function.Consumer;
 

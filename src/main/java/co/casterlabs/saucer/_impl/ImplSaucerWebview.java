@@ -1,4 +1,4 @@
-package co.casterlabs.saucer.natives;
+package co.casterlabs.saucer._impl;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -7,12 +7,12 @@ import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 
 import co.casterlabs.saucer.SaucerWebview;
+import co.casterlabs.saucer._impl.ImplSaucerWindow._Native.WindowVoidCallback;
 import co.casterlabs.saucer.bridge.JavascriptFunction;
 import co.casterlabs.saucer.bridge.JavascriptGetter;
 import co.casterlabs.saucer.bridge.JavascriptObject;
 import co.casterlabs.saucer.bridge.JavascriptSetter;
 import co.casterlabs.saucer.documentation.PointerType;
-import co.casterlabs.saucer.natives.ImplSaucerWindow._Native.WindowVoidCallback;
 import co.casterlabs.saucer.utils.SaucerEmbeddedFiles;
 import lombok.NonNull;
 

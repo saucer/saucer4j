@@ -1,4 +1,4 @@
-package co.casterlabs.saucer.natives;
+package co.casterlabs.saucer._impl;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
