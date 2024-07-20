@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+	  /* Use this as a starting point for your own CSS. */
+      body {
+	  	--resizer-size: 8px;
+		--titlebar-size: 1.5rem;
+		margin: var(--resizer-size);
+		margin-top: calc(var(--resizer-size) + var(--titlebar-size));
+        padding: 0;
+		background: lightgrey;
+      }
+	  
+      [x-webview-resizer="n"],
+      [x-webview-resizer="s"] {
+        position: absolute;
+        height: var(--resizer-size);
+        background: blue;
+      }
+	  
+      [x-webview-resizer="w"],
+      [x-webview-resizer="e"] {
+        position: absolute;
+        width: var(--resizer-size);
+        background: red;
+      }
+	  
+      [x-webview-resizer="nw"],
+      [x-webview-resizer="ne"],
+      [x-webview-resizer="sw"],
+      [x-webview-resizer="se"] {
+        position: absolute;
+        height: var(--resizer-size);
+        width: var(--resizer-size);
+        background: yellowgreen;
+      }
+	  
+      [x-webview-resizer="n"] {
+        top: 0;
+        left: var(--resizer-size);
+        right: var(--resizer-size);
+      }
+      [x-webview-resizer="s"] {
+        bottom: 0;
+        left: var(--resizer-size);
+        right: var(--resizer-size);
+      }
+	  
+      [x-webview-resizer="w"] {
+        left: 0;
+        top: var(--resizer-size);
+        bottom: var(--resizer-size);
+      }
+      [x-webview-resizer="e"] {
+        right: 0;
+        top: var(--resizer-size);
+        bottom: var(--resizer-size);
+      }
+	  
+      [x-webview-resizer="nw"] {
+        top: 0;
+        left: 0;
+      }
+      [x-webview-resizer="ne"] {
+        top: 0;
+        right: 0;
+      }
+	  
+      [x-webview-resizer="sw"] {
+        bottom: 0;
+        left: 0;
+      }
+      [x-webview-resizer="se"] {
+        bottom: 0;
+        right: 0;
+      }
+	  
+	  [x-webview-dragger] {
+		position: absolute;
+		top: var(--resizer-size);
+		left: var(--resizer-size);
+		right: var(--resizer-size);
+	    height: var(--titlebar-size);
+		background: purple;
+	  }
+    </style>
+  </head>
+
+  <body>
+	<!-- Place these in your HTML code. -->
+    <div x-webview-resizer="nw"></div>
+    <div x-webview-resizer="n"></div>
+    <div x-webview-resizer="ne"></div>
+    <div x-webview-resizer="w"></div>
+    <div x-webview-resizer="e"></div>
+    <div x-webview-resizer="sw"></div>
+    <div x-webview-resizer="s"></div>
+	<div x-webview-resizer="se"></div>
+	<div x-webview-dragger>
+		Saucer Window
+		<button onmousedown="event.stopPropagation();" onclick="saucer.close();" style="float: right;">
+			X
+		</button>
+	</div>
+
+    <main>
+      <h1>Hello world!</h1>
+      <button onclick="saucer.webview.devtoolsVisible = true;">
+        Open Developer Tools
+	  </button><br />
+      <sub>With ❤️ from saucer_java</sub>
+    </main>
+  </body>
+</html>
