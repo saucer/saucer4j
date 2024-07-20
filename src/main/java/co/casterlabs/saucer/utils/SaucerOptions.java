@@ -24,7 +24,7 @@ public final class SaucerOptions {
     private boolean persistientCookies = true;
     private boolean hardwareAcceleration = false;
     private final List<String> chromeFlags = new LinkedList<>();
-    private @Nullable Path storagePath = Path.of("./SaucerWebview");
+    private @Nullable Path storagePath = null;
 
     public List<String> getChromeFlags() {
         // Immutable.
@@ -86,7 +86,9 @@ public final class SaucerOptions {
             N.saucer_options_add_chrome_flag($instance, flag);
         }
 
-        N.saucer_options_set_storage_path($instance, this.storagePath.toAbsolutePath().toString());
+        if (this.storagePath != null) {
+            N.saucer_options_set_storage_path($instance, this.storagePath.toAbsolutePath().toString());
+        }
 
         return _SafePointer.of($instance, N::saucer_options_free);
     }
