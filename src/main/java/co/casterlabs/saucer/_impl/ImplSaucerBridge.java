@@ -32,7 +32,6 @@ class ImplSaucerBridge implements SaucerBridge {
     private @PointerType ImplSaucer $saucer;
 
     private Map<String, JavascriptObjectWrapper> objects = new HashMap<>();
-    private Map<String, JsonElement> constants = new HashMap<>();
 
     private MessageCallback messageCallback = (String raw) -> {
         JsonObject message;
@@ -160,30 +159,9 @@ class ImplSaucerBridge implements SaucerBridge {
     }
 
     @Override
-    public synchronized void defineConstant(@NonNull String name, @NonNull JsonElement obj) {
-        this.constants.put(name, obj);
-    }
-
-    @Override
     public synchronized void apply() {
         List<String> lines = new LinkedList<>();
         lines.add(BridgeResources.init);
-
-        for (Map.Entry<String, JsonElement> entry : this.constants.entrySet()) {
-            lines.add(
-                String.format(
-                    "{\n"
-                        + "Object.defineProperty(window, %s, {\n"
-                        + "    value: %s,\n"
-                        + "    writable: true,\n"
-                        + "    configurable: true\n"
-                        + "});\n"
-                        + "}",
-                    new JsonString(entry.getKey()),
-                    entry.getValue()
-                )
-            );
-        }
 
         for (JavascriptObjectWrapper object : this.objects.values()) {
             lines.add(

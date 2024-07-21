@@ -2,7 +2,6 @@ package com.example.saucer_java;
 
 import java.io.IOException;
 
-import co.casterlabs.rakurai.json.element.JsonObject;
 import co.casterlabs.saucer.Saucer;
 import co.casterlabs.saucer.bridge.JavascriptFunction;
 import co.casterlabs.saucer.bridge.JavascriptGetter;
@@ -29,7 +28,6 @@ public class BridgeExample {
             );
         saucer.webview().serve(files, "BridgeExample.html"); // Tell Saucer to serve that file we made above.
 
-        saucer.bridge().defineConstant("thisIsAConstant", JsonObject.EMPTY_OBJECT);
         saucer.bridge().defineObject("Example", new BridgeObjectExample(saucer));
         saucer.bridge().apply();
 
