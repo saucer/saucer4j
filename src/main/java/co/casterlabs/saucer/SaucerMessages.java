@@ -1,5 +1,6 @@
 package co.casterlabs.saucer;
 
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import org.jetbrains.annotations.Nullable;
@@ -23,7 +24,7 @@ public interface SaucerMessages {
      * @apiNote `null` in JS is {@link JsonNull#INSTANCE} in Java.
      */
     @AvailableFromJS
-    public String onMessage(@NonNull Consumer<@Nullable JsonElement> callback);
+    public SaucerMessageId onMessage(@NonNull Consumer<@Nullable JsonElement> callback);
 
     /**
      * Allows you to listen for all incoming messages.
@@ -32,7 +33,7 @@ public interface SaucerMessages {
      *         {@link #off(String)}
      */
     @AvailableFromJS
-    default String onMessage(@NonNull Runnable callback) {
+    default SaucerMessageId onMessage(@NonNull Runnable callback) {
         return this.onMessage((ignored) -> callback.run());
     }
 
@@ -43,7 +44,7 @@ public interface SaucerMessages {
      * @return an registrationId, which you can use when calling
      *         {@link #off(String)}
      */
-    default <T> String onMessage(@NonNull Consumer<@Nullable T> callback, @NonNull TypeToken<T> type) {
+    default <T> SaucerMessageId onMessage(@NonNull Consumer<@Nullable T> callback, @NonNull TypeToken<T> type) {
         return this.onMessage((data) -> {
             try {
                 T typed = Rson.DEFAULT.fromJson(data, type);
@@ -64,7 +65,7 @@ public interface SaucerMessages {
      * @return  an registrationId, which you can use when calling
      *          {@link #off(String)}
      */
-    default <T> String onMessage(@NonNull Consumer<@Nullable T> callback, @NonNull Class<T> type) {
+    default <T> SaucerMessageId onMessage(@NonNull Consumer<@Nullable T> callback, @NonNull Class<T> type) {
         return this.onMessage(callback, TypeToken.of(type));
     }
 
@@ -72,7 +73,7 @@ public interface SaucerMessages {
      * Deregisters a listener that you previously registered.
      */
     @AvailableFromJS
-    public void off(@NonNull String registrationId);
+    public void off(@NonNull SaucerMessageId registrationId);
 
     /**
      * Sends a message to the JavaScript environment.
@@ -88,5 +89,17 @@ public interface SaucerMessages {
      */
     @AvailableFromJS
     public void emit(@NonNull Object data);
+
+    /**
+     * This is an opaque type.
+     */
+    public static class SaucerMessageId {
+        private int hash = UUID.randomUUID().toString().hashCode();
+
+        @Override
+        public int hashCode() {
+            return this.hash;
+        }
+    }
 
 }

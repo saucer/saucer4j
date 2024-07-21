@@ -2,7 +2,6 @@ package co.casterlabs.saucer._impl;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.function.Consumer;
 
 import org.jetbrains.annotations.Nullable;
@@ -17,7 +16,7 @@ import lombok.NonNull;
 class ImplSaucerMessages implements SaucerMessages {
     private @PointerType ImplSaucer $saucer;
 
-    private Map<String, Consumer<JsonElement>> listeners = new HashMap<>();
+    private Map<SaucerMessageId, Consumer<JsonElement>> listeners = new HashMap<>();
 
     ImplSaucerMessages(ImplSaucer $saucer) {
         this.$saucer = $saucer;
@@ -44,13 +43,13 @@ class ImplSaucerMessages implements SaucerMessages {
     }
 
     @Override
-    public synchronized void off(@NonNull String registrationId) {
+    public synchronized void off(@NonNull SaucerMessageId registrationId) {
         this.listeners.remove(registrationId);
     }
 
     @Override
-    public synchronized String onMessage(@NonNull Consumer<@Nullable JsonElement> callback) {
-        String registrationId = UUID.randomUUID().toString();
+    public synchronized SaucerMessageId onMessage(@NonNull Consumer<@Nullable JsonElement> callback) {
+        SaucerMessageId registrationId = new SaucerMessageId();
         this.listeners.put(registrationId, callback);
         return registrationId;
     }
