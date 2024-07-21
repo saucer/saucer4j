@@ -44,7 +44,7 @@ export declare type SaucerWebview = {
    *
    * Set this value to change it.
    */
-  devtoolsVisisble: Promise<boolean> | boolean;
+  devtoolsVisible: Promise<boolean> | boolean;
 
   /**
    * Returns the current URL.
