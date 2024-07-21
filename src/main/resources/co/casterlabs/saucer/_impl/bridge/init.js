@@ -47,23 +47,23 @@ Object.defineProperty(SAUCER, "__rpc", {
 });
 
 const MESSAGES = {
-	idx: 0,
-	listeners: {},
+	__idx: 0,
+	__listeners: {},
 
 	onMessage: function (callback) {
 		if (typeof callback != "function") {
 			throw "Callback must be a fuction";
 		}
 
-		const registrationId = MESSAGES.idx++;
+		const registrationId = MESSAGES.__idx++;
 
-		MESSAGES.listeners[registrationId] = callback;
+		MESSAGES.__listeners[registrationId] = callback;
 
 		return registrationId;
 	},
 
 	off: function (registrationId) {
-		delete MESSAGES.listeners[registrationId];
+		delete MESSAGES.__listeners[registrationId];
 	},
 
 	emit: function (data) {
@@ -76,7 +76,7 @@ const MESSAGES = {
 	__internal: function (data) {
 		deepFreeze(data);
 
-		Object.values(MESSAGES.listeners).forEach((callback) => {
+		Object.values(MESSAGES.__listeners).forEach((callback) => {
 			try {
 				callback(data);
 			} catch (e) {
