@@ -74,6 +74,12 @@ class ImplSaucerBridge implements SaucerBridge {
                     break;
                 }
 
+                case "MESSAGE": {
+                    JsonElement data = message.get("data");
+                    $saucer.messages.handle(data);
+                    break;
+                }
+
                 case "CLOSE": {
                     $saucer.close();
                     break;

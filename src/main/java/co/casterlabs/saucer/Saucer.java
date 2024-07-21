@@ -14,6 +14,8 @@ public interface Saucer extends AutoCloseable {
 
     public SaucerBridge bridge();
 
+    public SaucerMessages messages();
+
     /**
      * Starts the window loop. Note that this blocks until the webview is closed by
      * the user.

@@ -5,6 +5,7 @@ import com.sun.jna.Pointer;
 
 import co.casterlabs.saucer.Saucer;
 import co.casterlabs.saucer.SaucerBridge;
+import co.casterlabs.saucer.SaucerMessages;
 import co.casterlabs.saucer.SaucerWebview;
 import co.casterlabs.saucer.SaucerWindow;
 import co.casterlabs.saucer.documentation.PointerType;
@@ -22,6 +23,7 @@ class ImplSaucer extends _SafePointer implements Saucer {
     final ImplSaucerWebview webview;
     final ImplSaucerWindow window;
     final ImplSaucerBridge bridge;
+    final ImplSaucerMessages messages;
 
     public ImplSaucer(@NonNull SaucerOptions options) {
         $options = options.toNative();
@@ -31,6 +33,7 @@ class ImplSaucer extends _SafePointer implements Saucer {
         // These need to be initialized AFTER saucer is created.
         this.webview = new ImplSaucerWebview(this);
         this.window = new ImplSaucerWindow(this);
+        this.messages = new ImplSaucerMessages(this);
         this.bridge = new ImplSaucerBridge(this); // !MUST BE LAST!
 
         this.window.show(); // Show by default.
@@ -52,6 +55,11 @@ class ImplSaucer extends _SafePointer implements Saucer {
     @Override
     public SaucerBridge bridge() {
         return this.bridge;
+    }
+
+    @Override
+    public SaucerMessages messages() {
+        return this.messages;
     }
 
     @Override
