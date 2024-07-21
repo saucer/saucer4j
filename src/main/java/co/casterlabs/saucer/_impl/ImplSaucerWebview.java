@@ -85,8 +85,8 @@ class ImplSaucerWebview implements SaucerWebview {
 
     @JavascriptSetter("devtoolsVisible")
     @Override
-    public void setDevtoolsVisible(boolean enabled) {
-        N.saucer_webview_set_dev_tools($saucer.p(), enabled);
+    public void setDevtoolsVisible(boolean show) {
+        N.saucer_webview_set_dev_tools($saucer.p(), show);
     }
 
     @JavascriptGetter("currentUrl")
@@ -116,8 +116,8 @@ class ImplSaucerWebview implements SaucerWebview {
 
     @JavascriptSetter("contextMenuAllowed")
     @Override
-    public void setContextMenuAllowed(boolean enabled) {
-        N.saucer_webview_set_context_menu($saucer.p(), enabled);
+    public void setContextMenuAllowed(boolean allowed) {
+        N.saucer_webview_set_context_menu($saucer.p(), allowed);
     }
 
     @JavascriptFunction

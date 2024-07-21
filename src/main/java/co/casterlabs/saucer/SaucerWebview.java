@@ -18,12 +18,11 @@ public interface SaucerWebview {
     public boolean isDevtoolsVisible();
 
     /**
-     * @param enabled if true, the devtools window is opened. if false, it is
-     *                closed.
+     * Sets whether or not the devtools window should be shown.
      */
     @ThreadSafe
     @AvailableFromJS
-    public void setDevtoolsVisible(boolean enabled);
+    public void setDevtoolsVisible(boolean show);
 
     /**
      * @return the current URL the webview is navigated to.
@@ -53,11 +52,11 @@ public interface SaucerWebview {
     public boolean isContextMenuAllowed();
 
     /**
-     * @param allowed if true.
+     * Enables the default context menu (i.e right-click menu).
      */
     @ThreadSafe
     @AvailableFromJS
-    public void setContextMenuAllowed(boolean enabled);
+    public void setContextMenuAllowed(boolean allowed);
 
     /**
      * Executes the given JavaScript code in the webview.
