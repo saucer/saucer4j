@@ -65,7 +65,7 @@ public final class SaucerEmbeddedFiles extends _SafePointer {
     }
 
     public SaucerEmbeddedFiles addResource(@NonNull String filename, @NonNull String mime) throws IOException {
-        return this.addResource(filename, mime, "");
+        return this.addResource("", filename, mime);
     }
 
     public SaucerEmbeddedFiles addResource(@NonNull String basePath, @NonNull String filename, @NonNull String mime) throws IOException {
