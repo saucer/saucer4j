@@ -44,63 +44,45 @@ Object.defineProperty(SAUCER, "close", {
 	configurable: true,
 });
 
-const SAUCER_WINDOW_EDGE_TOP    = 1 << 0;
+const SAUCER_WINDOW_EDGE_TOP	= 1 << 0;
 const SAUCER_WINDOW_EDGE_BOTTOM = 1 << 1;
 const SAUCER_WINDOW_EDGE_LEFT   = 1 << 2;
 const SAUCER_WINDOW_EDGE_RIGHT  = 1 << 3;
 
-window.addEventListener("load", () => {
-	document.documentElement.addEventListener("mousedown", (e) => {
-		let saucerElement = e.target;
-		while (saucerElement) {
-			if (
-				saucerElement.hasAttribute("x-webview-dragger") || 
-				saucerElement.hasAttribute("x-webview-resizer")
-			) {
-				break;
-			} else {
-				saucerElement = saucerElement.parentElement;
-			}
-		}
-		
-		if (!saucerElement) return; // Didn't find anything, ignore.
-		
-		if (saucerElement.hasAttribute("x-webview-dragger")) {
-			SAUCER.start_drag();
-		} else { // It's a resizer.
-			const direction = saucerElement.getAttribute("x-webview-resizer");
-			switch (direction) {
-				case "n": 
-					SAUCER.start_resize(SAUCER_WINDOW_EDGE_TOP);
-					break;
-				case "s": 
-					SAUCER.start_resize(SAUCER_WINDOW_EDGE_BOTTOM);
-					break;
-				case "w": 
-					SAUCER.start_resize(SAUCER_WINDOW_EDGE_LEFT);
-					break;
-				case "e": 
-					SAUCER.start_resize(SAUCER_WINDOW_EDGE_RIGHT);
-					break;
+const DIRECTION_TO_BITMASK_LUT = {
+	n: SAUCER_WINDOW_EDGE_TOP,
+	s: SAUCER_WINDOW_EDGE_BOTTOM,
+	w: SAUCER_WINDOW_EDGE_LEFT,
+	e: SAUCER_WINDOW_EDGE_RIGHT,
+	nw: SAUCER_WINDOW_EDGE_TOP | SAUCER_WINDOW_EDGE_LEFT,
+	ne: SAUCER_WINDOW_EDGE_TOP | SAUCER_WINDOW_EDGE_RIGHT,
+	sw: SAUCER_WINDOW_EDGE_BOTTOM | SAUCER_WINDOW_EDGE_LEFT,
+	se: SAUCER_WINDOW_EDGE_BOTTOM | SAUCER_WINDOW_EDGE_RIGHT,
+};
 
-				case "nw": 
-					SAUCER.start_resize(SAUCER_WINDOW_EDGE_TOP | SAUCER_WINDOW_EDGE_LEFT);
-					break;
-				case "ne": 
-					SAUCER.start_resize(SAUCER_WINDOW_EDGE_TOP | SAUCER_WINDOW_EDGE_RIGHT);
-					break;
-					
-				case "sw": 
-					SAUCER.start_resize(SAUCER_WINDOW_EDGE_BOTTOM | SAUCER_WINDOW_EDGE_LEFT);
-					break;
-				case "se": 
-					SAUCER.start_resize(SAUCER_WINDOW_EDGE_BOTTOM | SAUCER_WINDOW_EDGE_RIGHT);
-					break;
-				
-				default:
-					console.warn("[Saucer]", "Unrecognized resizer direction:", direction, ", ignoring.");
-					return;
+window.addEventListener("load", () => {
+	document.documentElement.addEventListener("mousedown", ({ target: targetElement }) => {
+		const isTargetingDragger = Array.from(document.querySelectorAll("[x-webview-dragger]"))
+			.some((dragger) => dragger == targetElement || dragger.contains(targetElement));
+	
+		if (isTargetingDragger) {
+			SAUCER.start_drag();
+			return; // DO NOT ATTEMPT TO RESIZE AFTER THIS!
+		}
+	
+		const targetResizer = Array.from(document.querySelectorAll("[x-webview-resizer=*]"))
+			.filter((resizer) => resizer == targetElement || resizer.contains(targetElement))[0];
+	
+		if (targetResizer) {
+			const direction = targetResizer.getAttribute("x-webview-resizer");
+			const bitmask = DIRECTION_TO_BITMASK_LUT[direction];
+	
+			if (!bitmask) {
+				console.warn("[Saucer]", "Unrecognized resizer direction:", direction, ", ignoring.");
+				return;
 			}
+	
+			SAUCER.start_resize(bitmask);
 		}
 	});
 	
@@ -125,7 +107,7 @@ window.addEventListener("load", () => {
 			[x-webview-resizer=ne] {
 				cursor: ne-resize;	
 			}
-			
+
 			[x-webview-resizer=sw] {
 				cursor: sw-resize;	
 			}
