@@ -178,7 +178,7 @@ class ImplSaucerBridge implements SaucerBridge {
         String finalScript = "if (window.self === window.top) {\n" + String.join("\n\n", lines) + "\n}";
 
         N.saucer_webview_clear_scripts($saucer.p()); // TODO Doesn't appear to do anything?
-        N.saucer_webview_inject($saucer.p(), _SaucerNative.allocString(finalScript), _Native.SAUCER_LOAD_TIME_CREATION);
+        N.saucer_webview_inject($saucer.p(), _SaucerNative.allocateUnsafe(finalScript), _Native.SAUCER_LOAD_TIME_CREATION);
         $saucer.webview().reload();
     }
 

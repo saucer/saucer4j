@@ -39,7 +39,7 @@ public final class SaucerEmbeddedFiles extends _SafePointer {
     private static final _Native N = _SaucerNative.load(_Native.class);
 
     public SaucerEmbeddedFiles() {
-        super.setup(N.saucer_embedded_files_new(), N::saucer_embedded_files_free);
+        super.setupPointer(N.saucer_embedded_files_new(), N::saucer_embedded_files_free);
     }
 
     public SaucerEmbeddedFiles add(@NonNull String filename, @NonNull String mime, @NonNull byte[] content) {

@@ -31,11 +31,11 @@ public final class SaucerColor extends _SafePointer {
     @Deprecated
     @InternalUseOnly
     public SaucerColor(@NonNull Pointer pointer) {
-        super.setup(pointer, N::saucer_color_free);
+        super.setupPointer(pointer, N::saucer_color_free);
     }
 
     public SaucerColor() {
-        super.setup(N.saucer_color_new(), N::saucer_color_free);
+        super.setupPointer(N.saucer_color_new(), N::saucer_color_free);
     }
 
     public SaucerColor(int red, int green, int blue) {

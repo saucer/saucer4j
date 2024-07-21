@@ -8,6 +8,7 @@ import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
 import co.casterlabs.saucer.documentation.InternalUseOnly;
+import lombok.NonNull;
 
 @Deprecated
 @InternalUseOnly
@@ -18,7 +19,7 @@ public class _SaucerNative {
         // TODO extract natives.
     }
 
-    public static <T extends Library> T load(Class<T> clazz) {
+    public static <T extends Library> T load(@NonNull Class<T> clazz) {
         return Native.load(
             "saucer-bindings",
             clazz,
@@ -26,16 +27,16 @@ public class _SaucerNative {
         );
     }
 
-    public static Pointer allocString(String str) {
-        return allocString(str, Charset.defaultCharset());
+    public static Pointer allocateUnsafe(@NonNull String str) {
+        byte[] content = str.getBytes(Charset.defaultCharset());
+        Pointer $content = allocateUnsafe(content.length + 1);
+        $content.write(0, content, 0, content.length);
+        return $content;
     }
 
-    public static Pointer allocString(String str, Charset charset) {
-        byte[] content = str.getBytes(charset);
-
-        Pointer $content = new Pointer(Native.malloc(content.length + 1)); // NON GC'ABLE!
-        $content.clear(content.length + 1);
-        $content.write(0, content, 0, content.length);
+    public static Pointer allocateUnsafe(int length) {
+        Pointer $content = new Pointer(Native.malloc(length)); // NON GC'ABLE!
+        $content.clear(length);
         return $content;
     }
 

@@ -28,7 +28,7 @@ class ImplSaucer extends _SafePointer implements Saucer {
     public ImplSaucer(@NonNull SaucerOptions options) {
         $options = options.toNative();
 
-        this.setup(N.saucer_new(this.$options.p()), N::saucer_free);
+        super.setupPointer(N.saucer_new(this.$options.p()), N::saucer_free);
 
         // These need to be initialized AFTER saucer is created.
         this.webview = new ImplSaucerWebview(this);
