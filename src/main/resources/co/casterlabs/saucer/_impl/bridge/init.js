@@ -11,8 +11,6 @@ function deepFreeze(object) {
 }
 
 const RPC = {
-	MUTATION_POLL_RATE: 150,
-	
 	__idx: 0,
 	waiting: {},
 	
@@ -110,6 +108,11 @@ Object.defineProperty(SAUCER, "close", {
 	configurable: true,
 });
 
+Object.defineProperty(SAUCER, "MUTATION_POLL_RATE", {
+	value: 150,
+	writable: true,
+	configurable: true,
+});
 async function checkForMutations() {
 	try {
 		const mutations = await RPC.checkForMutations();
@@ -130,7 +133,7 @@ async function checkForMutations() {
 		console.error("[Saucer]", "An error occurred whilst checking for mutations:");
 		console.error(e);
 	} finally {
-		setTimeout(checkForMutations, RPC.MUTATION_POLL_RATE);
+		setTimeout(checkForMutations, SAUCER.MUTATION_POLL_RATE);
 	}
 }
 checkForMutations();
