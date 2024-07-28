@@ -86,7 +86,7 @@ class ImplSaucerBridge implements SaucerBridge {
                     JsonObject newValues = new JsonObject();
                     for (JavascriptObjectWrapper object : this.objects.values()) {
                         for (String name : object.whichFieldsHaveMutated()) {
-                            newValues.put(object.id + '.' + name, object.handleGet(name));
+                            newValues.put(object.id + '|' + name, object.handleGet(name));
                         }
                     }
                     returnValue = newValues;

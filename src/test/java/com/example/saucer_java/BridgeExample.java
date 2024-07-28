@@ -19,7 +19,6 @@ public class BridgeExample {
                                             // need this feature and if your environments support it.
         );
 
-        saucer.webview().setDevtoolsVisible(true);
         saucer.webview().setContextMenuAllowed(true); // Allow the right-click menu.
 
         SaucerEmbeddedFiles files = new SaucerEmbeddedFiles()

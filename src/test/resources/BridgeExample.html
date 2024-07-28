@@ -11,14 +11,9 @@
 	</p><br />
     <sub>With ❤️ from saucer_java</sub>
 	<script>
-		saucer.__rpc.MUTATION_POLL_RATE = 350; // You can change this value to something reasonable for your application. 
-		                                       // It is recommended you stay above 100ms.
-		setInterval(async () => {
-			// Because we used `watchForMutate`, Saucer has sent us the value, avoiding the need for heavy RPC calls.
-			// The internal update interval is approximately 150ms. It may be higher or lower. 
-			// You can use saucer.__rpc.MUTATION_POLL_RATE for your own code.
-			document.querySelector("#nanoTime").innerText = await Example.nanoTime;
-		}, saucer.__rpc.MUTATION_POLL_RATE);
+		Example.onMutate("nanoTime", (nanoTime) => {
+			document.querySelector("#nanoTime").innerText = nanoTime;
+		});
 	</script>
   </body>
 </html>

@@ -6,7 +6,19 @@ const path = %s.split(".");
 const functionNames = %s;
 const propertyNames = %s;
 
-const object = {};
+RPC.__wfmHandlers[id] = {};
+
+const object = {
+	onMutate: function(propertyName, handler) {
+		const registrationId = Math.random().toString(28);
+		RPC.__wfmHandlers[id][propertyName][registrationId] = handler;
+		return `${propertyName}|${registrationId}`;
+	},
+	offMutate(toBeSplit) {
+		const [propertyName, registrationId] = toBeSplit.split("|");
+		delete RPC.__wfmHandlers[id][propertyName][registrationId];
+	}
+};
 
 for (const functionName of functionNames) {
 	Object.defineProperty(object, functionName, {
@@ -17,6 +29,13 @@ for (const functionName of functionNames) {
 }
 
 for (const propertyName of propertyNames) {
+	RPC.__wfmHandlers[id][propertyName] = {};
+
+	// Listen for WFM events for this property.
+	object.onMutate(propertyName, (value) => {
+		object[propertyName] = value;
+	});
+	
 	Object.defineProperty(object, propertyName, {
 		value: undefined, // Placeholder so that the Dev Tools will see this property.
 		writable: true,
@@ -27,7 +46,7 @@ for (const propertyName of propertyNames) {
 const proxy = new Proxy(object, {
     get(obj, propertyName) {
 		if (typeof obj[propertyName] !== "undefined") {
-		    return obj[propertyName]; // For functions.
+		    return obj[propertyName]; // For functions & watchForMutate fields.
 		}
 	
 		if (RPC.wfmFields[`${id}.${propertyName}`] !== "undefined") {

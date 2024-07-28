@@ -16,7 +16,7 @@ const RPC = {
 	__idx: 0,
 	waiting: {},
 	
-	wfmFields: {}, // "Watch for mutate fields"
+	__wfmHandlers: {}, // "Watch for mutate handlers"
 
 	send: function (data) {
 		SAUCER.on_message(JSON.stringify(data));
@@ -114,10 +114,18 @@ async function checkForMutations() {
 	try {
 		const mutations = await RPC.checkForMutations();
 		
-		RPC.wfmFields = {
-			...RPC.wfmFields,
-			...mutations
-		};
+		for (const [toBeSplit, value] of Object.entries(mutations)) {
+			const [objectId, propertyName] = toBeSplit.split("|");
+			
+			for (const handler of Object.values(RPC.__wfmHandlers[objectId][propertyName])) {
+				try {
+					handler(value);
+				} catch (e) {
+					console.error("[Saucer]", "A mutation listener produced an exception: ");
+					console.error(e);
+				}
+			}
+		}
 	} catch (e) {
 		console.error("[Saucer]", "An error occurred whilst checking for mutations:");
 		console.error(e);
