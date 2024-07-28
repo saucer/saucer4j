@@ -11,14 +11,14 @@ function deepFreeze(object) {
 }
 
 const RPC = {
-	idx: 0,
+	__idx: 0,
 	waiting: {},
 
 	send: function (data) {
 		SAUCER.on_message(JSON.stringify(data));
 	},
 	sendWithPromise: async function (data) {
-		const requestId = RPC.idx++;
+		const requestId = RPC.__idx++;
 		try {
 			return await new Promise((resolve, reject) => {
 				RPC.waiting[requestId] = { resolve, reject };
