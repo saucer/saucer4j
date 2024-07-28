@@ -46,7 +46,7 @@ public class BridgeExample {
         @JavascriptValue(watchForMutate = true)
         public long nanoTime;
 
-        // Grab the saucer instance so we can open the devTools below.
+        // We grab the saucer instance so we can open the devTools below.
         public BridgeObjectExample(Saucer saucer) {
             this.saucer = saucer;
 
