@@ -21,18 +21,18 @@ export declare type Saucer = {
 /**
  * This is an opaque type.
  */
-export declare type SaucerMessagesRegistrationId = {};
+export declare type SaucerHandlerRegistrationId = {};
 
 export declare type SaucerMessages = {
   /**
    * Registers a listener for receiving messages from the main process.
    */
-  onMessage(callback: (data: any) => void): SaucerMessagesRegistrationId;
+  onMessage(callback: (data: any) => void): SaucerHandlerRegistrationId;
 
   /**
    * Unregisters a listener.
    */
-  off(registrationId: SaucerMessagesRegistrationId): void;
+  off(registrationId: SaucerHandlerRegistrationId): void;
 
   /**
    * Sends a message to the main process.
@@ -206,12 +206,12 @@ export declare type SaucerIPCObject = {
   onMutate(
     propertyName: string,
     callback: (data: any) => void
-  ): SaucerMessagesRegistrationId;
+  ): SaucerHandlerRegistrationId;
 
   /**
    * Unregisters a mutation listener.
    */
-  offMutate(registrationId: SaucerMessagesRegistrationId): void;
+  offMutate(registrationId: SaucerHandlerRegistrationId): void;
 };
 
 declare global {
