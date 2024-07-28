@@ -16,7 +16,7 @@ public class _SaucerNative {
 
     static {
         _SaucerNative.class.getClassLoader().setPackageAssertionStatus("co.casterlas.saucer", true);
-        // TODO extract natives.
+        Resources.loadNatives();
     }
 
     public static <T extends Library> T load(@NonNull Class<T> clazz) {
