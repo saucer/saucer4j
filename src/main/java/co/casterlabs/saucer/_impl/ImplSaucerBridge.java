@@ -29,8 +29,8 @@ import lombok.SneakyThrows;
 class ImplSaucerBridge implements SaucerBridge {
     private static final _Native N = _SaucerNative.load(_Native.class);
 
-    private static String init = Resources.loadResourceString("bridge/init.js");
-    private static String ipc_object_fmt = Resources.loadResourceString("bridge/ipc_object_fmt.js");
+    private static final String init = Resources.loadResourceString("bridge/init.js");
+    private static final String ipc_object_fmt = Resources.loadResourceString("bridge/ipc_object_fmt.js");
 
     private @PointerType ImplSaucer $saucer;
 
