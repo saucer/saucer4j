@@ -1,5 +1,14 @@
 export declare type Saucer = {
   /**
+   * How often saucer should check for mutations. Default is 150ms.
+   *
+   * It is recommended you keep this value above 100ms.
+   *
+   * Note that you can change this on the fly safely.
+   */
+  MUTATION_POLL_RATE: number;
+
+  /**
    * Close the Saucer window, exiting the run() loop.
    */
   close(): void;
@@ -186,6 +195,23 @@ export declare type SaucerWindow = {
    * See also `hide()`.
    */
   show(): Promise<void>;
+};
+
+export declare type SaucerIPCObject = {
+  /**
+   * Registers a listener for receiving mutation events from the main process.
+   *
+   * Note that this requires @JavascriptValue(watchForMutate = true) to work.
+   */
+  onMutate(
+    propertyName: string,
+    callback: (data: any) => void
+  ): SaucerMessagesRegistrationId;
+
+  /**
+   * Unregisters a mutation listener.
+   */
+  offMutate(registrationId: SaucerMessagesRegistrationId): void;
 };
 
 declare global {
