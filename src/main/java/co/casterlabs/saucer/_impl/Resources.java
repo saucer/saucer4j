@@ -27,12 +27,9 @@ import com.sun.jna.Native;
 import co.casterlabs.commons.io.streams.StreamUtil;
 import co.casterlabs.commons.platform.LinuxLibC;
 import co.casterlabs.commons.platform.Platform;
-import co.casterlabs.saucer.documentation.InternalUseOnly;
 import lombok.SneakyThrows;
 
-@Deprecated
-@InternalUseOnly
-public class Resources {
+class Resources {
     private static final String HELP_URL_BASE = "https://example.com";
 
     private static final String HELP_URL_SUPPORTED_PLATFORMS = HELP_URL_BASE + "/supported-platforms";
