@@ -82,6 +82,17 @@ class ImplSaucerBridge implements SaucerBridge {
                     break;
                 }
 
+                case "CHECK_MUTATION": {
+                    JsonObject newValues = new JsonObject();
+                    for (JavascriptObjectWrapper object : this.objects.values()) {
+                        for (String name : object.whichFieldsHaveMutated()) {
+                            newValues.put(object.id + '.' + name, object.handleGet(name));
+                        }
+                    }
+                    returnValue = newValues;
+                    break;
+                }
+
                 case "CLOSE": {
                     $saucer.close();
                     break;

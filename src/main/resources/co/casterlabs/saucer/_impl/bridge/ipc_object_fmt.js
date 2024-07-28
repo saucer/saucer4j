@@ -26,15 +26,19 @@ for (const propertyName of propertyNames) {
 
 const proxy = new Proxy(object, {
     get(obj, propertyName) {
-        if (typeof obj[propertyName] !== "undefined") {
-            return obj[propertyName];
-        }
+		if (typeof obj[propertyName] !== "undefined") {
+		    return obj[propertyName]; // For functions.
+		}
+	
+		if (RPC.wfmFields[`${id}.${propertyName}`] !== "undefined") {
+			// We already have the latest data. Go ahead and use that.
+			return Promise.resolve(RPC.wfmFields[`${id}.${propertyName}`]);
+		}
 
         return RPC.get(id, propertyName);
     },
     set(obj, propertyName, value) {
-        RPC.set(id, propertyName, value);
-        return value;
+        return RPC.set(id, propertyName, value);
     },
 });
 

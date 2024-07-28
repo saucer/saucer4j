@@ -11,13 +11,18 @@ function deepFreeze(object) {
 }
 
 const RPC = {
+	MUTATION_POLL_RATE: 150,
+	
 	__idx: 0,
 	waiting: {},
+	
+	wfmFields: {}, // "Watch for mutate fields"
 
 	send: function (data) {
 		SAUCER.on_message(JSON.stringify(data));
 	},
 	sendWithPromise: async function (data) {
+		const start = Date.now();
 		const requestId = RPC.__idx++;
 		try {
 			return await new Promise((resolve, reject) => {
@@ -25,6 +30,7 @@ const RPC = {
 				SAUCER.on_message(JSON.stringify({ ...data, requestId }));
 			});
 		} finally {
+			// console.debug("[Saucer]", "RPC sendWithPromise took ", Date.now() - start);
 			delete RPC.waiting[requestId];
 		}
 	},
@@ -32,12 +38,15 @@ const RPC = {
 	get: function (objectId, propertyName) {
 		return RPC.sendWithPromise({ type: "GET", objectId, propertyName });
 	},
-	set: function (objectId, propertyName, newValue) {
-		RPC.send({ type: "SET", objectId, propertyName, newValue });
+	set: async function (objectId, propertyName, newValue) {
+		await RPC.sendWithPromise({ type: "SET", objectId, propertyName, newValue }); // Wait for the set() to complete (or throw).
 		return newValue;
 	},
 	invoke: function (objectId, functionName, arguments) {
 		return RPC.sendWithPromise({ type: "INVOKE", objectId, functionName, arguments });
+	},
+	checkForMutations: function () {
+		return RPC.sendWithPromise({ type: "CHECK_MUTATION" });
 	},
 };
 Object.defineProperty(SAUCER, "__rpc", {
@@ -100,6 +109,23 @@ Object.defineProperty(SAUCER, "close", {
 	writable: true,
 	configurable: true,
 });
+
+async function checkForMutations() {
+	try {
+		const mutations = await RPC.checkForMutations();
+		
+		RPC.wfmFields = {
+			...RPC.wfmFields,
+			...mutations
+		};
+	} catch (e) {
+		console.error("[Saucer]", "An error occurred whilst checking for mutations:");
+		console.error(e);
+	} finally {
+		setTimeout(checkForMutations, RPC.MUTATION_POLL_RATE);
+	}
+}
+checkForMutations();
 
 const SAUCER_WINDOW_EDGE_TOP = 1 << 0;
 const SAUCER_WINDOW_EDGE_BOTTOM = 1 << 1;

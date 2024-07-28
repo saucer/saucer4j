@@ -6,7 +6,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -18,6 +20,8 @@ import co.casterlabs.saucer.bridge.JavascriptFunction;
 import co.casterlabs.saucer.bridge.JavascriptGetter;
 import co.casterlabs.saucer.bridge.JavascriptSetter;
 import co.casterlabs.saucer.bridge.JavascriptValue;
+import co.casterlabs.saucer.utils.Mutable;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 
 class JavascriptObjectWrapper {
@@ -30,6 +34,8 @@ class JavascriptObjectWrapper {
     private Map<String, Method> functions = new HashMap<>();
     private Map<String, Field> gettableValues = new HashMap<>();
     private Map<String, Field> settableValues = new HashMap<>();
+
+    private List<MutationField> mutableFields = new ArrayList<>();
 
     public JavascriptObjectWrapper(String path, Object obj) {
         this.path = path;
@@ -66,6 +72,9 @@ class JavascriptObjectWrapper {
                 if (annotation.allowSet()) {
                     this.settableValues.put(name, f);
                 }
+                if (annotation.watchForMutate()) {
+                    this.mutableFields.add(new MutationField(name, f));
+                }
             }
         }
     }
@@ -92,14 +101,20 @@ class JavascriptObjectWrapper {
 
         Field value = this.gettableValues.get(field);
         if (value != null) {
-            return Rson.DEFAULT.toJson(value.get(this.obj));
+            Object toReturn = value.get(this.obj);
+
+            if (toReturn instanceof Mutable) {
+                toReturn = ((Mutable<?>) toReturn).get();
+            }
+
+            return Rson.DEFAULT.toJson(toReturn);
         }
 
         return null; // undefined.
     }
 
     @SneakyThrows
-    public void handleSet(String field, JsonElement newValue) {
+    public <T> void handleSet(String field, JsonElement newValue) {
         Method setter = this.setters.get(field);
         if (setter != null) {
             Object o = null;
@@ -115,14 +130,18 @@ class JavascriptObjectWrapper {
 
         Field value = this.settableValues.get(field);
         if (value != null) {
-            Object o = null;
+            Class<?> type = value.getType();
 
-            if (!newValue.isJsonNull()) {
-                Class<?> type = value.getType();
-                o = Rson.DEFAULT.fromJson(newValue, type);
+            if (type == Mutable.class) {
+                @SuppressWarnings("unchecked")
+                Mutable<T> mut = (Mutable<T>) value.get(this.obj);
+
+                T o = newValue.isJsonNull() ? null : Rson.DEFAULT.fromJson(newValue, mut.type);
+                mut.set(o);
+            } else {
+                Object o = newValue.isJsonNull() ? null : Rson.DEFAULT.fromJson(newValue, type);
+                value.set(this.obj, o);
             }
-
-            value.set(this.obj, o);
             return;
         }
 
@@ -156,6 +175,34 @@ class JavascriptObjectWrapper {
             Object result = function.invoke(this.obj, args);
             return Rson.DEFAULT.toJson(result);
         }
+    }
+
+    public List<String> whichFieldsHaveMutated() {
+        return this.mutableFields.stream()
+            .filter((m) -> m.check())
+            .map((m) -> m.name)
+            .collect(Collectors.toList());
+    }
+
+    @RequiredArgsConstructor
+    private class MutationField {
+        private final String name;
+        private final Field f;
+
+        private int lastHashCode = 0;
+        private boolean isFirstCheck = true;
+
+        @SneakyThrows
+        private boolean check() {
+            int currentHashCode = Objects.hashCode(this.f.get(obj));
+            boolean has = this.isFirstCheck || this.lastHashCode != currentHashCode;
+
+            this.isFirstCheck = false;
+            this.lastHashCode = currentHashCode;
+
+            return has;
+        }
+
     }
 
 }

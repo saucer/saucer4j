@@ -123,7 +123,7 @@ class ImplSaucerWebview implements SaucerWebview {
     @JavascriptFunction
     @Override
     public void executeJavaScript(@NonNull String scriptToExecute) {
-        N.saucer_webview_execute($saucer.p(), scriptToExecute);
+        N.saucer_webview_execute($saucer.p(), '{' + scriptToExecute + '}');
     }
 
     @Override

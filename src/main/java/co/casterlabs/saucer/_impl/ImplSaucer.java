@@ -25,6 +25,8 @@ class ImplSaucer extends _SafePointer implements Saucer {
     final ImplSaucerBridge bridge;
     final ImplSaucerMessages messages;
 
+    boolean isClosed = false;
+
     public ImplSaucer(@NonNull SaucerOptions options) {
         $options = options.toNative();
 
@@ -70,6 +72,7 @@ class ImplSaucer extends _SafePointer implements Saucer {
     @Override
     public void close() {
         N.saucer_window_close(this.p());
+        this.isClosed = true;
     }
 
     static interface _Native extends Library {

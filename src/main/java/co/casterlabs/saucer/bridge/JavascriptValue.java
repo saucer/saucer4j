@@ -29,6 +29,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import co.casterlabs.saucer.utils.Mutable;
+
 /**
  * Lets you expose a property/field to Javascript. You can optionally disable
  * get or sets, as well as register a watcher (via watchForMutate) which can be
@@ -45,6 +47,18 @@ public @interface JavascriptValue {
 
     boolean allowSet() default true;
 
+    /**
+     * @implNote watchForMutate will call your {@link JavascriptGetter} if you have
+     *           it defined. It is recommended that you do not use
+     *           {@link JavascriptGetter} with watchForMutate as this may cause
+     *           unnecessary load.
+     * 
+     * @implSpec If the field being watched is a Collection it will traverse it's
+     *           contents to determine whether or not the field has mutated.
+     * 
+     * @see      {@link Mutable}, which gives you more fine-grained control over
+     *           when a mutation is determined to occur.
+     */
     boolean watchForMutate() default false;
 
 }
