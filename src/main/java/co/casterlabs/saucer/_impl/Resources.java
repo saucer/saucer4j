@@ -100,11 +100,17 @@ class Resources {
             }
 
             Backend chosenBackend = null;
-            for (Backend backend : supportedBackends) {
-                if (backend.canLoad()) {
-                    chosenBackend = backend;
-                    break;
+            if (EnvironmentAndProperties.natives_forceBackend == null) {
+                for (Backend backend : supportedBackends) {
+                    if (backend.canLoad()) {
+                        chosenBackend = backend;
+                        break;
+                    }
                 }
+            } else {
+                // We don't even check if it's compatible. We trust that the user knows what
+                // they're doing in this case.
+                chosenBackend = Backend.valueOf(EnvironmentAndProperties.natives_forceBackend.toUpperCase());
             }
 
             if (chosenBackend == null) {
@@ -120,31 +126,33 @@ class Resources {
                 ); // Throws.
             }
 
-            String resourcePath = String.format("natives/%s/%s/%s.zip", chosenBackend.name(), system.name(), archTarget);
-            Path targetDir = Files.createTempDirectory("saucer-" + System.currentTimeMillis()).normalize();
+            if (!EnvironmentAndProperties.natives_doNotExtract) {
+                String resourcePath = String.format("natives/%s/%s/%s.zip", chosenBackend.name(), system.name(), archTarget);
+                Path targetDir = Files.createTempDirectory("saucer-" + System.currentTimeMillis()).normalize();
 
-            // Grab the zip file from this Jar, extract it to the temp folder above.
-            try (InputStream in = loadResource(resourcePath); ZipInputStream zin = new ZipInputStream(in)) {
-                for (ZipEntry ze; (ze = zin.getNextEntry()) != null;) {
-                    Path resolvedPath = targetDir.resolve(ze.getName()).normalize();
-                    if (!resolvedPath.startsWith(targetDir)) {
-                        // https://snyk.io/research/zip-slip-vulnerability
-                        throw new RuntimeException("Attempted zip-slip!" + ze.getName());
-                    }
-                    if (ze.isDirectory()) {
-                        Files.createDirectories(resolvedPath);
-                    } else {
-                        Files.createDirectories(resolvedPath.getParent());
-                        Files.copy(zin, resolvedPath);
+                // Grab the zip file from this Jar, extract it to the temp folder above.
+                try (InputStream in = loadResource(resourcePath); ZipInputStream zin = new ZipInputStream(in)) {
+                    for (ZipEntry ze; (ze = zin.getNextEntry()) != null;) {
+                        Path resolvedPath = targetDir.resolve(ze.getName()).normalize();
+                        if (!resolvedPath.startsWith(targetDir)) {
+                            // https://snyk.io/research/zip-slip-vulnerability
+                            throw new RuntimeException("Attempted zip-slip!" + ze.getName());
+                        }
+                        if (ze.isDirectory()) {
+                            Files.createDirectories(resolvedPath);
+                        } else {
+                            Files.createDirectories(resolvedPath.getParent());
+                            Files.copy(zin, resolvedPath);
+                        }
                     }
                 }
-            }
 
-            String currentPath = System.getProperty("jna.library.path");
-            if (currentPath == null) {
-                System.setProperty("jna.library.path", targetDir.toString());
-            } else {
-                System.setProperty("jna.library.path", currentPath + File.pathSeparator + targetDir.toString());
+                String currentPath = System.getProperty("jna.library.path");
+                if (currentPath == null) {
+                    System.setProperty("jna.library.path", targetDir.toString());
+                } else {
+                    System.setProperty("jna.library.path", currentPath + File.pathSeparator + targetDir.toString());
+                }
             }
         } catch (RuntimeException bounce) {
             throw bounce;
