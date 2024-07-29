@@ -17,6 +17,8 @@
 .DS_Store
 __MACOSX
 *.versionsBackup
+SaucerWebview/
 saucer-bindings.dll
 saucer-bindings.pdb
-SaucerWebview/
+saucer-bindings.exp
+saucer-bindings.lib
