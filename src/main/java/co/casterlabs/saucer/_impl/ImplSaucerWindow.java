@@ -7,6 +7,10 @@ import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 
 import co.casterlabs.saucer.SaucerWindow;
+import co.casterlabs.saucer._impl.ImplSaucerWindow._Native.WindowBooleanCallback;
+import co.casterlabs.saucer._impl.ImplSaucerWindow._Native.WindowCloseEventCallback;
+import co.casterlabs.saucer._impl.ImplSaucerWindow._Native.WindowResizeEventCallback;
+import co.casterlabs.saucer._impl.ImplSaucerWindow._Native.WindowVoidCallback;
 import co.casterlabs.saucer.bridge.JavascriptFunction;
 import co.casterlabs.saucer.bridge.JavascriptGetter;
 import co.casterlabs.saucer.bridge.JavascriptObject;
@@ -25,75 +29,79 @@ class ImplSaucerWindow implements SaucerWindow {
 
     private @Nullable SaucerWindowListener eventListener;
 
-//    private WindowBooleanCallback windowEventMaximizeCallback = (Pointer $saucer, boolean isMaximized) -> {
-//        try {
-//            if (this.eventListener == null) return;
+    private WindowBooleanCallback windowEventMaximizeCallback = (Pointer $saucer, boolean isMaximized) -> {
+        try {
 //            System.out.printf("maximized: %b\n", isMaximized);
-//        } catch (Throwable t) {
-//            t.printStackTrace();
-//        }
-//    };
-//    private WindowBooleanCallback windowEventMinimizeCallback = (Pointer $saucer, boolean isMinimized) -> {
-//        try {
-//            if (this.eventListener == null) return;
+            if (this.eventListener == null) return;
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    };
+
+    private WindowBooleanCallback windowEventMinimizeCallback = (Pointer $saucer, boolean isMinimized) -> {
+        try {
 //            System.out.printf("minimized: %b\n", isMinimized);
-//        } catch (Throwable t) {
-//            t.printStackTrace();
-//        }
-//    };
-//
-//    private WindowVoidCallback windowEventClosedCallback = (Pointer $saucer) -> {
-//        try {
-//            if (this.eventListener == null) return;
-//            this.eventListener.onClosed();
-//        } catch (Throwable t) {
-//            t.printStackTrace();
-//        }
-//    };
-//
-//    private WindowResizeEventCallback windowEventResizeCallback = (Pointer $saucer, int width, int height) -> {
-//        try {
-//            if (this.eventListener == null) return;
-//            this.eventListener.onResize(width, height);
-//        } catch (Throwable t) {
-//            t.printStackTrace();
-//        }
-//    };
-//
-//    private WindowBooleanCallback windowEventFocusCallback = (Pointer $saucer, boolean hasFocus) -> {
-//        try {
-//            if (this.eventListener == null) return;
-//
-//            if (hasFocus) {
-//                this.eventListener.onFocused();
-//            } else {
-//                this.eventListener.onBlur();
-//            }
-//        } catch (Throwable t) {
-//            t.printStackTrace();
-//        }
-//    };
-//
-//    private WindowCloseEventCallback windowEventCloseCallback = (Pointer $saucer) -> {
-//        try {
-//            if (this.eventListener == null) return false;
-//            return this.eventListener.shouldAvoidClosing();
-//        } catch (Throwable t) {
-//            t.printStackTrace();
-//            return false;
-//        }
-//    };
+            if (this.eventListener == null) return;
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    };
+
+    private WindowVoidCallback windowEventClosedCallback = (Pointer $saucer) -> {
+        try {
+//            System.out.println("closed");
+            if (this.eventListener == null) return;
+            this.eventListener.onClosed();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    };
+
+    private WindowResizeEventCallback windowEventResizeCallback = (Pointer $saucer, int width, int height) -> {
+        try {
+//            System.out.printf("resize: w=%d, h=%d\n", width, height);
+            if (this.eventListener == null) return;
+            this.eventListener.onResize(width, height);
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    };
+
+    private WindowBooleanCallback windowEventFocusCallback = (Pointer $saucer, boolean hasFocus) -> {
+        try {
+//            System.out.printf("focus: %b\n", hasFocus);
+            if (this.eventListener == null) return;
+
+            if (hasFocus) {
+                this.eventListener.onFocused();
+            } else {
+                this.eventListener.onBlur();
+            }
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    };
+
+    private WindowCloseEventCallback windowEventCloseCallback = (Pointer $saucer) -> {
+        try {
+//            System.out.println("close");
+            if (this.eventListener == null) return false;
+            return this.eventListener.shouldAvoidClosing();
+        } catch (Throwable t) {
+            t.printStackTrace();
+            return false;
+        }
+    };
 
     ImplSaucerWindow(ImplSaucer $saucer) {
         this.$saucer = $saucer;
 
-        // TODO broken
-//        N.saucer_window_on($saucer.p(), _Native.SAUCER_WINDOW_EVENT_MAXIMIZE, this.windowEventMaximizeCallback);
-//        N.saucer_window_on($saucer.p(), _Native.SAUCER_WINDOW_EVENT_MINIMIZE, this.windowEventMinimizeCallback);
-//        N.saucer_window_on($saucer.p(), _Native.SAUCER_WINDOW_EVENT_CLOSED, this.windowEventClosedCallback);
-//        N.saucer_window_on($saucer.p(), _Native.SAUCER_WINDOW_EVENT_RESIZE, this.windowEventResizeCallback);
-//        N.saucer_window_on($saucer.p(), _Native.SAUCER_WINDOW_EVENT_FOCUS, this.windowEventFocusCallback);
-//        N.saucer_window_on($saucer.p(), _Native.SAUCER_WINDOW_EVENT_CLOSE, this.windowEventCloseCallback);
+        N.saucer_window_on($saucer.p(), _Native.SAUCER_WINDOW_EVENT_MAXIMIZE, this.windowEventMaximizeCallback);
+        N.saucer_window_on($saucer.p(), _Native.SAUCER_WINDOW_EVENT_MINIMIZE, this.windowEventMinimizeCallback);
+        N.saucer_window_on($saucer.p(), _Native.SAUCER_WINDOW_EVENT_CLOSED, this.windowEventClosedCallback);
+        N.saucer_window_on($saucer.p(), _Native.SAUCER_WINDOW_EVENT_RESIZE, this.windowEventResizeCallback);
+        N.saucer_window_on($saucer.p(), _Native.SAUCER_WINDOW_EVENT_FOCUS, this.windowEventFocusCallback);
+        N.saucer_window_on($saucer.p(), _Native.SAUCER_WINDOW_EVENT_CLOSE, this.windowEventCloseCallback);
     }
 
     @JavascriptGetter("isFocused")

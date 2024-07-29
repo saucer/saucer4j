@@ -7,6 +7,8 @@ import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 
 import co.casterlabs.saucer.SaucerWebview;
+import co.casterlabs.saucer._impl.ImplSaucerWebview._Native.WebviewURLChangedEventCallback;
+import co.casterlabs.saucer._impl.ImplSaucerWebview._Native.WebviewVoidCallback;
 import co.casterlabs.saucer._impl.ImplSaucerWindow._Native.WindowVoidCallback;
 import co.casterlabs.saucer.bridge.JavascriptFunction;
 import co.casterlabs.saucer.bridge.JavascriptGetter;
@@ -31,50 +33,53 @@ class ImplSaucerWebview implements SaucerWebview {
     @SuppressWarnings("unused")
     private SaucerEmbeddedFiles referenceToFiles;
 
-//    private WebviewVoidCallback webEventLoadFinishedCallback = (Pointer $saucer) -> {
-//        try {
-//            if (this.eventListener == null) return;
-//            this.eventListener.onLoadFinished();
-//        } catch (Throwable t) {
-//            t.printStackTrace();
-//        }
-//    };
-//
-//    private WebviewVoidCallback webEventLoadStartedCallback = (Pointer $saucer) -> {
-//        try {
-//            if (this.eventListener == null) return;
-//            this.eventListener.onLoadStarted();
-//        } catch (Throwable t) {
-//            t.printStackTrace();
-//        }
-//    };
-//
-//    private WebviewURLChangedEventCallback webEventUrlChangedCallback = (Pointer $saucer, String newUrl) -> {
-//        try {
-//            if (this.eventListener == null) return;
-//            this.eventListener.onUrlChanged(newUrl);
-//        } catch (Throwable t) {
-//            t.printStackTrace();
-//        }
-//    };
-//
-//    private WebviewVoidCallback webEventDomReadyCallback = (Pointer $saucer) -> {
-//        try {
-//            if (this.eventListener == null) return;
-//            this.eventListener.onDomReady();
-//        } catch (Throwable t) {
-//            t.printStackTrace();
-//        }
-//    };
+    private WebviewVoidCallback webEventLoadFinishedCallback = (Pointer $saucer) -> {
+        try {
+//            System.out.println("webLoadFinished");
+            if (this.eventListener == null) return;
+            this.eventListener.onLoadFinished();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    };
+
+    private WebviewVoidCallback webEventLoadStartedCallback = (Pointer $saucer) -> {
+        try {
+//            System.out.println("loadStarted");
+            if (this.eventListener == null) return;
+            this.eventListener.onLoadStarted();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    };
+
+    private WebviewURLChangedEventCallback webEventUrlChangedCallback = (Pointer $saucer, String newUrl) -> {
+        try {
+//            System.out.printf("urlChanged: %s\n", newUrl);
+            if (this.eventListener == null) return;
+            this.eventListener.onUrlChanged(newUrl);
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    };
+
+    private WebviewVoidCallback webEventDomReadyCallback = (Pointer $saucer) -> {
+        try {
+//            System.out.println("domReady");
+            if (this.eventListener == null) return;
+            this.eventListener.onDomReady();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    };
 
     ImplSaucerWebview(ImplSaucer $saucer) {
         this.$saucer = $saucer;
 
-        // TODO broken
-//        N.saucer_webview_on($saucer.p(), _Native.SAUCER_WEB_EVENT_LOAD_FINISHED, this.webEventLoadFinishedCallback);
-//        N.saucer_webview_on($saucer.p(), _Native.SAUCER_WEB_EVENT_LOAD_STARTED, this.webEventLoadStartedCallback);
-//        N.saucer_webview_once($saucer.p(), _Native.SAUCER_WEB_EVENT_URL_CHANGED, this.webEventUrlChangedCallback);
-//        N.saucer_webview_on($saucer.p(), _Native.SAUCER_WEB_EVENT_DOM_READY, this.webEventDomReadyCallback);
+        N.saucer_webview_on($saucer.p(), _Native.SAUCER_WEB_EVENT_LOAD_FINISHED, this.webEventLoadFinishedCallback);
+        N.saucer_webview_on($saucer.p(), _Native.SAUCER_WEB_EVENT_LOAD_STARTED, this.webEventLoadStartedCallback);
+        N.saucer_webview_on($saucer.p(), _Native.SAUCER_WEB_EVENT_URL_CHANGED, this.webEventUrlChangedCallback);
+        N.saucer_webview_on($saucer.p(), _Native.SAUCER_WEB_EVENT_DOM_READY, this.webEventDomReadyCallback);
     }
 
     @JavascriptGetter("devtoolsVisible")
