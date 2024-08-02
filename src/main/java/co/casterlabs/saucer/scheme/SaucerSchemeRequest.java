@@ -11,6 +11,7 @@ import co.casterlabs.saucer._impl._SafePointer;
 import co.casterlabs.saucer._impl._SaucerNative;
 import co.casterlabs.saucer._impl._SaucerNative.size_t;
 import co.casterlabs.saucer.documentation.InternalUseOnly;
+import co.casterlabs.saucer.utils.SaucerStash;
 import lombok.Getter;
 import lombok.NonNull;
 

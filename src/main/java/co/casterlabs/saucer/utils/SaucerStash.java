@@ -1,4 +1,4 @@
-package co.casterlabs.saucer.scheme;
+package co.casterlabs.saucer.utils;
 
 import com.sun.jna.Library;
 import com.sun.jna.Pointer;
@@ -33,13 +33,6 @@ public final class SaucerStash extends _SafePointer {
         Pointer pointer = N.saucer_stash_data(this);
         int size = this.size();
         return pointer.getByteArray(0, size);
-    }
-
-    @InternalUseOnly
-    @Deprecated
-    @Override
-    protected void freeIsExternalNow() {
-        super.freeIsExternalNow();
     }
 
     // https://github.com/saucer/saucer/blob/very-experimental/bindings/include/saucer/stash.h

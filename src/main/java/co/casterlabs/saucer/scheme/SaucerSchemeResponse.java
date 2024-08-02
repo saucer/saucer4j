@@ -1,5 +1,8 @@
 package co.casterlabs.saucer.scheme;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 
@@ -8,6 +11,7 @@ import co.casterlabs.saucer._impl._SaucerNative;
 import co.casterlabs.saucer.documentation.InternalUseOnly;
 import co.casterlabs.saucer.documentation.NoFree;
 import co.casterlabs.saucer.documentation.PointerType;
+import co.casterlabs.saucer.utils.SaucerStash;
 import lombok.Getter;
 import lombok.NonNull;
 
@@ -28,7 +32,14 @@ public final class SaucerSchemeResponse extends _SafePointer {
     public SaucerSchemeResponse(@NonNull SaucerStash data, @NonNull String mimeType) {
         this(N.saucer_response_new(data.p(), _SafePointer.allocate(mimeType)));
         this.data = data;
-        data.freeIsExternalNow();
+
+        try {
+            Method m = _SafePointer.class.getDeclaredMethod("freeIsExternalNow");
+            m.setAccessible(true);
+            m.invoke(this.data);
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public SaucerSchemeResponse(@NonNull SaucerRequestError error) {
