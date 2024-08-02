@@ -77,6 +77,11 @@ public class _SafePointer implements NativeMapped {
     /* ------------------------------------ */
     /* ------------------------------------ */
 
+    /**
+     * Makes it so free() calls no longer do anything. Note this has MASSIVE leak
+     * implications and you should be completely sure that this will get properly
+     * cleaned up at a later time.
+     */
     protected void freeIsExternalNow() {
         this.free = (p) -> {
         };
