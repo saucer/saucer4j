@@ -3,7 +3,7 @@ package com.example.saucer_java;
 import java.io.IOException;
 
 import co.casterlabs.saucer.Saucer;
-import co.casterlabs.saucer.utils.SaucerEmbeddedFiles;
+import co.casterlabs.saucer.scheme.SaucerSchemeHandler;
 import co.casterlabs.saucer.utils.SaucerOptions;
 
 public class MessageEchoExample {
@@ -17,13 +17,8 @@ public class MessageEchoExample {
 
         saucer.webview().setContextMenuAllowed(true); // Allow the right-click menu.
 
-        SaucerEmbeddedFiles files = new SaucerEmbeddedFiles()
-            // Add a file named "index.html" with a simple html page.
-            .addResource(
-                "MessageEchoExample.html",
-                "text/html"
-            );
-        saucer.webview().serve(files, "MessageEchoExample.html"); // Tell Saucer to serve that file we made above.
+        saucer.webview().setSchemeHandler(SaucerSchemeHandler.fromResources(MessageEchoExample.class)); // Read the contents from our resources.
+        saucer.webview().serveScheme("MessageEchoExample.html");
 
         saucer.messages().onMessage((data) -> {
             saucer.messages().emit(data); // Echo it back.

@@ -71,13 +71,18 @@ public class _SafePointer {
     /* ------------------------------------ */
     /* ------------------------------------ */
 
+    protected void freeIsExternalNow() {
+        this.free = (p) -> {
+        };
+    }
+
     protected final void free() {
         if (this.hasBeenFreed) return;
         this.free.accept($ptr);
         this.hasBeenFreed = true; // Import!
     }
 
-    protected final Pointer p() {
+    protected Pointer p() {
         if (this.hasBeenFreed) {
             throw new IllegalStateException("Use after free!");
         }

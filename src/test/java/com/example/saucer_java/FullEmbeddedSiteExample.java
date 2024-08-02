@@ -3,7 +3,7 @@ package com.example.saucer_java;
 import java.io.IOException;
 
 import co.casterlabs.saucer.Saucer;
-import co.casterlabs.saucer.utils.SaucerEmbeddedFiles;
+import co.casterlabs.saucer.scheme.SaucerSchemeHandler;
 import co.casterlabs.saucer.utils.SaucerOptions;
 
 public class FullEmbeddedSiteExample {
@@ -15,11 +15,11 @@ public class FullEmbeddedSiteExample {
                                             // need this feature and if your environments support it.
         );
 
+        saucer.webview().setDevtoolsVisible(true);
         saucer.webview().setContextMenuAllowed(true); // Allow the right-click menu.
 
-        SaucerEmbeddedFiles files = new SaucerEmbeddedFiles()
-            .scanForResources("/full"); // Scan for files under the name `/full` in the current jar.
-        saucer.webview().serve(files, "index.html"); // Tell Saucer to serve the index file.
+        saucer.webview().setSchemeHandler(SaucerSchemeHandler.fromResources(FullEmbeddedSiteExample.class, "/full"));  // Scan for files under the name `/full` in the current jar.
+        saucer.webview().serveScheme("index.html"); // Tell Saucer to serve the index file.
 
         saucer.run(); // This blocks until the user closes the window.
     }

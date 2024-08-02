@@ -7,6 +7,7 @@ import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 
 import co.casterlabs.saucer.SaucerWebview;
+import co.casterlabs.saucer._impl.ImplSaucerWebview._Native.WebviewSchemeCallback;
 import co.casterlabs.saucer._impl.ImplSaucerWebview._Native.WebviewURLChangedEventCallback;
 import co.casterlabs.saucer._impl.ImplSaucerWebview._Native.WebviewVoidCallback;
 import co.casterlabs.saucer._impl.ImplSaucerWindow._Native.WindowVoidCallback;
@@ -15,23 +16,45 @@ import co.casterlabs.saucer.bridge.JavascriptGetter;
 import co.casterlabs.saucer.bridge.JavascriptObject;
 import co.casterlabs.saucer.bridge.JavascriptSetter;
 import co.casterlabs.saucer.documentation.PointerType;
-import co.casterlabs.saucer.utils.SaucerEmbeddedFiles;
+import co.casterlabs.saucer.scheme.SaucerSchemeHandler;
+import co.casterlabs.saucer.scheme.SaucerSchemeRequest;
+import co.casterlabs.saucer.scheme.SaucerSchemeResponse;
+import co.casterlabs.saucer.scheme.SaucerSchemeResponse.SaucerRequestError;
 import lombok.NonNull;
 
 @SuppressWarnings("deprecation")
 @JavascriptObject
 class ImplSaucerWebview implements SaucerWebview {
     private static final _Native N = _SaucerNative.load(_Native.class);
+    private static final String CUSTOM_SCHEME = "saucer";
+
+    static {
+        N.saucer_register_scheme(CUSTOM_SCHEME);
+    }
 
     private final @PointerType ImplSaucer $saucer;
 
     private @Nullable SaucerWebviewListener eventListener;
+    private @Nullable SaucerSchemeHandler schemeHandler;
 
-    /**
-     * Avoid GC'ing too early.
-     */
-    @SuppressWarnings("unused")
-    private SaucerEmbeddedFiles referenceToFiles;
+    private WebviewSchemeCallback schemeHandlerCallback = (Pointer _unused, Pointer $request) -> {
+        SaucerSchemeRequest request = new SaucerSchemeRequest($request);
+
+        SaucerSchemeResponse response;
+        if (this.schemeHandler == null) {
+            response = new SaucerSchemeResponse(SaucerRequestError.SAUCER_REQUEST_ERROR_NOT_FOUND);
+        } else {
+            try {
+                response = this.schemeHandler.handle(request);
+            } catch (Throwable t) {
+                t.printStackTrace();
+                response = new SaucerSchemeResponse(SaucerRequestError.SAUCER_REQUEST_ERROR_FAILED);
+            }
+        }
+
+        response.freeIsExternalNow(); // Bork the safety. We're in saucer's hands now.
+        return response.p();
+    };
 
     private WebviewVoidCallback webEventLoadFinishedCallback = (Pointer $saucer) -> {
         try {
@@ -80,6 +103,8 @@ class ImplSaucerWebview implements SaucerWebview {
         N.saucer_webview_on($saucer.p(), _Native.SAUCER_WEB_EVENT_LOAD_STARTED, this.webEventLoadStartedCallback);
         N.saucer_webview_on($saucer.p(), _Native.SAUCER_WEB_EVENT_URL_CHANGED, this.webEventUrlChangedCallback);
         N.saucer_webview_on($saucer.p(), _Native.SAUCER_WEB_EVENT_DOM_READY, this.webEventDomReadyCallback);
+
+        N.saucer_webview_handle_scheme($saucer.p(), CUSTOM_SCHEME, this.schemeHandlerCallback);
     }
 
     @JavascriptGetter("devtoolsVisible")
@@ -106,11 +131,10 @@ class ImplSaucerWebview implements SaucerWebview {
         N.saucer_webview_set_url($saucer.p(), url);
     }
 
+    @JavascriptFunction
     @Override
-    public void serve(@NonNull SaucerEmbeddedFiles files, @NonNull String path) {
-        N.saucer_webview_embed($saucer.p(), files.p());
-        N.saucer_webview_serve($saucer.p(), path);
-        this.referenceToFiles = files;
+    public void serveScheme(@NonNull String path) {
+        N.saucer_webview_serve_scheme($saucer.p(), path, CUSTOM_SCHEME);
     }
 
     @JavascriptGetter("contextMenuAllowed")
@@ -134,6 +158,11 @@ class ImplSaucerWebview implements SaucerWebview {
     @Override
     public void setListener(@Nullable SaucerWebviewListener listener) {
         this.eventListener = listener;
+    }
+
+    @Override
+    public void setSchemeHandler(@Nullable SaucerSchemeHandler handler) {
+        this.schemeHandler = handler;
     }
 
     // https://github.com/saucer/saucer/blob/c-bindings/bindings/include/saucer/webview.h
@@ -162,13 +191,15 @@ class ImplSaucerWebview implements SaucerWebview {
 
         void saucer_webview_set_url(Pointer $saucer, String url);
 
-        void saucer_webview_embed(Pointer $saucer, Pointer $files);
+        void saucer_webview_handle_scheme(Pointer $saucer, String scheme, WebviewSchemeCallback callback);
 
-        void saucer_webview_serve(Pointer $saucer, String path);
+        void saucer_webview_serve_scheme(Pointer $saucer, String path, String scheme);
 
         void saucer_webview_execute(Pointer $saucer, String script);
 
         long saucer_webview_on(Pointer $saucer, int saucerWebEvent, Callback callback);
+
+        void saucer_register_scheme(String name);
 
         /**
          * @implNote Do not inline this. The JVM needs this to always be accessible
@@ -184,6 +215,14 @@ class ImplSaucerWebview implements SaucerWebview {
          */
         static interface WebviewVoidCallback extends Callback {
             void callback(Pointer $saucer);
+        }
+
+        /**
+         * @implNote Do not inline this. The JVM needs this to always be accessible
+         *           otherwise it will garbage collect and ruin our day.
+         */
+        static interface WebviewSchemeCallback extends Callback {
+            Pointer callback(Pointer $saucer, Pointer $request);
         }
 
     }

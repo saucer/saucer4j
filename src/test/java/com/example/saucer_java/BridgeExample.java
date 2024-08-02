@@ -7,7 +7,7 @@ import co.casterlabs.saucer.bridge.JavascriptFunction;
 import co.casterlabs.saucer.bridge.JavascriptGetter;
 import co.casterlabs.saucer.bridge.JavascriptObject;
 import co.casterlabs.saucer.bridge.JavascriptValue;
-import co.casterlabs.saucer.utils.SaucerEmbeddedFiles;
+import co.casterlabs.saucer.scheme.SaucerSchemeHandler;
 import co.casterlabs.saucer.utils.SaucerOptions;
 
 public class BridgeExample {
@@ -21,13 +21,8 @@ public class BridgeExample {
 
         saucer.webview().setContextMenuAllowed(true); // Allow the right-click menu.
 
-        SaucerEmbeddedFiles files = new SaucerEmbeddedFiles()
-            // Add a file named "index.html" with a simple html page.
-            .addResource(
-                "BridgeExample.html",
-                "text/html"
-            );
-        saucer.webview().serve(files, "BridgeExample.html"); // Tell Saucer to serve that file we made above.
+        saucer.webview().setSchemeHandler(SaucerSchemeHandler.fromResources(BridgeExample.class)); // Read the contents from our resources.
+        saucer.webview().serveScheme("BridgeExample.html");
 
         saucer.bridge().defineObject("Example", new BridgeObjectExample(saucer));
         saucer.bridge().apply();

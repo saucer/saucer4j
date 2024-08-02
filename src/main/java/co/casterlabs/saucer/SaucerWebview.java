@@ -5,7 +5,7 @@ import org.jetbrains.annotations.Nullable;
 import co.casterlabs.saucer.bridge.JavascriptFunction;
 import co.casterlabs.saucer.documentation.AvailableFromJS;
 import co.casterlabs.saucer.documentation.ThreadSafe;
-import co.casterlabs.saucer.utils.SaucerEmbeddedFiles;
+import co.casterlabs.saucer.scheme.SaucerSchemeHandler;
 import lombok.NonNull;
 
 public interface SaucerWebview {
@@ -38,11 +38,9 @@ public interface SaucerWebview {
     @AvailableFromJS
     public void setUrl(@NonNull String url);
 
-    /**
-     * Serves an embedded file.
-     */
     @ThreadSafe
-    public void serve(@NonNull SaucerEmbeddedFiles files, @NonNull String path);
+    @AvailableFromJS
+    public void serveScheme(@NonNull String path);
 
     /**
      * @return whether or not the context menu is enabled.
@@ -80,6 +78,11 @@ public interface SaucerWebview {
      * navigation events.
      */
     public void setListener(@Nullable SaucerWebviewListener listener);
+
+    /**
+     * Allows you to serve custom webpages from your own resources.
+     */
+    public void setSchemeHandler(@Nullable SaucerSchemeHandler handler);
 
     public static interface SaucerWebviewListener {
 
