@@ -94,7 +94,7 @@ public final class SaucerOptions {
         return $instance;
     }
 
-    // https://github.com/saucer/saucer/blob/c-bindings/bindings/include/saucer/options.h
+    // https://github.com/saucer/saucer/blob/very-experimental/bindings/include/saucer/options.h
     static interface _Native extends Library {
 
         Pointer saucer_options_new();

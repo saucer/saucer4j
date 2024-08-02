@@ -195,11 +195,8 @@ class ImplSaucerBridge implements SaucerBridge {
         saucer.webview().reload();
     }
 
+    // https://github.com/saucer/saucer/blob/very-experimental/bindings/include/saucer/webview.h
     static interface _Native extends Library {
-        /* ---------------------------- */
-        // https://github.com/saucer/saucer/blob/c-bindings/bindings/include/saucer/webview.h
-        /* ---------------------------- */
-
         static final int SAUCER_LOAD_TIME_CREATION = 0;
 //        static final int SAUCER_LOAD_TIME_READY = 1;
 

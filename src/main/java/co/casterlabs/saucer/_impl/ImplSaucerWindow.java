@@ -263,7 +263,7 @@ class ImplSaucerWindow implements SaucerWindow {
         this.eventListener = listener;
     }
 
-    // https://github.com/saucer/saucer/blob/c-bindings/bindings/include/saucer/window.h
+    // https://github.com/saucer/saucer/blob/very-experimental/bindings/include/saucer/window.h
     static interface _Native extends Library {
         /** Requires {@link WindowBooleanCallback} */
         static final int SAUCER_WINDOW_EVENT_MAXIMIZE = 0;
