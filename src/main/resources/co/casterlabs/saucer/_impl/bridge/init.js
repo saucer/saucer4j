@@ -17,15 +17,15 @@ const RPC = {
 	__wfmHandlers: {}, // "Watch for mutate handlers"
 
 	send: function (data) {
-		SAUCER.on_message(JSON.stringify(data));
+		SAUCER.internal.send_message(JSON.stringify(data));
 	},
 	sendWithPromise: async function (data) {
-		const start = Date.now();
+		// const start = Date.now();
 		const requestId = RPC.__idx++;
 		try {
 			return await new Promise((resolve, reject) => {
 				RPC.waiting[requestId] = { resolve, reject };
-				SAUCER.on_message(JSON.stringify({ ...data, requestId }));
+				SAUCER.internal.send_message(JSON.stringify({ ...data, requestId }));
 			});
 		} finally {
 			// console.debug("[Saucer]", "RPC sendWithPromise took ", Date.now() - start);
