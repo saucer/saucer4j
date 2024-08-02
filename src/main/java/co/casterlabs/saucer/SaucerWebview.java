@@ -6,6 +6,7 @@ import co.casterlabs.saucer.bridge.JavascriptFunction;
 import co.casterlabs.saucer.documentation.AvailableFromJS;
 import co.casterlabs.saucer.documentation.ThreadSafe;
 import co.casterlabs.saucer.scheme.SaucerSchemeHandler;
+import co.casterlabs.saucer.utils.SaucerColor;
 import lombok.NonNull;
 
 public interface SaucerWebview {
@@ -73,26 +74,26 @@ public interface SaucerWebview {
         this.executeJavaScript("location.reload();");
     }
 
-//    /**
-//     * @return the background color of the Saucer window. Note that this is
-//     *         different from the HTML background.
-//     */
-//    @ThreadSafe
-//    @AvailableFromJS
-//    public SaucerColor getBackground();
-//
-//    /**
-//     * Allows you to set the background color of the Saucer window. Note that this
-//     * is different from the HTML background.
-//     * 
-//     * This is useful if you want a transparent or translucent application.
-//     * 
-//     * @implNote Applying blur effects in HTML will not cause the apps behind the
-//     *           window to appear blurred.
-//     */
-//    @ThreadSafe
-//    @AvailableFromJS
-//    public void setBackground(@NonNull SaucerColor color);
+    /**
+     * @return the background color of the Saucer window. Note that this is
+     *         different from the HTML background.
+     */
+    @ThreadSafe
+    @AvailableFromJS
+    public SaucerColor getBackground();
+
+    /**
+     * Allows you to set the background color of the Saucer window. Note that this
+     * is different from the HTML background.
+     * 
+     * This is useful if you want a transparent or translucent application.
+     * 
+     * @implNote Applying blur effects in HTML will not cause the apps behind the
+     *           window to appear blurred.
+     */
+    @ThreadSafe
+    @AvailableFromJS
+    public void setBackground(@NonNull SaucerColor color);
 
     /**
      * Allows you to receive events from the Webview, such as page load or

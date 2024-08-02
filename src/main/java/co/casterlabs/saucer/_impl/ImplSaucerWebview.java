@@ -20,6 +20,7 @@ import co.casterlabs.saucer.scheme.SaucerSchemeHandler;
 import co.casterlabs.saucer.scheme.SaucerSchemeRequest;
 import co.casterlabs.saucer.scheme.SaucerSchemeResponse;
 import co.casterlabs.saucer.scheme.SaucerSchemeResponse.SaucerRequestError;
+import co.casterlabs.saucer.utils.SaucerColor;
 import lombok.NonNull;
 
 @SuppressWarnings("deprecation")
@@ -159,6 +160,30 @@ class ImplSaucerWebview implements SaucerWebview {
         N.saucer_webview_execute(this.saucer.$handle, _SafePointer.allocate(scriptToExecute));
     }
 
+    @JavascriptGetter("background")
+    @Override
+    public SaucerColor getBackground() {
+        _SafePointer $r = _SafePointer.allocate(1);
+        _SafePointer $g = _SafePointer.allocate(1);
+        _SafePointer $b = _SafePointer.allocate(1);
+        _SafePointer $a = _SafePointer.allocate(1);
+
+        N.saucer_webview_background(this.saucer.$handle, $r, $g, $b, $a);
+
+        return new SaucerColor(
+            $r.p().getByte(0),
+            $g.p().getByte(0),
+            $b.p().getByte(0),
+            $a.p().getByte(0)
+        );
+    }
+
+    @JavascriptSetter("background")
+    @Override
+    public void setBackground(@NonNull SaucerColor color) {
+        N.saucer_webview_set_background(this.saucer.$handle, (byte) color.red(), (byte) color.green(), (byte) color.blue(), (byte) color.alpha());
+    }
+
     @Override
     public void setListener(@Nullable SaucerWebviewListener listener) {
         this.eventListener = listener;
@@ -185,23 +210,27 @@ class ImplSaucerWebview implements SaucerWebview {
 
         boolean saucer_webview_dev_tools(_SafePointer $saucer);
 
-        _SafePointer saucer_webview_url(_SafePointer $saucer);
-
-        boolean saucer_webview_context_menu(_SafePointer $saucer);
-
         void saucer_webview_set_dev_tools(_SafePointer $saucer, boolean setEnabled);
 
-        void saucer_webview_set_context_menu(_SafePointer $saucer, boolean setEnabled);
+        _SafePointer saucer_webview_url(_SafePointer $saucer);
 
         void saucer_webview_set_url(_SafePointer $saucer, _SafePointer $url);
 
-        void saucer_webview_handle_scheme(_SafePointer $saucer, _SafePointer $scheme, WebviewSchemeCallback callback);
-
         void saucer_webview_serve_scheme(_SafePointer $saucer, _SafePointer $path, _SafePointer $scheme);
+
+        boolean saucer_webview_context_menu(_SafePointer $saucer);
+
+        void saucer_webview_set_context_menu(_SafePointer $saucer, boolean setEnabled);
 
         void saucer_webview_execute(_SafePointer $saucer, _SafePointer $script);
 
+        boolean saucer_webview_background(_SafePointer $saucer, _SafePointer $r, _SafePointer $g, _SafePointer $b, _SafePointer $a);
+
+        boolean saucer_webview_set_background(_SafePointer $saucer, byte r, byte g, byte b, byte a);
+
         long saucer_webview_on(_SafePointer $saucer, int saucerWebEvent, Callback callback);
+
+        void saucer_webview_handle_scheme(_SafePointer $saucer, _SafePointer $scheme, WebviewSchemeCallback callback);
 
         void saucer_register_scheme(_SafePointer $name);
 

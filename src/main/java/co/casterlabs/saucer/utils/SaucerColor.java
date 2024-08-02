@@ -22,6 +22,10 @@ public final class SaucerColor {
     private int blue;
     private int alpha;
 
+    public SaucerColor() {
+        this(255, 255, 255, 255);
+    }
+
     public SaucerColor(int red, int green, int blue) {
         this(red, green, blue, 255);
     }
@@ -109,8 +113,7 @@ class SaucerColorSerializer implements JsonSerializer<SaucerColor> {
             SaucerColor color = new SaucerColor(
                 arr.getNumber(0).intValue(),
                 arr.getNumber(1).intValue(),
-                arr.getNumber(2).intValue(),
-                0
+                arr.getNumber(2).intValue()
             );
 
             if (arr.size() == 4) {
@@ -120,13 +123,12 @@ class SaucerColorSerializer implements JsonSerializer<SaucerColor> {
             return color;
         } else if (value.isJsonObject()) {
             JsonObject obj = value.getAsObject();
-            assert obj.containsKey("red") && obj.containsKey("green") && obj.containsKey("blue") : new JsonParseException("Object must have  `red`, `green`, `blue`, and optionally `alpha`");
+            assert obj.containsKey("red") && obj.containsKey("green") && obj.containsKey("blue") : new JsonParseException("Object must have `red`, `green`, `blue`, and optionally `alpha`");
 
             SaucerColor color = new SaucerColor(
                 obj.getNumber("red").intValue(),
                 obj.getNumber("green").intValue(),
-                obj.getNumber("blue").intValue(),
-                0
+                obj.getNumber("blue").intValue()
             );
 
             if (obj.containsKey("alpha")) {
