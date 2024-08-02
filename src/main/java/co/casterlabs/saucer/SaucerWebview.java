@@ -7,6 +7,7 @@ import co.casterlabs.saucer.documentation.AvailableFromJS;
 import co.casterlabs.saucer.documentation.ThreadSafe;
 import co.casterlabs.saucer.scheme.SaucerSchemeHandler;
 import co.casterlabs.saucer.utils.SaucerColor;
+import co.casterlabs.saucer.utils.SaucerIcon;
 import lombok.NonNull;
 
 public interface SaucerWebview {
@@ -96,6 +97,13 @@ public interface SaucerWebview {
     public void setBackground(@NonNull SaucerColor color);
 
     /**
+     * Gets the current favicon of the loaded page. Useful with
+     * {@link SaucerWindow#setIcon(SaucerIcon)}.
+     */
+    @ThreadSafe
+    public SaucerIcon getFavicon();
+
+    /**
      * Allows you to receive events from the Webview, such as page load or
      * navigation events.
      */
@@ -115,6 +123,10 @@ public interface SaucerWebview {
         default void onUrlChanged(String newUrl) {}
 
         default void onDomReady() {}
+
+        default void onTitleChanged(String newTitle) {}
+
+        default void onIconChanged(SaucerIcon newIcon) {}
 
     }
 

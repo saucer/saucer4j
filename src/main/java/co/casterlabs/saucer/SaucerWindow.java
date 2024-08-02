@@ -4,6 +4,7 @@ import org.jetbrains.annotations.Nullable;
 
 import co.casterlabs.saucer.documentation.AvailableFromJS;
 import co.casterlabs.saucer.documentation.ThreadSafe;
+import co.casterlabs.saucer.utils.SaucerIcon;
 import co.casterlabs.saucer.utils.SaucerSize;
 import lombok.NonNull;
 
@@ -168,6 +169,14 @@ public interface SaucerWindow {
     @ThreadSafe
     @AvailableFromJS
     public void show();
+
+    /**
+     * Changes the application's icon (e.g what you see in the dock/taskbar).
+     * 
+     * @see {@link SaucerWebview#getFavicon()}
+     */
+    @ThreadSafe
+    public void setIcon(@NonNull SaucerIcon icon);
 
     /**
      * Allows you to receive events from the Window, focus or minimization.

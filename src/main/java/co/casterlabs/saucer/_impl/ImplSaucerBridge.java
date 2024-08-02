@@ -38,7 +38,8 @@ class ImplSaucerBridge implements SaucerBridge {
     private MessageCallback messageCallback = (_SafePointer $raw) -> {
         JsonObject message;
         try {
-            message = Rson.DEFAULT.fromJson($raw.p().getString(0), JsonObject.class);
+            String raw = $raw.p().getString(0, "UTF-8");
+            message = Rson.DEFAULT.fromJson(raw, JsonObject.class);
         } catch (JsonParseException e) {
             e.printStackTrace();
             return false;

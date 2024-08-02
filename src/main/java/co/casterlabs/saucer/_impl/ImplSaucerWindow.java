@@ -15,6 +15,7 @@ import co.casterlabs.saucer.bridge.JavascriptFunction;
 import co.casterlabs.saucer.bridge.JavascriptGetter;
 import co.casterlabs.saucer.bridge.JavascriptObject;
 import co.casterlabs.saucer.bridge.JavascriptSetter;
+import co.casterlabs.saucer.utils.SaucerIcon;
 import co.casterlabs.saucer.utils.SaucerSize;
 import lombok.NonNull;
 
@@ -259,6 +260,11 @@ class ImplSaucerWindow implements SaucerWindow {
     }
 
     @Override
+    public void setIcon(@NonNull SaucerIcon icon) {
+        N.saucer_window_set_icon(this.saucer.$handle, icon.p());
+    }
+
+    @Override
     public void setListener(@Nullable SaucerWindowListener listener) {
         this.eventListener = listener;
     }
@@ -328,6 +334,8 @@ class ImplSaucerWindow implements SaucerWindow {
         void saucer_window_set_min_size(_SafePointer $saucer, int width, int height);
 
         long saucer_window_on(_SafePointer $saucer, int event, Callback callback);
+
+        void saucer_window_set_icon(_SafePointer $saucer, Pointer $icon);
 
         /**
          * @implNote Do not inline this. The JVM needs this to always be accessible

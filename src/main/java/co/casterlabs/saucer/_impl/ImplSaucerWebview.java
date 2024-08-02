@@ -7,8 +7,8 @@ import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 
 import co.casterlabs.saucer.SaucerWebview;
+import co.casterlabs.saucer._impl.ImplSaucerWebview._Native.WebviewPointerCallback;
 import co.casterlabs.saucer._impl.ImplSaucerWebview._Native.WebviewSchemeCallback;
-import co.casterlabs.saucer._impl.ImplSaucerWebview._Native.WebviewURLChangedEventCallback;
 import co.casterlabs.saucer._impl.ImplSaucerWebview._Native.WebviewVoidCallback;
 import co.casterlabs.saucer._impl.ImplSaucerWindow._Native.WindowVoidCallback;
 import co.casterlabs.saucer.bridge.JavascriptFunction;
@@ -21,6 +21,7 @@ import co.casterlabs.saucer.scheme.SaucerSchemeRequest;
 import co.casterlabs.saucer.scheme.SaucerSchemeResponse;
 import co.casterlabs.saucer.scheme.SaucerSchemeResponse.SaucerRequestError;
 import co.casterlabs.saucer.utils.SaucerColor;
+import co.casterlabs.saucer.utils.SaucerIcon;
 import lombok.NonNull;
 
 @SuppressWarnings("deprecation")
@@ -57,11 +58,33 @@ class ImplSaucerWebview implements SaucerWebview {
         return response.p();
     };
 
+    private WebviewPointerCallback webEventTitleChangedCallback = (Pointer _unused, Pointer $newTitle) -> {
+        try {
+            if (this.eventListener == null) return;
+//            System.out.printf("titleChanged: %s\n", newUrl);
+            String newTitle = $newTitle.getString(0, "UTF-8");
+            this.eventListener.onTitleChanged(newTitle);
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    };
+
     private WebviewVoidCallback webEventLoadFinishedCallback = (Pointer _unused) -> {
         try {
 //            System.out.println("webLoadFinished");
             if (this.eventListener == null) return;
             this.eventListener.onLoadFinished();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    };
+
+    private WebviewPointerCallback webEventIconChangedCallback = (Pointer _unused, Pointer $newIcon) -> {
+        try {
+            if (this.eventListener == null) return;
+            SaucerIcon newIcon = new SaucerIcon($newIcon);
+//            System.out.printf("iconChanged: %s\n", newUrl);
+            this.eventListener.onIconChanged(newIcon);
         } catch (Throwable t) {
             t.printStackTrace();
         }
@@ -77,11 +100,11 @@ class ImplSaucerWebview implements SaucerWebview {
         }
     };
 
-    private WebviewURLChangedEventCallback webEventUrlChangedCallback = (Pointer _unused, _SafePointer $newUrl) -> {
+    private WebviewPointerCallback webEventUrlChangedCallback = (Pointer _unused, Pointer $newUrl) -> {
         try {
             if (this.eventListener == null) return;
 //            System.out.printf("urlChanged: %s\n", newUrl);
-            String newUrl = $newUrl.p().getString(0);
+            String newUrl = $newUrl.getString(0, "UTF-8");
             this.eventListener.onUrlChanged(newUrl);
         } catch (Throwable t) {
             t.printStackTrace();
@@ -101,7 +124,9 @@ class ImplSaucerWebview implements SaucerWebview {
     ImplSaucerWebview(ImplSaucer saucer) {
         this.saucer = saucer;
 
+        N.saucer_webview_on(this.saucer.$handle, _Native.SAUCER_WEB_EVENT_TITLE_CHANGED, this.webEventTitleChangedCallback);
         N.saucer_webview_on(this.saucer.$handle, _Native.SAUCER_WEB_EVENT_LOAD_FINISHED, this.webEventLoadFinishedCallback);
+        N.saucer_webview_on(this.saucer.$handle, _Native.SAUCER_WEB_EVENT_ICON_CHANGED, this.webEventIconChangedCallback);
         N.saucer_webview_on(this.saucer.$handle, _Native.SAUCER_WEB_EVENT_LOAD_STARTED, this.webEventLoadStartedCallback);
         N.saucer_webview_on(this.saucer.$handle, _Native.SAUCER_WEB_EVENT_URL_CHANGED, this.webEventUrlChangedCallback);
         N.saucer_webview_on(this.saucer.$handle, _Native.SAUCER_WEB_EVENT_DOM_READY, this.webEventDomReadyCallback);
@@ -125,7 +150,7 @@ class ImplSaucerWebview implements SaucerWebview {
     @Override
     public String currentUrl() {
         _SafePointer $url = N.saucer_webview_url(this.saucer.$handle);
-        return $url.p().getString(0);
+        return $url.p().getString(0, "UTF-8");
     }
 
     @JavascriptSetter("currentUrl")
@@ -185,6 +210,12 @@ class ImplSaucerWebview implements SaucerWebview {
     }
 
     @Override
+    public SaucerIcon getFavicon() {
+        Pointer icon = N.saucer_webview_favicon(this.saucer.$handle);
+        return new SaucerIcon(icon);
+    }
+
+    @Override
     public void setListener(@Nullable SaucerWebviewListener listener) {
         this.eventListener = listener;
     }
@@ -196,17 +227,23 @@ class ImplSaucerWebview implements SaucerWebview {
 
     // https://github.com/saucer/saucer/blob/very-experimental/bindings/include/saucer/webview.h
     static interface _Native extends Library {
-        /** Requires {@link WindowVoidCallback} */
-        static final int SAUCER_WEB_EVENT_LOAD_FINISHED = 0;
+        /** Requires {@link WebviewPointerCallback} */
+        static final int SAUCER_WEB_EVENT_TITLE_CHANGED = 0;
 
         /** Requires {@link WindowVoidCallback} */
-        static final int SAUCER_WEB_EVENT_LOAD_STARTED = 1;
+        static final int SAUCER_WEB_EVENT_LOAD_FINISHED = 1;
 
-        /** Requires {@link URLChangedEventCallback} */
-        static final int SAUCER_WEB_EVENT_URL_CHANGED = 2;
+        /** Requires {@link WebviewPointerCallback} */
+        static final int SAUCER_WEB_EVENT_ICON_CHANGED = 2;
 
         /** Requires {@link WindowVoidCallback} */
-        static final int SAUCER_WEB_EVENT_DOM_READY = 3;
+        static final int SAUCER_WEB_EVENT_LOAD_STARTED = 3;
+
+        /** Requires {@link WebviewPointerCallback} */
+        static final int SAUCER_WEB_EVENT_URL_CHANGED = 4;
+
+        /** Requires {@link WindowVoidCallback} */
+        static final int SAUCER_WEB_EVENT_DOM_READY = 5;
 
         boolean saucer_webview_dev_tools(_SafePointer $saucer);
 
@@ -228,6 +265,8 @@ class ImplSaucerWebview implements SaucerWebview {
 
         boolean saucer_webview_set_background(_SafePointer $saucer, byte r, byte g, byte b, byte a);
 
+        Pointer saucer_webview_favicon(_SafePointer $saucer);
+
         long saucer_webview_on(_SafePointer $saucer, int saucerWebEvent, Callback callback);
 
         void saucer_webview_handle_scheme(_SafePointer $saucer, _SafePointer $scheme, WebviewSchemeCallback callback);
@@ -238,8 +277,8 @@ class ImplSaucerWebview implements SaucerWebview {
          * @implNote Do not inline this. The JVM needs this to always be accessible
          *           otherwise it will garbage collect and ruin our day.
          */
-        static interface WebviewURLChangedEventCallback extends Callback {
-            void callback(Pointer $saucer, _SafePointer $newUrl);
+        static interface WebviewPointerCallback extends Callback {
+            void callback(Pointer $saucer, Pointer $str);
         }
 
         /**
