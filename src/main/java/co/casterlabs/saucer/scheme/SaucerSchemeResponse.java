@@ -22,9 +22,7 @@ public final class SaucerSchemeResponse extends _SafePointer {
     @Deprecated
     @InternalUseOnly
     public SaucerSchemeResponse(@NonNull Pointer pointer) {
-        super.setupPointer(pointer, (p) -> {
-            // TODO free()
-        });
+        super.setupPointer(pointer, N::saucer_response_free);
     }
 
     public SaucerSchemeResponse(@NonNull SaucerStash data, @NonNull String mimeType) {
@@ -61,6 +59,8 @@ public final class SaucerSchemeResponse extends _SafePointer {
 
         @NoFree
         Pointer saucer_response_unexpected(int error);
+
+        void saucer_response_free(Pointer $instance);
 
         void saucer_response_add_header(_SafePointer $instance, _SafePointer $key, _SafePointer $value);
 
