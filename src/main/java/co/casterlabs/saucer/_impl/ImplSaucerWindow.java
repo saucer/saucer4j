@@ -15,8 +15,6 @@ import co.casterlabs.saucer.bridge.JavascriptFunction;
 import co.casterlabs.saucer.bridge.JavascriptGetter;
 import co.casterlabs.saucer.bridge.JavascriptObject;
 import co.casterlabs.saucer.bridge.JavascriptSetter;
-import co.casterlabs.saucer.documentation.PointerType;
-import co.casterlabs.saucer.utils.SaucerColor;
 import co.casterlabs.saucer.utils.SaucerSize;
 import lombok.NonNull;
 
@@ -25,7 +23,7 @@ import lombok.NonNull;
 class ImplSaucerWindow implements SaucerWindow {
     private static final _Native N = _SaucerNative.load(_Native.class);
 
-    private final @PointerType ImplSaucer $saucer;
+    private final ImplSaucer saucer;
 
     private @Nullable SaucerWindowListener eventListener;
 
@@ -93,112 +91,99 @@ class ImplSaucerWindow implements SaucerWindow {
         }
     };
 
-    ImplSaucerWindow(ImplSaucer $saucer) {
-        this.$saucer = $saucer;
+    ImplSaucerWindow(ImplSaucer saucer) {
+        this.saucer = saucer;
 
-        N.saucer_window_on($saucer.p(), _Native.SAUCER_WINDOW_EVENT_MAXIMIZE, this.windowEventMaximizeCallback);
-        N.saucer_window_on($saucer.p(), _Native.SAUCER_WINDOW_EVENT_MINIMIZE, this.windowEventMinimizeCallback);
-        N.saucer_window_on($saucer.p(), _Native.SAUCER_WINDOW_EVENT_CLOSED, this.windowEventClosedCallback);
-        N.saucer_window_on($saucer.p(), _Native.SAUCER_WINDOW_EVENT_RESIZE, this.windowEventResizeCallback);
-        N.saucer_window_on($saucer.p(), _Native.SAUCER_WINDOW_EVENT_FOCUS, this.windowEventFocusCallback);
-        N.saucer_window_on($saucer.p(), _Native.SAUCER_WINDOW_EVENT_CLOSE, this.windowEventCloseCallback);
+        N.saucer_window_on(this.saucer.$handle, _Native.SAUCER_WINDOW_EVENT_MAXIMIZE, this.windowEventMaximizeCallback);
+        N.saucer_window_on(this.saucer.$handle, _Native.SAUCER_WINDOW_EVENT_MINIMIZE, this.windowEventMinimizeCallback);
+        N.saucer_window_on(this.saucer.$handle, _Native.SAUCER_WINDOW_EVENT_CLOSED, this.windowEventClosedCallback);
+        N.saucer_window_on(this.saucer.$handle, _Native.SAUCER_WINDOW_EVENT_RESIZE, this.windowEventResizeCallback);
+        N.saucer_window_on(this.saucer.$handle, _Native.SAUCER_WINDOW_EVENT_FOCUS, this.windowEventFocusCallback);
+        N.saucer_window_on(this.saucer.$handle, _Native.SAUCER_WINDOW_EVENT_CLOSE, this.windowEventCloseCallback);
     }
 
     @JavascriptGetter("isFocused")
     @Override
     public boolean isFocused() {
-        return N.saucer_window_focused($saucer.p());
+        return N.saucer_window_focused(this.saucer.$handle);
     }
 
     @JavascriptFunction
     @Override
     public void focus() {
-        N.saucer_window_focus($saucer.p());
+        N.saucer_window_focus(this.saucer.$handle);
     }
 
     @JavascriptGetter("minimized")
     @Override
     public boolean isMinimized() {
-        return N.saucer_window_minimized($saucer.p());
+        return N.saucer_window_minimized(this.saucer.$handle);
     }
 
     @JavascriptSetter("minimized")
     @Override
     public void setMinimized(boolean b) {
-        N.saucer_window_set_minimized($saucer.p(), b);
+        N.saucer_window_set_minimized(this.saucer.$handle, b);
     }
 
     @JavascriptGetter("maximized")
     @Override
     public boolean isMaximized() {
-        return N.saucer_window_maximized($saucer.p());
+        return N.saucer_window_maximized(this.saucer.$handle);
     }
 
     @JavascriptSetter("maximized")
     @Override
     public void setMaximized(boolean b) {
-        N.saucer_window_set_maximized($saucer.p(), b);
+        N.saucer_window_set_maximized(this.saucer.$handle, b);
     }
 
     @JavascriptGetter("resizable")
     @Override
     public boolean isResizable() {
-        return N.saucer_window_resizable($saucer.p());
+        return N.saucer_window_resizable(this.saucer.$handle);
     }
 
     @JavascriptSetter("resizable")
     @Override
     public void setResizable(boolean b) {
-        N.saucer_window_set_resizable($saucer.p(), b);
+        N.saucer_window_set_resizable(this.saucer.$handle, b);
     }
 
     @JavascriptGetter("decorated")
     @Override
     public boolean hasDecorations() {
-        return N.saucer_window_decorations($saucer.p());
+        return N.saucer_window_decorations(this.saucer.$handle);
     }
 
     @JavascriptSetter("decorated")
     @Override
     public void showDecorations(boolean b) {
-        N.saucer_window_set_decorations($saucer.p(), b);
+        N.saucer_window_set_decorations(this.saucer.$handle, b);
     }
 
     @JavascriptGetter("alwaysOnTop")
     @Override
     public boolean isAlwaysOnTop() {
-        return N.saucer_window_always_on_top($saucer.p());
+        return N.saucer_window_always_on_top(this.saucer.$handle);
     }
 
     @JavascriptSetter("alwaysOnTop")
     @Override
     public void setAlwaysOnTop(boolean b) {
-        N.saucer_window_set_always_on_top($saucer.p(), b);
-    }
-
-    @JavascriptGetter("background")
-    @Override
-    public SaucerColor getBackground() {
-        Pointer $background = N.saucer_window_background($saucer.p());
-        return new SaucerColor($background);
-    }
-
-    @JavascriptSetter("background")
-    @Override
-    public void setBackground(@NonNull SaucerColor color) {
-        N.saucer_window_set_background($saucer.p(), color.p());
+        N.saucer_window_set_always_on_top(this.saucer.$handle, b);
     }
 
     @JavascriptGetter("title")
     @Override
     public String getTitle() {
-        return N.saucer_window_title($saucer.p());
+        return N.saucer_window_title(this.saucer.$handle);
     }
 
     @JavascriptSetter("title")
     @Override
     public void setTitle(@NonNull String title) {
-        N.saucer_window_set_title($saucer.p(), title);
+        N.saucer_window_set_title(this.saucer.$handle, _SafePointer.allocate(title));
     }
 
     @JavascriptGetter("size")
@@ -207,7 +192,7 @@ class ImplSaucerWindow implements SaucerWindow {
         _SafePointer $width = _SafePointer.allocate(Integer.BYTES);
         _SafePointer $height = _SafePointer.allocate(Integer.BYTES);
 
-        N.saucer_window_size($saucer.p(), $width.p(), $height.p());
+        N.saucer_window_size(this.saucer.$handle, $width, $height);
 
         int width = $width.p().getInt(0);
         int height = $height.p().getInt(0);
@@ -218,7 +203,7 @@ class ImplSaucerWindow implements SaucerWindow {
     @JavascriptSetter("size")
     @Override
     public void setSize(@NonNull SaucerSize size) {
-        N.saucer_window_set_size($saucer.p(), size.width, size.height);
+        N.saucer_window_set_size(this.saucer.$handle, size.width, size.height);
     }
 
     @JavascriptGetter("minSize")
@@ -227,7 +212,7 @@ class ImplSaucerWindow implements SaucerWindow {
         _SafePointer $width = _SafePointer.allocate(Integer.BYTES);
         _SafePointer $height = _SafePointer.allocate(Integer.BYTES);
 
-        N.saucer_window_min_size($saucer.p(), $width.p(), $height.p());
+        N.saucer_window_min_size(this.saucer.$handle, $width, $height);
 
         int width = $width.p().getInt(0);
         int height = $height.p().getInt(0);
@@ -238,7 +223,7 @@ class ImplSaucerWindow implements SaucerWindow {
     @JavascriptSetter("minSize")
     @Override
     public void setMinSize(@NonNull SaucerSize size) {
-        N.saucer_window_set_min_size($saucer.p(), size.width, size.height);
+        N.saucer_window_set_min_size(this.saucer.$handle, size.width, size.height);
     }
 
     @JavascriptGetter("maxSize")
@@ -247,7 +232,7 @@ class ImplSaucerWindow implements SaucerWindow {
         _SafePointer $width = _SafePointer.allocate(Integer.BYTES);
         _SafePointer $height = _SafePointer.allocate(Integer.BYTES);
 
-        N.saucer_window_max_size($saucer.p(), $width.p(), $height.p());
+        N.saucer_window_max_size(this.saucer.$handle, $width, $height);
 
         int width = $width.p().getInt(0);
         int height = $height.p().getInt(0);
@@ -258,19 +243,19 @@ class ImplSaucerWindow implements SaucerWindow {
     @JavascriptSetter("maxSize")
     @Override
     public void setMaxSize(@NonNull SaucerSize size) {
-        N.saucer_window_set_max_size($saucer.p(), size.width, size.height);
+        N.saucer_window_set_max_size(this.saucer.$handle, size.width, size.height);
     }
 
     @JavascriptFunction
     @Override
     public void hide() {
-        N.saucer_window_hide($saucer.p());
+        N.saucer_window_hide(this.saucer.$handle);
     }
 
     @JavascriptFunction
     @Override
     public void show() {
-        N.saucer_window_show($saucer.p());
+        N.saucer_window_show(this.saucer.$handle);
     }
 
     @Override
@@ -298,55 +283,51 @@ class ImplSaucerWindow implements SaucerWindow {
         /** Requires {@link WindowCloseEventCallback} */
         static final int SAUCER_WINDOW_EVENT_CLOSE = 5;
 
-        boolean saucer_window_focused(Pointer $saucer);
+        boolean saucer_window_focused(_SafePointer $saucer);
 
-        boolean saucer_window_minimized(Pointer $saucer);
+        boolean saucer_window_minimized(_SafePointer $saucer);
 
-        boolean saucer_window_maximized(Pointer $saucer);
+        boolean saucer_window_maximized(_SafePointer $saucer);
 
-        boolean saucer_window_resizable(Pointer $saucer);
+        boolean saucer_window_resizable(_SafePointer $saucer);
 
-        boolean saucer_window_decorations(Pointer $saucer);
+        boolean saucer_window_decorations(_SafePointer $saucer);
 
-        boolean saucer_window_always_on_top(Pointer $saucer);
+        boolean saucer_window_always_on_top(_SafePointer $saucer);
 
-        Pointer saucer_window_background(Pointer $saucer);
+        String saucer_window_title(_SafePointer $saucer);
 
-        String saucer_window_title(Pointer $saucer);
+        void saucer_window_size(_SafePointer $saucer, _SafePointer $width, _SafePointer $height);
 
-        void saucer_window_size(Pointer $saucer, Pointer $width, Pointer $height);
+        void saucer_window_max_size(_SafePointer $saucer, _SafePointer $width, _SafePointer $height);
 
-        void saucer_window_max_size(Pointer $saucer, Pointer $width, Pointer $height);
+        void saucer_window_min_size(_SafePointer $saucer, _SafePointer $width, _SafePointer $height);
 
-        void saucer_window_min_size(Pointer $saucer, Pointer $width, Pointer $height);
+        void saucer_window_hide(_SafePointer $saucer);
 
-        void saucer_window_hide(Pointer $saucer);
+        void saucer_window_show(_SafePointer $saucer);
 
-        void saucer_window_show(Pointer $saucer);
+        void saucer_window_focus(_SafePointer $saucer);
 
-        void saucer_window_focus(Pointer $saucer);
+        void saucer_window_set_minimized(_SafePointer $saucer, boolean enabled);
 
-        void saucer_window_set_minimized(Pointer $saucer, boolean enabled);
+        void saucer_window_set_maximized(_SafePointer $saucer, boolean enabled);
 
-        void saucer_window_set_maximized(Pointer $saucer, boolean enabled);
+        void saucer_window_set_resizable(_SafePointer $saucer, boolean enabled);
 
-        void saucer_window_set_resizable(Pointer $saucer, boolean enabled);
+        void saucer_window_set_decorations(_SafePointer $saucer, boolean enabled);
 
-        void saucer_window_set_decorations(Pointer $saucer, boolean enabled);
+        void saucer_window_set_always_on_top(_SafePointer $saucer, boolean enabled);
 
-        void saucer_window_set_always_on_top(Pointer $saucer, boolean enabled);
+        void saucer_window_set_title(_SafePointer $saucer, _SafePointer title);
 
-        void saucer_window_set_title(Pointer $saucer, String title);
+        void saucer_window_set_size(_SafePointer $saucer, int width, int height);
 
-        void saucer_window_set_background(Pointer $saucer, Pointer $color);
+        void saucer_window_set_max_size(_SafePointer $saucer, int width, int height);
 
-        void saucer_window_set_size(Pointer $saucer, int width, int height);
+        void saucer_window_set_min_size(_SafePointer $saucer, int width, int height);
 
-        void saucer_window_set_max_size(Pointer $saucer, int width, int height);
-
-        void saucer_window_set_min_size(Pointer $saucer, int width, int height);
-
-        long saucer_window_on(Pointer $saucer, int event, Callback callback);
+        long saucer_window_on(_SafePointer $saucer, int event, Callback callback);
 
         /**
          * @implNote Do not inline this. The JVM needs this to always be accessible

@@ -2,6 +2,8 @@ package co.casterlabs.saucer._impl;
 
 import java.util.function.Consumer;
 
+import com.sun.jna.FromNativeContext;
+import com.sun.jna.NativeMapped;
 import com.sun.jna.Pointer;
 
 import co.casterlabs.saucer.documentation.InternalUseOnly;
@@ -20,44 +22,49 @@ import lombok.NonNull;
  */
 @Deprecated
 @InternalUseOnly
-public class _SafePointer {
-    private static final Consumer<Pointer> DEFAULT_FREE = _SaucerNative.MEMORY::saucer_memory_free;
-
+public class _SafePointer implements NativeMapped {
     private Pointer $ptr;
     private Consumer<Pointer> free;
     private boolean hasBeenFreed = true; // Initial state.
 
     protected void setupPointer(@NonNull Pointer $ptr, @NonNull Consumer<Pointer> free) {
         this.$ptr = $ptr;
-        this.free = free == null ? DEFAULT_FREE : free;
+        this.free = free == null ? _SaucerNative::free : free;
         this.hasBeenFreed = false;
     }
 
     /**
-     * @implNote the default free() is a standard C free().
+     * @implNote the default free() is Saucer's memory_free.
      */
     protected void setupPointer(@NonNull Pointer $ptr) {
-        this.setupPointer($ptr, DEFAULT_FREE);
+        this.setupPointer($ptr, _SaucerNative::free);
     }
 
     /**
      * @implSpec Sub-classes MUST call {@link #setupPointer(Pointer, Consumer)} or
      *           {@link #setupPointer(Pointer)}!
      */
-    protected _SafePointer() {}
+    public _SafePointer() {}
 
     /**
-     * @implNote the default free() is a standard C free().
+     * @implNote the default free() is Saucer's memory_free.
      */
     public static _SafePointer allocate(int size) {
-        return of(_SaucerNative.allocateUnsafe(size), DEFAULT_FREE);
+        return of(_SaucerNative.allocateUnsafe(size), _SaucerNative::free);
     }
 
     /**
-     * @implNote the default free() is a standard C free().
+     * @implNote the default free() is Saucer's memory_free.
+     */
+    public static _SafePointer allocate(@NonNull String str) {
+        return of(_SaucerNative.allocateUnsafe(str), _SaucerNative::free);
+    }
+
+    /**
+     * @implNote the default free() is Saucer's memory_free.
      */
     public static _SafePointer of(@NonNull Pointer $ptr) {
-        return of($ptr, DEFAULT_FREE);
+        return of($ptr, _SaucerNative::free);
     }
 
     public static _SafePointer of(@NonNull Pointer $ptr, @NonNull Consumer<Pointer> free) {
@@ -100,6 +107,29 @@ public class _SafePointer {
         } else {
             return String.format("<ptr @ %d>", Pointer.nativeValue($ptr));
         }
+    }
+
+    /* ------------------------------------ */
+    /* ------------------------------------ */
+    /* ------------------------------------ */
+
+    @Override
+    public Object fromNative(Object nativeValue, FromNativeContext context) {
+        if (nativeValue == null) {
+            return null;
+        } else {
+            return of((Pointer) nativeValue);
+        }
+    }
+
+    @Override
+    public Object toNative() {
+        return this.p();
+    }
+
+    @Override
+    public Class<?> nativeType() {
+        return Pointer.class;
     }
 
 }

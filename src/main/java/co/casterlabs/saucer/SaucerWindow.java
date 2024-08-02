@@ -4,7 +4,6 @@ import org.jetbrains.annotations.Nullable;
 
 import co.casterlabs.saucer.documentation.AvailableFromJS;
 import co.casterlabs.saucer.documentation.ThreadSafe;
-import co.casterlabs.saucer.utils.SaucerColor;
 import co.casterlabs.saucer.utils.SaucerSize;
 import lombok.NonNull;
 
@@ -94,27 +93,6 @@ public interface SaucerWindow {
     @ThreadSafe
     @AvailableFromJS
     public void setAlwaysOnTop(boolean b);
-
-    /**
-     * @return the background color of the Saucer window. Note that this is
-     *         different from the HTML background.
-     */
-    @ThreadSafe
-    @AvailableFromJS
-    public SaucerColor getBackground();
-
-    /**
-     * Allows you to set the background color of the Saucer window. Note that this
-     * is different from the HTML background.
-     * 
-     * This is useful if you want a transparent or translucent application.
-     * 
-     * @implNote Applying blur effects in HTML will not cause the apps behind the
-     *           window to appear blurred.
-     */
-    @ThreadSafe
-    @AvailableFromJS
-    public void setBackground(@NonNull SaucerColor color);
 
     /**
      * @return the title of the Saucer window.

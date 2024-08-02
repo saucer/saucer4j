@@ -10,7 +10,6 @@ import java.util.Map;
 
 import com.sun.jna.Callback;
 import com.sun.jna.Library;
-import com.sun.jna.Pointer;
 
 import co.casterlabs.rakurai.json.Rson;
 import co.casterlabs.rakurai.json.element.JsonElement;
@@ -32,14 +31,14 @@ class ImplSaucerBridge implements SaucerBridge {
     private static final String init = Resources.loadResourceString("bridge/init.js");
     private static final String ipc_object_fmt = Resources.loadResourceString("bridge/ipc_object_fmt.js");
 
-    private @PointerType ImplSaucer $saucer;
+    private ImplSaucer saucer;
 
     private Map<String, JavascriptObjectWrapper> objects = new HashMap<>();
 
-    private MessageCallback messageCallback = (String raw) -> {
+    private MessageCallback messageCallback = (_SafePointer $raw) -> {
         JsonObject message;
         try {
-            message = Rson.DEFAULT.fromJson(raw, JsonObject.class);
+            message = Rson.DEFAULT.fromJson($raw.p().getString(0), JsonObject.class);
         } catch (JsonParseException e) {
             e.printStackTrace();
             return false;
@@ -78,7 +77,7 @@ class ImplSaucerBridge implements SaucerBridge {
 
                 case "MESSAGE": {
                     JsonElement data = message.get("data");
-                    $saucer.messages.handle(data);
+                    saucer.messages.handle(data);
                     break;
                 }
 
@@ -94,7 +93,7 @@ class ImplSaucerBridge implements SaucerBridge {
                 }
 
                 case "CLOSE": {
-                    $saucer.close();
+                    saucer.close();
                     break;
                 }
 
@@ -128,14 +127,14 @@ class ImplSaucerBridge implements SaucerBridge {
 
         JsonElement requestId = message.get("requestId");
         if (isError) {
-            $saucer.webview.executeJavaScript(
+            saucer.webview.executeJavaScript(
                 String.format(
                     "if (window.saucer.__rpc.waiting[%s]) window.saucer.__rpc.waiting[%s].reject(%s);",
                     requestId, requestId, returnValue
                 )
             );
         } else {
-            $saucer.webview.executeJavaScript(
+            saucer.webview.executeJavaScript(
                 String.format(
                     "if (window.saucer.__rpc.waiting[%s]) window.saucer.__rpc.waiting[%s].resolve(%s);",
                     requestId, requestId, returnValue
@@ -146,13 +145,13 @@ class ImplSaucerBridge implements SaucerBridge {
         return true;
     };
 
-    ImplSaucerBridge(ImplSaucer $saucer) {
-        this.$saucer = $saucer;
+    ImplSaucerBridge(ImplSaucer saucer) {
+        this.saucer = saucer;
 
-        N.saucer_webview_on_message($saucer.p(), this.messageCallback);
+        N.saucer_webview_on_message(this.saucer.$handle, this.messageCallback);
 
-        this.defineObject("saucer.webview", $saucer.webview());
-        this.defineObject("saucer.window", $saucer.window());
+        this.defineObject("saucer.webview", this.saucer.webview());
+        this.defineObject("saucer.window", this.saucer.window());
     }
 
     @SneakyThrows
@@ -191,9 +190,9 @@ class ImplSaucerBridge implements SaucerBridge {
 
         String finalScript = "if (window.self === window.top) {\n" + String.join("\n\n", lines) + "\n}";
 
-        N.saucer_webview_clear_scripts($saucer.p());
-        N.saucer_webview_inject($saucer.p(), _SaucerNative.allocateUnsafe(finalScript), _Native.SAUCER_LOAD_TIME_CREATION);
-        $saucer.webview().reload();
+        N.saucer_webview_clear_scripts(this.saucer.$handle);
+        N.saucer_webview_inject(this.saucer.$handle, _SafePointer.allocate(finalScript), _Native.SAUCER_LOAD_TIME_CREATION);
+        saucer.webview().reload();
     }
 
     static interface _Native extends Library {
@@ -204,18 +203,18 @@ class ImplSaucerBridge implements SaucerBridge {
         static final int SAUCER_LOAD_TIME_CREATION = 0;
 //        static final int SAUCER_LOAD_TIME_READY = 1;
 
-        void saucer_webview_clear_scripts(Pointer $saucer);
+        void saucer_webview_clear_scripts(_SafePointer $saucer);
 
-        void saucer_webview_inject(Pointer $saucer, Pointer $javascript, int loadTime);
+        void saucer_webview_inject(_SafePointer $saucer, _SafePointer $javascript, int loadTime);
 
-        void saucer_webview_on_message(Pointer $saucer, MessageCallback callback);
+        void saucer_webview_on_message(_SafePointer $saucer, MessageCallback callback);
 
         /**
          * @implNote Do not inline this. The JVM needs this to always be accessible
          *           otherwise it will garbage collect and ruin our day.
          */
         static interface MessageCallback extends Callback {
-            boolean callback(String message);
+            boolean callback(_SafePointer $message);
         }
 
     }

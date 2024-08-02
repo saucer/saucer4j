@@ -13,6 +13,7 @@ import com.sun.jna.Pointer;
 import co.casterlabs.saucer._impl._SafePointer;
 import co.casterlabs.saucer._impl._SaucerNative;
 import co.casterlabs.saucer.documentation.InternalUseOnly;
+import co.casterlabs.saucer.documentation.NoFree;
 import lombok.Getter;
 import lombok.NonNull;
 
@@ -77,20 +78,20 @@ public final class SaucerOptions {
     @Deprecated
     @InternalUseOnly
     public _SafePointer toNative() {
-        Pointer $instance = N.saucer_options_new();
+        _SafePointer $instance = _SafePointer.of(N.saucer_options_new(), N::saucer_options_free);
 
         N.saucer_options_set_persistent_cookies($instance, this.persistientCookies);
         N.saucer_options_set_hardware_acceleration($instance, this.hardwareAcceleration);
 
         for (String flag : this.chromeFlags) {
-            N.saucer_options_add_chrome_flag($instance, flag);
+            N.saucer_options_add_chrome_flag($instance, _SaucerNative.allocateUnsafe(flag));
         }
 
         if (this.storagePath != null) {
-            N.saucer_options_set_storage_path($instance, this.storagePath.toAbsolutePath().toString());
+            N.saucer_options_set_storage_path($instance, _SaucerNative.allocateUnsafe(this.storagePath.toAbsolutePath().toString()));
         }
 
-        return _SafePointer.of($instance, N::saucer_options_free);
+        return $instance;
     }
 
     // https://github.com/saucer/saucer/blob/c-bindings/bindings/include/saucer/options.h
@@ -100,13 +101,13 @@ public final class SaucerOptions {
 
         void saucer_options_free(Pointer $instance);
 
-        void saucer_options_set_persistent_cookies(Pointer $instance, boolean enabled);
+        void saucer_options_set_persistent_cookies(_SafePointer $instance, boolean enabled);
 
-        void saucer_options_set_hardware_acceleration(Pointer $instance, boolean enabled);
+        void saucer_options_set_hardware_acceleration(_SafePointer $instance, boolean enabled);
 
-        void saucer_options_add_chrome_flag(Pointer $instance, String flag);
+        void saucer_options_add_chrome_flag(_SafePointer $instance, @NoFree Pointer $flag);
 
-        void saucer_options_set_storage_path(Pointer $instance, String path);
+        void saucer_options_set_storage_path(_SafePointer $instance, @NoFree Pointer $path);
 
     }
 

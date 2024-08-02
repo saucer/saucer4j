@@ -29,6 +29,10 @@ public class _SaucerNative {
         );
     }
 
+    public static void free(@NonNull Pointer $ptr) {
+        MEMORY.saucer_memory_free($ptr);
+    }
+
     public static Pointer allocateUnsafe(@NonNull String str) {
         byte[] content = str.getBytes(Charset.defaultCharset());
         Pointer $content = allocateUnsafe(content.length + 1);

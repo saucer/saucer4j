@@ -8,17 +8,16 @@ import co.casterlabs.saucer.SaucerBridge;
 import co.casterlabs.saucer.SaucerMessages;
 import co.casterlabs.saucer.SaucerWebview;
 import co.casterlabs.saucer.SaucerWindow;
-import co.casterlabs.saucer.documentation.PointerType;
 import co.casterlabs.saucer.utils.SaucerOptions;
 import co.casterlabs.saucer.utils.SaucerSize;
 import lombok.NonNull;
 
 @SuppressWarnings("deprecation")
-@PointerType
-class ImplSaucer extends _SafePointer implements Saucer {
+class ImplSaucer implements Saucer {
     private static final _Native N = _SaucerNative.load(_Native.class);
 
     private final _SafePointer $options;
+    final _SafePointer $handle;
 
     final ImplSaucerWebview webview;
     final ImplSaucerWindow window;
@@ -30,7 +29,7 @@ class ImplSaucer extends _SafePointer implements Saucer {
     public ImplSaucer(@NonNull SaucerOptions options) {
         $options = options.toNative();
 
-        super.setupPointer(N.saucer_new(this.$options.p()), N::saucer_free);
+        $handle = _SafePointer.of(N.saucer_new(this.$options.p()), N::saucer_free);
 
         // These need to be initialized AFTER saucer is created.
         this.webview = new ImplSaucerWebview(this);
@@ -66,19 +65,19 @@ class ImplSaucer extends _SafePointer implements Saucer {
 
     @Override
     public void run() {
-        N.saucer_window_run(this.p());
+        N.saucer_window_run($handle);
     }
 
     @Override
     public void close() {
-        N.saucer_window_close(this.p());
+        N.saucer_window_close($handle);
         this.isClosed = true;
     }
 
     static interface _Native extends Library {
 
         /* ---------------------------- */
-        // https://github.com/saucer/saucer/blob/c-bindings/bindings/include/saucer/webview.h
+        // https://github.com/saucer/saucer/blob/very-experimental/bindings/include/saucer/webview.h
         /* ---------------------------- */
 
         Pointer saucer_new(Pointer $options);
@@ -86,12 +85,12 @@ class ImplSaucer extends _SafePointer implements Saucer {
         void saucer_free(Pointer $saucer);
 
         /* ---------------------------- */
-        // https://github.com/saucer/saucer/blob/c-bindings/bindings/include/saucer/window.h
+        // https://github.com/saucer/saucer/blob/very-experimental/bindings/include/saucer/window.h
         /* ---------------------------- */
 
-        void saucer_window_close(Pointer $saucer);
+        void saucer_window_close(_SafePointer $saucer);
 
-        void saucer_window_run(Pointer $saucer);
+        void saucer_window_run(_SafePointer $saucer);
 
     }
 

@@ -6,6 +6,7 @@ import com.sun.jna.Pointer;
 import co.casterlabs.saucer._impl._SafePointer;
 import co.casterlabs.saucer._impl._SaucerNative;
 import co.casterlabs.saucer.documentation.InternalUseOnly;
+import co.casterlabs.saucer.documentation.NoFree;
 import co.casterlabs.saucer.documentation.PointerType;
 import lombok.Getter;
 import lombok.NonNull;
@@ -27,7 +28,7 @@ public final class SaucerSchemeResponse extends _SafePointer {
     }
 
     public SaucerSchemeResponse(@NonNull SaucerStash data, @NonNull String mimeType) {
-        this(N.saucer_response_new(data.p(), mimeType));
+        this(N.saucer_response_new(data.p(), _SafePointer.allocate(mimeType)));
         this.data = data;
         data.freeIsExternalNow();
     }
@@ -40,7 +41,7 @@ public final class SaucerSchemeResponse extends _SafePointer {
      * @return this instance, for chaining.
      */
     public SaucerSchemeResponse header(@NonNull String key, @NonNull String value) {
-        N.saucer_response_add_header(this.p(), key, value);
+        N.saucer_response_add_header(this, _SafePointer.allocate(key), _SafePointer.allocate(value));
         return this;
     }
 
@@ -55,11 +56,13 @@ public final class SaucerSchemeResponse extends _SafePointer {
     // https://github.com/saucer/saucer/blob/very-experimental/bindings/include/saucer/scheme.h
     static interface _Native extends Library {
 
-        Pointer saucer_response_new(Pointer $stash, String mime);
+        @NoFree
+        Pointer saucer_response_new(Pointer $stash, _SafePointer $mime);
 
+        @NoFree
         Pointer saucer_response_unexpected(int error);
 
-        void saucer_response_add_header(Pointer $instance, String key, String value);
+        void saucer_response_add_header(_SafePointer $instance, _SafePointer $key, _SafePointer $value);
 
     }
 

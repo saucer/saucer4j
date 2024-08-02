@@ -4,9 +4,6 @@ import java.awt.Color;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.sun.jna.Library;
-import com.sun.jna.Pointer;
-
 import co.casterlabs.rakurai.json.Rson;
 import co.casterlabs.rakurai.json.annotating.JsonClass;
 import co.casterlabs.rakurai.json.annotating.JsonSerializer;
@@ -14,36 +11,22 @@ import co.casterlabs.rakurai.json.element.JsonArray;
 import co.casterlabs.rakurai.json.element.JsonElement;
 import co.casterlabs.rakurai.json.element.JsonObject;
 import co.casterlabs.rakurai.json.serialization.JsonParseException;
-import co.casterlabs.saucer._impl._SafePointer;
-import co.casterlabs.saucer._impl._SaucerNative;
-import co.casterlabs.saucer.documentation.InternalUseOnly;
-import co.casterlabs.saucer.documentation.PointerType;
 import lombok.Getter;
 import lombok.NonNull;
 
 @Getter
-@PointerType
-@SuppressWarnings("deprecation")
 @JsonClass(serializer = SaucerColorSerializer.class)
-public final class SaucerColor extends _SafePointer {
-    private static final _Native N = _SaucerNative.load(_Native.class);
-
-    @Deprecated
-    @InternalUseOnly
-    public SaucerColor(@NonNull Pointer pointer) {
-        super.setupPointer(pointer, N::saucer_color_free);
-    }
-
-    public SaucerColor() {
-        super.setupPointer(N.saucer_color_new(), N::saucer_color_free);
-    }
+public final class SaucerColor {
+    private int red;
+    private int green;
+    private int blue;
+    private int alpha;
 
     public SaucerColor(int red, int green, int blue) {
         this(red, green, blue, 255);
     }
 
     public SaucerColor(int red, int green, int blue, int alpha) {
-        this();
         this.red(red);
         this.green(green);
         this.blue(blue);
@@ -55,7 +38,7 @@ public final class SaucerColor extends _SafePointer {
     }
 
     public int red() {
-        return N.saucer_color_r(this.p());
+        return this.red;
     }
 
     /**
@@ -63,12 +46,12 @@ public final class SaucerColor extends _SafePointer {
      */
     public SaucerColor red(int r) {
         assert r >= 0 && r <= 255 : "Red component must be between 0-255.";
-        N.saucer_color_set_r(this.p(), r);
+        this.red = r;
         return this;
     }
 
     public int green() {
-        return N.saucer_color_g(this.p());
+        return this.green;
     }
 
     /**
@@ -76,12 +59,12 @@ public final class SaucerColor extends _SafePointer {
      */
     public SaucerColor green(int g) {
         assert g >= 0 && g <= 255 : "Green component must be between 0-255.";
-        N.saucer_color_set_g(this.p(), g);
+        this.green = g;
         return this;
     }
 
     public int blue() {
-        return N.saucer_color_b(this.p());
+        return this.blue;
     }
 
     /**
@@ -89,12 +72,12 @@ public final class SaucerColor extends _SafePointer {
      */
     public SaucerColor blue(int b) {
         assert b >= 0 && b <= 255 : "Blue component must be between 0-255.";
-        N.saucer_color_set_b(this.p(), b);
+        this.blue = b;
         return this;
     }
 
     public int alpha() {
-        return N.saucer_color_a(this.p());
+        return this.alpha;
     }
 
     /**
@@ -102,37 +85,12 @@ public final class SaucerColor extends _SafePointer {
      */
     public SaucerColor alpha(int a) {
         assert a >= 0 && a <= 255 : "Alpha component must be between 0-255.";
-        N.saucer_color_set_a(this.p(), a);
+        this.alpha = a;
         return this;
     }
 
     public Color toAWT() {
-        return new Color(this.red(), this.blue(), this.green(), this.alpha());
-    }
-
-    // https://github.com/saucer/saucer/blob/c-bindings/bindings/include/saucer/color.h
-    static interface _Native extends Library {
-
-        Pointer saucer_color_new();
-
-        void saucer_color_free(Pointer $instance);
-
-        int saucer_color_r(Pointer $instance);
-
-        int saucer_color_g(Pointer $instance);
-
-        int saucer_color_b(Pointer $instance);
-
-        int saucer_color_a(Pointer $instance);
-
-        void saucer_color_set_r(Pointer $instance, int r);
-
-        void saucer_color_set_g(Pointer $instance, int g);
-
-        void saucer_color_set_b(Pointer $instance, int b);
-
-        void saucer_color_set_a(Pointer $instance, int a);
-
+        return new Color(this.red, this.blue, this.green, this.alpha);
     }
 
 }
@@ -148,10 +106,12 @@ class SaucerColorSerializer implements JsonSerializer<SaucerColor> {
             JsonArray arr = value.getAsArray();
             assert arr.size() < 3 || arr.size() > 4 : new JsonParseException("Array must be either 3 or 4 elements for RGBA.");
 
-            SaucerColor color = new SaucerColor();
-            color.red(arr.getNumber(0).intValue());
-            color.green(arr.getNumber(1).intValue());
-            color.blue(arr.getNumber(2).intValue());
+            SaucerColor color = new SaucerColor(
+                arr.getNumber(0).intValue(),
+                arr.getNumber(1).intValue(),
+                arr.getNumber(2).intValue(),
+                0
+            );
 
             if (arr.size() == 4) {
                 color.alpha(arr.getNumber(3).intValue());
@@ -162,10 +122,12 @@ class SaucerColorSerializer implements JsonSerializer<SaucerColor> {
             JsonObject obj = value.getAsObject();
             assert obj.containsKey("red") && obj.containsKey("green") && obj.containsKey("blue") : new JsonParseException("Object must have  `red`, `green`, `blue`, and optionally `alpha`");
 
-            SaucerColor color = new SaucerColor();
-            color.red(obj.getNumber("red").intValue());
-            color.green(obj.getNumber("green").intValue());
-            color.blue(obj.getNumber("blue").intValue());
+            SaucerColor color = new SaucerColor(
+                obj.getNumber("red").intValue(),
+                obj.getNumber("green").intValue(),
+                obj.getNumber("blue").intValue(),
+                0
+            );
 
             if (obj.containsKey("alpha")) {
                 color.alpha(obj.getNumber("alpha").intValue());

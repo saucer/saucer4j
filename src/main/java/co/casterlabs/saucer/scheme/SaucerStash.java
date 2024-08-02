@@ -26,11 +26,11 @@ public final class SaucerStash extends _SafePointer {
     }
 
     public int size() {
-        return N.saucer_stash_size(this.p()).intValue();
+        return N.saucer_stash_size(this).intValue();
     }
 
     public byte[] data() {
-        Pointer pointer = N.saucer_stash_data(this.p());
+        Pointer pointer = N.saucer_stash_data(this);
         int size = this.size();
         return pointer.getByteArray(0, size);
     }
@@ -49,9 +49,9 @@ public final class SaucerStash extends _SafePointer {
 
         void saucer_stash_free(Pointer $instance);
 
-        size_t saucer_stash_size(Pointer $instance);
+        size_t saucer_stash_size(_SafePointer $instance);
 
-        Pointer saucer_stash_data(Pointer $instance);
+        Pointer saucer_stash_data(_SafePointer $instance);
 
     }
 
