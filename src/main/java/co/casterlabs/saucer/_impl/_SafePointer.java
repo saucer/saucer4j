@@ -2,7 +2,6 @@ package co.casterlabs.saucer._impl;
 
 import java.util.function.Consumer;
 
-import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
 import co.casterlabs.saucer.documentation.InternalUseOnly;
@@ -22,7 +21,7 @@ import lombok.NonNull;
 @Deprecated
 @InternalUseOnly
 public class _SafePointer {
-    private static final Consumer<Pointer> DEFAULT_FREE = (p) -> Native.free(Pointer.nativeValue(p));
+    private static final Consumer<Pointer> DEFAULT_FREE = _SaucerNative.MEMORY::saucer_memory_free;
 
     private Pointer $ptr;
     private Consumer<Pointer> free;
@@ -82,7 +81,7 @@ public class _SafePointer {
         this.hasBeenFreed = true; // Import!
     }
 
-    protected Pointer p() {
+    public Pointer p() {
         if (this.hasBeenFreed) {
             throw new IllegalStateException("Use after free!");
         }

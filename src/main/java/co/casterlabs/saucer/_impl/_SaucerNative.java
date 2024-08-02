@@ -14,6 +14,7 @@ import lombok.NonNull;
 @Deprecated
 @InternalUseOnly
 public class _SaucerNative {
+    static final _MemoryNative MEMORY = _SaucerNative.load(_MemoryNative.class);
 
     static {
         _SaucerNative.class.getClassLoader().setPackageAssertionStatus("co.casterlas.saucer", true);
@@ -36,7 +37,7 @@ public class _SaucerNative {
     }
 
     public static Pointer allocateUnsafe(int length) {
-        Pointer $content = new Pointer(Native.malloc(length)); // NON GC'ABLE!
+        Pointer $content = MEMORY.saucer_memory_alloc(new size_t(length)); // NON GC'ABLE!
         $content.clear(length);
         return $content;
     }
@@ -61,6 +62,15 @@ public class _SaucerNative {
             }
             return new size_t(value);
         }
+
+    }
+
+    // https://github.com/saucer/saucer/blob/very-experimental/bindings/include/saucer/memory.h
+    static interface _MemoryNative extends Library {
+
+        void saucer_memory_free(Pointer $ptr);
+
+        Pointer saucer_memory_alloc(size_t size);
 
     }
 

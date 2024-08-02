@@ -38,13 +38,6 @@ public final class SaucerStash extends _SafePointer {
     @InternalUseOnly
     @Deprecated
     @Override
-    protected Pointer p() {
-        return super.p();
-    }
-
-    @InternalUseOnly
-    @Deprecated
-    @Override
     protected void freeIsExternalNow() {
         super.freeIsExternalNow();
     }
