@@ -10,12 +10,12 @@ import java.util.Map;
 
 import com.sun.jna.Callback;
 import com.sun.jna.Library;
+import com.sun.jna.Pointer;
 
 import co.casterlabs.rakurai.json.Rson;
 import co.casterlabs.rakurai.json.element.JsonElement;
 import co.casterlabs.rakurai.json.element.JsonObject;
 import co.casterlabs.rakurai.json.element.JsonString;
-import co.casterlabs.rakurai.json.serialization.JsonParseException;
 import co.casterlabs.saucer.SaucerBridge;
 import co.casterlabs.saucer._impl.ImplSaucerBridge._Native.MessageCallback;
 import co.casterlabs.saucer.bridge.JavascriptObject;
@@ -35,13 +35,13 @@ class ImplSaucerBridge implements SaucerBridge {
 
     private Map<String, JavascriptObjectWrapper> objects = new HashMap<>();
 
-    private MessageCallback messageCallback = (_SafePointer $raw) -> {
+    private MessageCallback messageCallback = (Pointer $raw) -> {
         JsonObject message;
         try {
-            String raw = $raw.p().getString(0, "UTF-8");
+            String raw = $raw.getString(0, "UTF-8");
             message = Rson.DEFAULT.fromJson(raw, JsonObject.class);
-        } catch (JsonParseException e) {
-            e.printStackTrace();
+        } catch (Throwable t) {
+            t.printStackTrace();
             return false;
         }
 
@@ -212,7 +212,7 @@ class ImplSaucerBridge implements SaucerBridge {
          *           otherwise it will garbage collect and ruin our day.
          */
         static interface MessageCallback extends Callback {
-            boolean callback(_SafePointer $message);
+            boolean callback(Pointer $message);
         }
 
     }
