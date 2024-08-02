@@ -1,7 +1,11 @@
 package co.casterlabs.saucer;
 
 import java.lang.reflect.Constructor;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Supplier;
 
+import co.casterlabs.saucer.documentation.ThreadSafe;
 import co.casterlabs.saucer.utils.SaucerOptions;
 import lombok.NonNull;
 import lombok.SneakyThrows;
@@ -15,6 +19,37 @@ public interface Saucer extends AutoCloseable {
     public SaucerBridge bridge();
 
     public SaucerMessages messages();
+
+    @ThreadSafe
+    public void dispatchAsync(@NonNull Runnable task);
+
+    @ThreadSafe
+    default void dispatch(@NonNull Runnable task) {
+        this.dispatch(() -> {
+            task.run();
+            return null;
+        });
+    }
+
+    @SneakyThrows
+    @ThreadSafe
+    default <T> T dispatch(@NonNull Supplier<T> task) {
+        CompletableFuture<T> future = new CompletableFuture<T>();
+        this.dispatchAsync(() -> {
+            try {
+                T result = task.get();
+                future.complete(result);
+            } catch (Throwable t) {
+                future.completeExceptionally(t);
+            }
+        });
+
+        try {
+            return future.get();
+        } catch (ExecutionException e) {
+            throw e.getCause();
+        }
+    }
 
     /**
      * Starts the window loop. Note that this blocks until the webview is closed by

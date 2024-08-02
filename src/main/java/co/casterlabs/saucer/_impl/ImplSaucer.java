@@ -1,5 +1,6 @@
 package co.casterlabs.saucer._impl;
 
+import com.sun.jna.Callback;
 import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 
@@ -64,6 +65,11 @@ class ImplSaucer implements Saucer {
     }
 
     @Override
+    public void dispatchAsync(@NonNull Runnable task) {
+        N.saucer_window_dispatch($handle, task::run);
+    }
+
+    @Override
     public void run() {
         N.saucer_window_run($handle);
     }
@@ -91,6 +97,16 @@ class ImplSaucer implements Saucer {
         void saucer_window_close(_SafePointer $saucer);
 
         void saucer_window_run(_SafePointer $saucer);
+
+        void saucer_window_dispatch(_SafePointer $saucer, WindowDispatchCallback callback);
+
+        /**
+         * @implNote Do not inline this. The JVM needs this to always be accessible
+         *           otherwise it will garbage collect and ruin our day.
+         */
+        static interface WindowDispatchCallback extends Callback {
+            void callback();
+        }
 
     }
 
