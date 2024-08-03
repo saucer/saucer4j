@@ -21,21 +21,13 @@ public interface Saucer extends AutoCloseable {
     public SaucerMessages messages();
 
     @ThreadSafe
-    public void dispatchAsync(@NonNull Runnable task);
-
-    @ThreadSafe
-    default void dispatch(@NonNull Runnable task) {
-        this.dispatch(() -> {
-            task.run();
-            return null;
-        });
-    }
+    public void dispatch(@NonNull Runnable task);
 
     @SneakyThrows
     @ThreadSafe
     default <T> T dispatch(@NonNull Supplier<T> task) {
         CompletableFuture<T> future = new CompletableFuture<T>();
-        this.dispatchAsync(() -> {
+        this.dispatch(() -> {
             try {
                 T result = task.get();
                 future.complete(result);

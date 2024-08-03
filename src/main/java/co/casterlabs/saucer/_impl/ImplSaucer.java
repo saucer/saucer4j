@@ -65,7 +65,7 @@ class ImplSaucer implements Saucer {
     }
 
     @Override
-    public void dispatchAsync(@NonNull Runnable task) {
+    public void dispatch(@NonNull Runnable task) {
         N.saucer_window_dispatch($handle, task::run);
     }
 
