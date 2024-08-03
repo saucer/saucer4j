@@ -215,6 +215,18 @@ class ImplSaucerWebview implements SaucerWebview {
         return new SaucerIcon(icon);
     }
 
+    @JavascriptGetter("forceDarkAppearance")
+    @Override
+    public boolean isForceDarkAppearance() {
+        return N.saucer_webview_force_dark_mode(this.saucer.$handle);
+    }
+
+    @JavascriptSetter("forceDarkAppearance")
+    @Override
+    public void setForceDarkAppearance(boolean shouldAppearDark) {
+        N.saucer_webview_set_force_dark_mode(this.saucer.$handle, shouldAppearDark);
+    }
+
     @Override
     public void setListener(@Nullable SaucerWebviewListener listener) {
         this.eventListener = listener;
@@ -266,6 +278,10 @@ class ImplSaucerWebview implements SaucerWebview {
         boolean saucer_webview_set_background(_SafePointer $saucer, byte r, byte g, byte b, byte a);
 
         Pointer saucer_webview_favicon(_SafePointer $saucer);
+
+        boolean saucer_webview_force_dark_mode(_SafePointer $saucer);
+
+        void saucer_webview_set_force_dark_mode(_SafePointer $saucer, boolean enabled);
 
         long saucer_webview_on(_SafePointer $saucer, int saucerWebEvent, Callback callback);
 

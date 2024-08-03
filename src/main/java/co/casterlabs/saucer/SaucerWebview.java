@@ -104,6 +104,25 @@ public interface SaucerWebview {
     public SaucerIcon getFavicon();
 
     /**
+     * @return true if the `prefers-color-scheme` media query is forcibly set to
+     *         `dark`.
+     */
+    @ThreadSafe
+    @AvailableFromJS
+    public boolean isForceDarkAppearance();
+
+    /**
+     * Forces the `prefers-color-scheme` media query to `dark` if true.
+     * 
+     * @implNote The Qt5 backend does not support this, so the call will do nothing
+     *           on the Qt5 backend.
+     * @implNote For Qt6, a version of 6.7 or greater is required for this to work.
+     */
+    @ThreadSafe
+    @AvailableFromJS
+    public void setForceDarkAppearance(boolean shouldAppearDark);
+
+    /**
      * Allows you to receive events from the Webview, such as page load or
      * navigation events.
      */
