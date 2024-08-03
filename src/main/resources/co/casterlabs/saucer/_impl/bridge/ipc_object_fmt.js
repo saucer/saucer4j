@@ -48,11 +48,6 @@ const proxy = new Proxy(object, {
 		if (typeof obj[propertyName] !== "undefined") {
 		    return obj[propertyName]; // For functions & watchForMutate fields.
 		}
-	
-		if (RPC.wfmFields[`${id}.${propertyName}`] !== "undefined") {
-			// We already have the latest data. Go ahead and use that.
-			return Promise.resolve(RPC.wfmFields[`${id}.${propertyName}`]);
-		}
 
         return RPC.get(id, propertyName);
     },
