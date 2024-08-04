@@ -5,11 +5,15 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 
+import co.casterlabs.commons.platform.LinuxLibC;
+import co.casterlabs.commons.platform.Platform;
+import co.casterlabs.saucer._impl._SaucerNative;
 import co.casterlabs.saucer.documentation.ThreadSafe;
 import co.casterlabs.saucer.utils.SaucerOptions;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 
+@SuppressWarnings("deprecation")
 public interface Saucer extends AutoCloseable {
 
     public SaucerWebview webview();
@@ -76,6 +80,62 @@ public interface Saucer extends AutoCloseable {
         constructor.setAccessible(true);
 
         return (Saucer) constructor.newInstance(options);
+    }
+
+    @SneakyThrows
+    public static void openLinkInSystemBrowser(@NonNull String link) {
+        switch (Platform.osDistribution) {
+            case MACOS:
+                Runtime.getRuntime().exec(new String[] {
+                        "open",
+                        link
+                });
+                break;
+
+            case WINDOWS_NT:
+                Runtime.getRuntime().exec(new String[] {
+                        "rundll32",
+                        "url.dll,FileProtocolHandler",
+                        link
+                });
+                break;
+
+            case LINUX:
+                Runtime.getRuntime().exec(new String[] {
+                        "xdg-open",
+                        link
+                });
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    public static String getArchTarget() {
+        return Platform.archTarget;
+    }
+
+    @SneakyThrows
+    public static String getSystemTarget() {
+        switch (Platform.osDistribution) {
+            case LINUX:
+                if (LinuxLibC.isGNU()) {
+                    return "GNU_Linux";
+                } else {
+                    return null;
+                }
+
+            case WINDOWS_NT:
+                return "Windows";
+
+            default:
+                return null;
+        }
+    }
+
+    public static String getBackend() {
+        return _SaucerNative.backend;
     }
 
 }

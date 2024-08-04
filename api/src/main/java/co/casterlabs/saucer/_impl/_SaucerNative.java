@@ -15,13 +15,10 @@ import lombok.NonNull;
 @InternalUseOnly
 public class _SaucerNative {
     static final _MemoryNative MEMORY = _SaucerNative.load(_MemoryNative.class);
-
-    static {
-        _SaucerNative.class.getClassLoader().setPackageAssertionStatus("co.casterlas.saucer", true);
-        Resources.loadNatives();
-    }
+    public static String backend;
 
     public static <T extends Library> T load(@NonNull Class<T> clazz) {
+        Resources.loadNatives();
         return Native.load(
             "saucer-bindings",
             clazz,

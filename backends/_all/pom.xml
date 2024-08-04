@@ -1,25 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>backends</artifactId>
-	<packaging>pom</packaging>
-
-	<modules>
-		<module>_all</module>
-	</modules>
+	<artifactId>_all</artifactId>
 
 	<parent>
 		<groupId>co.casterlabs.saucer4j</groupId>
-		<artifactId>saucer4j</artifactId>
+		<artifactId>backends</artifactId>
 		<version>PLACEHOLDER</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-
+	
 	<dependencies>
-		<dependency>
-			<groupId>co.casterlabs.saucer4j</groupId>
-			<artifactId>api</artifactId>
-			<version>${project.parent.version}</version>
-			<scope>compile</scope>
-		</dependency>
 	</dependencies>
 </project>
