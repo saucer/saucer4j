@@ -6,28 +6,25 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import org.reflections.Reflections;
+
 import co.casterlabs.commons.io.streams.StreamUtil;
 import co.casterlabs.commons.platform.LinuxLibC;
 import co.casterlabs.saucer.Saucer;
+import co.casterlabs.saucer._impl._Backend.SaucerBackend;
 import lombok.SneakyThrows;
 
 @SuppressWarnings("deprecation")
 class Resources {
     private static final String HELP_URL_BASE = "https://example.com";
     private static final String HELP_URL_REQUIRED_DEPENDENCIES = HELP_URL_BASE + "/required-dependencies?system=%s&arch=%s&isGnu=%b";
-
-    private static final String[] BACKEND_CLASSES = { // TODO keep in-sync with everything :)
-            "BackendQt5",
-            "BackendQt6",
-            "BackendWebview2"
-    };
 
     private static boolean alreadyLoaded = false;
 
@@ -71,11 +68,23 @@ class Resources {
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ignored) {}
 
         try {
-            List<Backend> backends = discoverBackends();
+            List<_Backend> backends = new Reflections(Resources.class.getPackageName())
+                .getTypesAnnotatedWith(SaucerBackend.class)
+                .stream()
+                .map((clazz) -> {
+                    try {
+                        return (_Backend) clazz.newInstance();
+                    } catch (InstantiationException | IllegalAccessException e) {
+                        e.printStackTrace();
+                        return null;
+                    }
+                })
+                .filter((instance) -> instance != null)
+                .collect(Collectors.toList());
 
-            Backend chosenBackend = null;
+            _Backend chosenBackend = null;
             if (EnvironmentAndProperties.natives_forceBackend == null) {
-                for (Backend backend : backends) {
+                for (_Backend backend : backends) {
                     if (backend.checkDependencies()) {
                         chosenBackend = backend;
                         break;
@@ -85,7 +94,7 @@ class Resources {
                 // We don't even check if it's compatible. We trust that the user knows what
                 // they're doing in this case.
                 String forced = EnvironmentAndProperties.natives_forceBackend;
-                for (Backend backend : backends) {
+                for (_Backend backend : backends) {
                     if (backend.getType().equalsIgnoreCase(forced)) {
                         chosenBackend = backend;
                         break;
@@ -143,19 +152,6 @@ class Resources {
             }
         }
         throw new RuntimeException(message + " | " + buttonName + ": " + helpUrl);
-    }
-
-    private static List<Backend> discoverBackends() {
-        List<Backend> discovered = new LinkedList<>();
-        String basePackage = Resources.class.getPackageName();
-
-        for (String clazz : BACKEND_CLASSES) {
-            try {
-                discovered.add((Backend) Class.forName(basePackage + '.' + clazz).newInstance());
-            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException ignored) {}
-        }
-
-        return discovered;
     }
 
 }

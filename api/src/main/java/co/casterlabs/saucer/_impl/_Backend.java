@@ -2,6 +2,10 @@ package co.casterlabs.saucer._impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,7 +19,7 @@ import com.sun.jna.Native;
 import co.casterlabs.commons.io.streams.StreamUtil;
 import co.casterlabs.saucer.Saucer;
 
-public abstract class Backend {
+public abstract class _Backend {
 
     public boolean canLoad() throws IOException {
         if (Arrays.binarySearch(this.supportedSystemTargets(), Saucer.getSystemTarget()) == -1) {
@@ -76,6 +80,12 @@ public abstract class Backend {
     }
 
     static interface DummyLibrary extends Library {
+
+    }
+
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    public static @interface SaucerBackend {
 
     }
 

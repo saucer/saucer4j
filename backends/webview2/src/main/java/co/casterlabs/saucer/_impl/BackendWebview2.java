@@ -2,7 +2,10 @@ package co.casterlabs.saucer._impl;
 
 import java.io.IOException;
 
-public class BackendWebview2 extends Backend {
+import co.casterlabs.saucer._impl._Backend.SaucerBackend;
+
+@SaucerBackend
+public class BackendWebview2 extends _Backend {
 
     @Override
     public boolean checkDependencies() throws IOException {
