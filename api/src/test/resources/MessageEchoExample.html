@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <h1>Hello world!</h1>
+	<p>
+		Try using the Dev Tools to send a message, such as:
+		<pre>saucer.messages.emit("hello world!");</pre>
+	</p> <br />
+	<button onclick="saucer.webview.devtoolsVisible = true;">
+	  Open Developer Tools
+	</button> <br />
+    <sub>With ❤️ from saucer_java</sub>
+	
+	<script>
+		saucer.messages.onMessage((data) => {
+			alert("Got message from Java!\n" + JSON.stringify(data)); // Show a popup with the message we received.
+		});
+	</script>
+  </body>
+</html>

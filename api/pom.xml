@@ -1,0 +1,52 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>api</artifactId>
+
+	<parent>
+		<groupId>co.casterlabs.saucer4j</groupId>
+		<artifactId>saucer4j</artifactId>
+		<version>PLACEHOLDER</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+	
+	<repositories>
+		<repository>
+			<id>casterlabs-maven</id>
+			<url>https://repo.casterlabs.co/maven</url>
+		</repository>
+	</repositories>
+
+	<dependencies>
+		<dependency>
+			<groupId>co.casterlabs.commons</groupId>
+			<artifactId>platform</artifactId>
+			<version>1.7.1</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>co.casterlabs.commons</groupId>
+			<artifactId>io</artifactId>
+			<version>1.7.1</version>
+			<scope>compile</scope>
+		</dependency>
+        <dependency>
+            <groupId>co.casterlabs</groupId>
+            <artifactId>rson</artifactId>
+            <version>1.18.0</version>
+            <scope>compile</scope>
+        </dependency>
+
+		<dependency>
+			<groupId>net.java.dev.jna</groupId>
+			<artifactId>jna</artifactId>
+			<version>5.14.0</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.java.dev.jna</groupId>
+			<artifactId>jna-platform</artifactId>
+			<version>5.14.0</version>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
+</project>
