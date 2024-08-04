@@ -28,11 +28,6 @@ import lombok.NonNull;
 @JavascriptObject
 class ImplSaucerWebview implements SaucerWebview {
     private static final _Native N = _SaucerNative.load(_Native.class);
-    private static final String CUSTOM_SCHEME = "saucer";
-
-    static {
-        N.saucer_register_scheme(_SafePointer.allocate(CUSTOM_SCHEME));
-    }
 
     private final ImplSaucer saucer;
 
@@ -131,7 +126,7 @@ class ImplSaucerWebview implements SaucerWebview {
         N.saucer_webview_on(this.saucer.$handle, _Native.SAUCER_WEB_EVENT_URL_CHANGED, this.webEventUrlChangedCallback);
         N.saucer_webview_on(this.saucer.$handle, _Native.SAUCER_WEB_EVENT_DOM_READY, this.webEventDomReadyCallback);
 
-        N.saucer_webview_handle_scheme(this.saucer.$handle, _SafePointer.allocate(CUSTOM_SCHEME), this.schemeHandlerCallback);
+        N.saucer_webview_handle_scheme(this.saucer.$handle, _SafePointer.allocate(ImplSaucer.CUSTOM_SCHEME), this.schemeHandlerCallback);
     }
 
     @JavascriptGetter("devtoolsVisible")
@@ -162,7 +157,7 @@ class ImplSaucerWebview implements SaucerWebview {
     @JavascriptFunction
     @Override
     public void serveScheme(@NonNull String path) {
-        N.saucer_webview_serve_scheme(this.saucer.$handle, _SafePointer.allocate(path), _SafePointer.allocate(CUSTOM_SCHEME));
+        N.saucer_webview_serve_scheme(this.saucer.$handle, _SafePointer.allocate(path), _SafePointer.allocate(ImplSaucer.CUSTOM_SCHEME));
     }
 
     @JavascriptGetter("contextMenuAllowed")
@@ -286,8 +281,6 @@ class ImplSaucerWebview implements SaucerWebview {
         long saucer_webview_on(_SafePointer $saucer, int saucerWebEvent, Callback callback);
 
         void saucer_webview_handle_scheme(_SafePointer $saucer, _SafePointer $scheme, WebviewSchemeCallback callback);
-
-        void saucer_register_scheme(_SafePointer $name);
 
         /**
          * @implNote Do not inline this. The JVM needs this to always be accessible

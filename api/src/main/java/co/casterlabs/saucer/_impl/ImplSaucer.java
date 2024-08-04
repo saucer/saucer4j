@@ -15,6 +15,7 @@ import lombok.NonNull;
 @SuppressWarnings("deprecation")
 class ImplSaucer implements Saucer {
     private static final _Native N = _SaucerNative.load(_Native.class);
+    static final String CUSTOM_SCHEME = "app";
 
     private final _SafePointer $options;
     final _SafePointer $handle;
@@ -25,6 +26,10 @@ class ImplSaucer implements Saucer {
     final ImplSaucerMessages messages;
 
     boolean isClosed = false;
+
+    static {
+        N.saucer_register_scheme(_SafePointer.allocate(CUSTOM_SCHEME));
+    }
 
     public ImplSaucer(@NonNull SaucerOptions options) {
         $options = options.toNative();
@@ -81,6 +86,8 @@ class ImplSaucer implements Saucer {
         /* ---------------------------- */
         // https://github.com/saucer/saucer/blob/very-experimental/bindings/include/saucer/webview.h
         /* ---------------------------- */
+
+        void saucer_register_scheme(_SafePointer $name);
 
         Pointer saucer_new(Pointer $options);
 
