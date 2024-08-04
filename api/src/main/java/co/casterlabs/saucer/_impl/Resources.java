@@ -16,15 +16,14 @@ import javax.swing.UnsupportedLookAndFeelException;
 import org.reflections.Reflections;
 
 import co.casterlabs.commons.io.streams.StreamUtil;
-import co.casterlabs.commons.platform.LinuxLibC;
 import co.casterlabs.saucer.Saucer;
 import co.casterlabs.saucer._impl._SaucerBackend.FindThisSaucerBackend;
 import lombok.SneakyThrows;
 
 @SuppressWarnings("deprecation")
 class Resources {
-    private static final String HELP_URL_BASE = "https://example.com";
-    private static final String HELP_URL_REQUIRED_DEPENDENCIES = HELP_URL_BASE + "/required-dependencies?system=%s&arch=%s&isGnu=%b";
+    private static final String HELP_URL_BASE = "https://github.com/saucer/saucer4j/wiki";
+    private static final String HELP_URL_REQUIRED_DEPENDENCIES = HELP_URL_BASE + "/Backends";
 
     private static boolean alreadyLoaded = false;
 
@@ -103,15 +102,10 @@ class Resources {
             }
 
             if (chosenBackend == null) {
-                boolean isGnu = false;
-                try {
-                    isGnu = LinuxLibC.isGNU();
-                } catch (Throwable ignored) {}
-
                 showError(
                     "Couldn't load a suitable backend.",
                     "Install dependencies",
-                    String.format(HELP_URL_REQUIRED_DEPENDENCIES, Saucer.getSystemTarget(), Saucer.getArchTarget(), isGnu)
+                    HELP_URL_REQUIRED_DEPENDENCIES
                 ); // Throws.
             }
 
