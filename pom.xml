@@ -8,6 +8,7 @@
 	<modules>
 		<module>api</module>
 		<module>backends</module>
+		<module>examples</module>
 	</modules>
 
 	<properties>
