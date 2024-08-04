@@ -12,13 +12,9 @@
 
 # Common
 *target/
+*.versionsBackup
+*.saucer/
 
 # Misc
 .DS_Store
 __MACOSX
-*.versionsBackup
-.saucer/
-saucer-bindings.dll
-saucer-bindings.pdb
-saucer-bindings.exp
-saucer-bindings.lib
