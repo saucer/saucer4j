@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,8 +21,11 @@ import lombok.SneakyThrows;
 @SuppressWarnings("deprecation")
 class Resources {
     private static final String HELP_URL_BASE = "https://example.com";
-
     private static final String HELP_URL_REQUIRED_DEPENDENCIES = HELP_URL_BASE + "/required-dependencies?system=%s&arch=%s&isGnu=%b";
+
+    private static final String[] BACKEND_CLASSES = { // TODO keep in-sync with everything :)
+            "BackendWebview2"
+    };
 
     private static boolean alreadyLoaded = false;
 
@@ -72,7 +74,7 @@ class Resources {
             Backend chosenBackend = null;
             if (EnvironmentAndProperties.natives_forceBackend == null) {
                 for (Backend backend : backends) {
-                    if (backend.canLoad()) {
+                    if (backend.checkDependencies()) {
                         chosenBackend = backend;
                         break;
                     }
@@ -145,7 +147,7 @@ class Resources {
         List<Backend> discovered = new LinkedList<>();
         String basePackage = Resources.class.getPackageName();
 
-        for (String clazz : Arrays.asList("BackendWebview2")) { // TODO keep in-sync with everything :)
+        for (String clazz : BACKEND_CLASSES) {
             try {
                 discovered.add((Backend) Class.forName(basePackage + '.' + clazz).newInstance());
             } catch (InstantiationException | IllegalAccessException | ClassNotFoundException ignored) {}
