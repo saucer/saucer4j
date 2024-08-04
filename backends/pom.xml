@@ -5,6 +5,8 @@
 
 	<modules>
 		<module>_all</module>
+		<module>qt5</module>
+		<module>qt6</module>
 		<module>webview2</module>
 	</modules>
 

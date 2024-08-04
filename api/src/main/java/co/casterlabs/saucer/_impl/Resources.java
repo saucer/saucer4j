@@ -24,6 +24,8 @@ class Resources {
     private static final String HELP_URL_REQUIRED_DEPENDENCIES = HELP_URL_BASE + "/required-dependencies?system=%s&arch=%s&isGnu=%b";
 
     private static final String[] BACKEND_CLASSES = { // TODO keep in-sync with everything :)
+            "BackendQt5",
+            "BackendQt6",
             "BackendWebview2"
     };
 
