@@ -22,9 +22,6 @@ import lombok.SneakyThrows;
 
 @SuppressWarnings("deprecation")
 class Resources {
-    private static final String HELP_URL_BASE = "https://github.com/saucer/saucer4j/wiki";
-    private static final String HELP_URL_REQUIRED_DEPENDENCIES = HELP_URL_BASE + "/Backends";
-
     private static boolean alreadyLoaded = false;
 
     @SneakyThrows
@@ -105,7 +102,7 @@ class Resources {
                 showError(
                     "Couldn't load a suitable backend.",
                     "Install dependencies",
-                    HELP_URL_REQUIRED_DEPENDENCIES
+                    EnvironmentAndProperties.helpurl_dependencies
                 ); // Throws.
             }
 

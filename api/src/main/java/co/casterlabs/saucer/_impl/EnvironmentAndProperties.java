@@ -10,6 +10,8 @@ class EnvironmentAndProperties {
     static boolean natives_doNotExtract = false;
     static @Nullable String natives_forceBackend = null;
 
+    static String helpurl_dependencies;
+
     static {
         Map<String, String> pe = new HashMap<>();
         System.getProperties()
@@ -34,6 +36,7 @@ class EnvironmentAndProperties {
 
         natives_doNotExtract = "true".equalsIgnoreCase(pe.get("saucer.java.natives.donotextract"));
         natives_forceBackend = pe.get("saucer.java.natives.forcebackend");
+        helpurl_dependencies = pe.getOrDefault("saucer.java.help.dependencies", "https://github.com/saucer/saucer4j/wiki/Backend-Dependencies");
     }
 
 }
