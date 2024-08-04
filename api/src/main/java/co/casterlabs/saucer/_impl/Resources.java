@@ -18,7 +18,7 @@ import org.reflections.Reflections;
 import co.casterlabs.commons.io.streams.StreamUtil;
 import co.casterlabs.commons.platform.LinuxLibC;
 import co.casterlabs.saucer.Saucer;
-import co.casterlabs.saucer._impl._Backend.SaucerBackend;
+import co.casterlabs.saucer._impl._SaucerBackend.FindThisSaucerBackend;
 import lombok.SneakyThrows;
 
 @SuppressWarnings("deprecation")
@@ -68,12 +68,12 @@ class Resources {
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ignored) {}
 
         try {
-            List<_Backend> backends = new Reflections(Resources.class.getPackageName())
-                .getTypesAnnotatedWith(SaucerBackend.class)
+            List<_SaucerBackend> backends = new Reflections(Resources.class.getPackageName())
+                .getTypesAnnotatedWith(FindThisSaucerBackend.class)
                 .stream()
                 .map((clazz) -> {
                     try {
-                        return (_Backend) clazz.newInstance();
+                        return (_SaucerBackend) clazz.newInstance();
                     } catch (InstantiationException | IllegalAccessException e) {
                         e.printStackTrace();
                         return null;
@@ -82,9 +82,9 @@ class Resources {
                 .filter((instance) -> instance != null)
                 .collect(Collectors.toList());
 
-            _Backend chosenBackend = null;
+            _SaucerBackend chosenBackend = null;
             if (EnvironmentAndProperties.natives_forceBackend == null) {
-                for (_Backend backend : backends) {
+                for (_SaucerBackend backend : backends) {
                     if (backend.checkDependencies()) {
                         chosenBackend = backend;
                         break;
@@ -94,7 +94,7 @@ class Resources {
                 // We don't even check if it's compatible. We trust that the user knows what
                 // they're doing in this case.
                 String forced = EnvironmentAndProperties.natives_forceBackend;
-                for (_Backend backend : backends) {
+                for (_SaucerBackend backend : backends) {
                     if (backend.getType().equalsIgnoreCase(forced)) {
                         chosenBackend = backend;
                         break;

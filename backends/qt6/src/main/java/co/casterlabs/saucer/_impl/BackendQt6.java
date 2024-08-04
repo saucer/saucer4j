@@ -2,10 +2,11 @@ package co.casterlabs.saucer._impl;
 
 import java.io.IOException;
 
-import co.casterlabs.saucer._impl._Backend.SaucerBackend;
+import co.casterlabs.saucer._impl._SaucerBackend.FindThisSaucerBackend;
 
-@SaucerBackend
-public class BackendQt6 extends _Backend {
+@SuppressWarnings("deprecation")
+@FindThisSaucerBackend
+public class BackendQt6 extends _SaucerBackend {
 
     @Override
     public boolean checkDependencies() throws IOException {

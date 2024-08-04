@@ -18,8 +18,11 @@ import com.sun.jna.Native;
 
 import co.casterlabs.commons.io.streams.StreamUtil;
 import co.casterlabs.saucer.Saucer;
+import co.casterlabs.saucer.documentation.InternalUseOnly;
 
-public abstract class _Backend {
+@Deprecated
+@InternalUseOnly
+public abstract class _SaucerBackend {
 
     public boolean canLoad() throws IOException {
         if (Arrays.binarySearch(this.supportedSystemTargets(), Saucer.getSystemTarget()) == -1) {
@@ -85,7 +88,7 @@ public abstract class _Backend {
 
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.RUNTIME)
-    public static @interface SaucerBackend {
+    public static @interface FindThisSaucerBackend {
 
     }
 
