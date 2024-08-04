@@ -10,5 +10,11 @@
 	</parent>
 	
 	<dependencies>
+		<dependency>
+			<groupId>co.casterlabs.saucer4j</groupId>
+			<artifactId>webview2</artifactId>
+			<version>${project.parent.version}</version>
+			<scope>compile</scope>
+		</dependency>
 	</dependencies>
 </project>
