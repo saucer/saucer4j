@@ -40,8 +40,8 @@ const RPC = {
 		await RPC.sendWithPromise({ type: "SET", objectId, propertyName, newValue }); // Wait for the set() to complete (or throw).
 		return newValue;
 	},
-	invoke: function (objectId, functionName, arguments) {
-		return RPC.sendWithPromise({ type: "INVOKE", objectId, functionName, arguments });
+	invoke: function (objectId, functionName, args) {
+		return RPC.sendWithPromise({ type: "INVOKE", objectId, functionName, arguments: args });
 	},
 	checkForMutations: function () {
 		return RPC.sendWithPromise({ type: "CHECK_MUTATION" });
