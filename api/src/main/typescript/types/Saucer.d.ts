@@ -42,14 +42,14 @@ export declare type SaucerMessages = {
 
 export declare type SaucerWebview = {
   /**
-   * Whether or not not the context menu is enabled (i.e the right-click menu).
+   * Whether or not the context menu is enabled (i.e the right-click menu).
    *
    * Set this value to change it.
    */
   contextMenuAllowed: Promise<boolean> | boolean;
 
   /**
-   * Whether or not not the dev tools window is visible.
+   * Whether or not the dev tools window is visible.
    *
    * Set this value to change it.
    */
@@ -61,6 +61,24 @@ export declare type SaucerWebview = {
    * Set this value to change it.
    */
   currentUrl: Promise<string> | string;
+
+  /**
+   * The background color of the Saucer window. Note that this is
+   *         different from the HTML background.
+   *
+   * Note that applying blur effects in HTML will not cause the apps behind the
+   *           window to appear blurred.
+   *
+   * Set this value to change it.
+   */
+  background: Promise<SaucerColor> | SaucerColor;
+
+  /**
+   * Whether or not the `prefers-color-scheme` media query is forcibly set to `dark`
+   *
+   * Set this value to change it.
+   */
+  forceDarkAppearance: Promise<boolean> | boolean;
 
   /**
    * Reloads the current page.
@@ -92,17 +110,6 @@ export declare type SaucerWindow = {
    * Set this value to change it.
    */
   alwaysOnTop: Promise<boolean> | boolean;
-
-  /**
-   * The background color of the Saucer window. Note that this is
-   *         different from the HTML background.
-   *
-   * Note that applying blur effects in HTML will not cause the apps behind the
-   *           window to appear blurred.
-   *
-   * Set this value to change it.
-   */
-  background: Promise<SaucerColor> | SaucerColor;
 
   /**
    * Whether or not Saucer has decorations (i.e the title bar).
@@ -175,7 +182,7 @@ export declare type SaucerWindow = {
   title: Promise<string> | string;
 
   /**
-   * Whether or not not the context menu is enabled (i.e the right-click menu).
+   * Whether or not the context menu is enabled (i.e the right-click menu).
    *
    * Set this value to change it.
    */
