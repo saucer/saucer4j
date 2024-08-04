@@ -21,6 +21,7 @@ public class FullEmbeddedSiteExample {
         saucer.webview().setSchemeHandler(SaucerSchemeHandler.fromResources(FullEmbeddedSiteExample.class, "/full"));  // Scan for files under the name `/full` in the current jar.
         saucer.webview().serveScheme("index.html"); // Tell Saucer to serve the index file.
 
+        saucer.window().show();
         saucer.run(); // This blocks until the user closes the window.
     }
 

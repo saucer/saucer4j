@@ -34,6 +34,7 @@ public class IconAndTitleExample {
 
         saucer.webview().setUrl("https://google.com");
 
+        saucer.window().show();
         saucer.run(); // This blocks until the user closes the window.
     }
 

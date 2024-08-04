@@ -21,6 +21,7 @@ public class UndecoratedExample {
         saucer.webview().setSchemeHandler(SaucerSchemeHandler.fromResources(UndecoratedExample.class)); // Read the contents from our resources.
         saucer.webview().serveScheme("UndecoratedExample.html");
 
+        saucer.window().show();
         saucer.run(); // This blocks until the user closes the window.
     }
 

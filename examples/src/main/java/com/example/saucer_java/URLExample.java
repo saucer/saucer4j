@@ -18,6 +18,7 @@ public class URLExample {
 
         saucer.webview().setUrl("https://duckduckgo.com");
 
+        saucer.window().show();
         saucer.run(); // This blocks until the user closes the window.
     }
 

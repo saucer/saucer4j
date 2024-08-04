@@ -24,6 +24,7 @@ public class MessageEchoExample {
             saucer.messages().emit(data); // Echo it back.
         });
 
+        saucer.window().show();
         saucer.run(); // This blocks until the user closes the window.
     }
 

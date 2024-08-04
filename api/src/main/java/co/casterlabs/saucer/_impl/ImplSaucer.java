@@ -10,7 +10,6 @@ import co.casterlabs.saucer.SaucerMessages;
 import co.casterlabs.saucer.SaucerWebview;
 import co.casterlabs.saucer.SaucerWindow;
 import co.casterlabs.saucer.utils.SaucerOptions;
-import co.casterlabs.saucer.utils.SaucerSize;
 import lombok.NonNull;
 
 @SuppressWarnings("deprecation")
@@ -38,10 +37,7 @@ class ImplSaucer implements Saucer {
         this.messages = new ImplSaucerMessages(this);
         this.bridge = new ImplSaucerBridge(this); // !MUST BE LAST!
 
-        this.window.show(); // Show by default.
-        this.window.setMinSize(new SaucerSize(800, 600));
-
-        this.bridge.apply(); // Apply by default.
+        this.bridge.apply(); // Apply the defaults.
     }
 
     @Override

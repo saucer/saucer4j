@@ -27,6 +27,7 @@ public class BridgeExample {
         saucer.bridge().defineObject("Example", new BridgeObjectExample(saucer));
         saucer.bridge().apply();
 
+        saucer.window().show();
         saucer.run(); // This blocks until the user closes the window.
     }
 
