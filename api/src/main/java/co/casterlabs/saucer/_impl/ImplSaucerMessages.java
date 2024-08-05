@@ -18,7 +18,7 @@ class ImplSaucerMessages implements SaucerMessages {
 
     private Map<SaucerMessageId, Consumer<JsonElement>> listeners = new HashMap<>();
 
-    ImplSaucerMessages(ImplSaucer $saucer) { // Always called from the main run thread.
+    ImplSaucerMessages(ImplSaucer $saucer) {
         this.$saucer = $saucer;
     }
 

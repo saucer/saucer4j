@@ -146,7 +146,7 @@ class ImplSaucerBridge implements SaucerBridge {
         return true;
     };
 
-    ImplSaucerBridge(ImplSaucer saucer) { // Always called from the main run thread.
+    ImplSaucerBridge(ImplSaucer saucer) {
         this.saucer = saucer;
 
         N.saucer_webview_on_message(this.saucer.$handle, this.messageCallback);

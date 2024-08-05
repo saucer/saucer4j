@@ -116,7 +116,7 @@ class ImplSaucerWebview implements SaucerWebview {
         }
     };
 
-    ImplSaucerWebview(ImplSaucer saucer) { // Always called from the main run thread.
+    ImplSaucerWebview(ImplSaucer saucer) {
         this.saucer = saucer;
 
         N.saucer_webview_on(this.saucer.$handle, _Native.SAUCER_WEB_EVENT_TITLE_CHANGED, this.webEventTitleChangedCallback);
