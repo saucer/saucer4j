@@ -73,13 +73,7 @@ public interface Saucer extends AutoCloseable {
 
     @SneakyThrows
     public static Saucer create(@NonNull SaucerOptions options) {
-        // We do this to make sure that the native code is entirely hidden from the
-        // user's view.
-        Class<?> impl = Class.forName(Saucer.class.getPackageName() + "._impl.ImplSaucer");
-        Constructor<?> constructor = impl.getConstructor(SaucerOptions.class);
-        constructor.setAccessible(true);
-
-        return (Saucer) constructor.newInstance(options);
+        return _PackageBridge.create(options);
     }
 
     @SneakyThrows
