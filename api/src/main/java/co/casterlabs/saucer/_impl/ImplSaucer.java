@@ -36,6 +36,7 @@ class ImplSaucer implements Saucer {
 
     private static volatile Thread runThread = null;
     private static volatile boolean isShuttingDown = false;
+    private static boolean hasRegisteredCustomScheme = false;
 
     static Set<ImplSaucer> windows = new HashSet<>();
 
@@ -63,11 +64,12 @@ class ImplSaucer implements Saucer {
         ImplSaucer.windows.remove(ImplSaucer.this);
     };
 
-    static {
-        N.saucer_register_scheme(_SafePointer.allocate(CUSTOM_SCHEME));
-    }
-
     public ImplSaucer(@NonNull SaucerOptions options) {
+        if (!hasRegisteredCustomScheme) {
+            hasRegisteredCustomScheme = true;
+            N.saucer_register_scheme(_SafePointer.allocate(CUSTOM_SCHEME));
+        }
+
         $options = options.toNative();
 
         $handle = _SafePointer.of(N.saucer_new(this.$options.p()), N::saucer_free);
