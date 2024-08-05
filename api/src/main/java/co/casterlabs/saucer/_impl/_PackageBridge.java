@@ -21,4 +21,18 @@ public class _PackageBridge {
         return new ImplSaucer(options);
     }
 
+    @Deprecated
+    public static <T> Future<T> dispatch(@NonNull Supplier<T> task) {
+        return ImplSaucer.dispatch(task);
+    }
+
+    @Deprecated
+    public static void run(@NonNull SaucerRunStrategy strategy) {
+        ImplSaucer.run(strategy);
+    }
+
+    public static <T> T dispatchSync(@NonNull Supplier<T> task) {
+        return ImplSaucer.dispatchSync(task);
+    }
+
 }
