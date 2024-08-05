@@ -154,7 +154,9 @@ class ImplSaucer implements Saucer {
             return task.get();
         }
 
-        Object[] $result = new Object[1]; // Pointers to avoid Java's final requirements.
+        // Pointers to avoid Java's final requirements.
+        // A CompletableFuture would be cleaner, but let's avoid creating garbage.
+        Object[] $result = new Object[1];
         Throwable[] $exception = new Throwable[1];
 
         N.saucer_window_dispatch(() -> {
@@ -165,10 +167,10 @@ class ImplSaucer implements Saucer {
             }
         });
 
-        if ($exception[0] != null) {
-            throw $exception[0];
-        } else {
+        if ($exception[0] == null) {
             return (T) $result[0];
+        } else {
+            throw $exception[0];
         }
     }
 
