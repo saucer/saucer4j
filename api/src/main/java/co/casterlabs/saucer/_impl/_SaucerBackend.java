@@ -90,6 +90,11 @@ public abstract class _SaucerBackend {
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.RUNTIME)
     public static @interface FindThisSaucerBackend {
+        /**
+         * Priority. For people hacking in their own backends, set your backend priority
+         * >= 100.
+         */
+        int value();
 
     }
 

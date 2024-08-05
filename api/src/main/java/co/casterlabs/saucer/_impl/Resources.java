@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -76,6 +77,11 @@ class Resources {
                     }
                 })
                 .filter((instance) -> instance != null)
+                .sorted(Collections.reverseOrder((b1, b2) -> {  // Descending.
+                    FindThisSaucerBackend b1a = b1.getClass().getDeclaredAnnotation(FindThisSaucerBackend.class);
+                    FindThisSaucerBackend b2a = b2.getClass().getDeclaredAnnotation(FindThisSaucerBackend.class);
+                    return Integer.compare(b1a.value(), b2a.value());
+                }))
                 .collect(Collectors.toList());
 
             _SaucerBackend chosenBackend = null;

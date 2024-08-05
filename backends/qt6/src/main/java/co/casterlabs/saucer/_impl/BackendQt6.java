@@ -5,7 +5,7 @@ import java.io.IOException;
 import co.casterlabs.saucer._impl._SaucerBackend.FindThisSaucerBackend;
 
 @SuppressWarnings("deprecation")
-@FindThisSaucerBackend
+@FindThisSaucerBackend(1) // Should be higher priority than Qt5
 public class BackendQt6 extends _SaucerBackend {
 
     @Override
