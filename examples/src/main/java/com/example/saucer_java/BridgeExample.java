@@ -3,7 +3,6 @@ package com.example.saucer_java;
 import java.io.IOException;
 
 import co.casterlabs.saucer.Saucer;
-import co.casterlabs.saucer.Saucer.SaucerRunStrategy;
 import co.casterlabs.saucer.bridge.JavascriptFunction;
 import co.casterlabs.saucer.bridge.JavascriptGetter;
 import co.casterlabs.saucer.bridge.JavascriptObject;
@@ -14,28 +13,24 @@ import co.casterlabs.saucer.utils.SaucerOptions;
 public class BridgeExample {
 
     public static void main(String[] args) throws IOException {
-        // Queue the window for creation. You must call run() before a window can be
-        // created. dispatch() allows you to asynchronously wait for run() to be called.
-        Saucer.dispatch(() -> {
-            Saucer saucer = Saucer.create(
-                new SaucerOptions()
-                    .hardwareAcceleration(true) // May not work on all computers. You should do some testing to discover if you
-                                                // need this feature and if your environments support it.
-            );
+        Saucer saucer = Saucer.create(
+            new SaucerOptions()
+                .hardwareAcceleration(true) // May not work on all computers. You should do some testing to discover if you
+                                            // need this feature and if your environments support it.
+        );
 
-            saucer.webview().setContextMenuAllowed(true); // Allow the right-click menu.
+        saucer.webview().setContextMenuAllowed(true); // Allow the right-click menu.
 
-            saucer.webview().setSchemeHandler(SaucerSchemeHandler.fromResources(BridgeExample.class)); // Read the contents from our resources.
-            saucer.webview().serveScheme("BridgeExample.html");
+        saucer.webview().setSchemeHandler(SaucerSchemeHandler.fromResources(BridgeExample.class)); // Read the contents from our resources.
+        saucer.webview().serveScheme("BridgeExample.html");
 
-            saucer.bridge().defineObject("Example", new BridgeObjectExample(saucer));
-            saucer.bridge().apply();
+        saucer.bridge().defineObject("Example", new BridgeObjectExample(saucer));
+        saucer.bridge().apply();
 
-            saucer.window().show();
-        });
+        saucer.window().show();
 
-        // This blocks until every window is closed.
-        Saucer.run(SaucerRunStrategy.RUN_UNTIL_ALL_CLOSED);
+        // This blocks until the window is closed.
+        Saucer.run();
     }
 
     @JavascriptObject
