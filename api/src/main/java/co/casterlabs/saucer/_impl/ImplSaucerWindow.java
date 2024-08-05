@@ -1,5 +1,7 @@
 package co.casterlabs.saucer._impl;
 
+import java.util.function.Supplier;
+
 import org.jetbrains.annotations.Nullable;
 
 import com.sun.jna.Callback;
@@ -7,6 +9,7 @@ import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 
 import co.casterlabs.saucer.SaucerWindow;
+import co.casterlabs.saucer._impl.ImplSaucer._Native.DispatchCallback;
 import co.casterlabs.saucer._impl.ImplSaucerWindow._Native.WindowBooleanCallback;
 import co.casterlabs.saucer._impl.ImplSaucerWindow._Native.WindowCloseEventCallback;
 import co.casterlabs.saucer._impl.ImplSaucerWindow._Native.WindowResizeEventCallback;
@@ -18,6 +21,7 @@ import co.casterlabs.saucer.bridge.JavascriptSetter;
 import co.casterlabs.saucer.utils.SaucerIcon;
 import co.casterlabs.saucer.utils.SaucerSize;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 
 @JavascriptObject
 @SuppressWarnings("deprecation")
@@ -101,6 +105,30 @@ class ImplSaucerWindow implements SaucerWindow {
         N.saucer_window_on(this.saucer.$handle, _Native.SAUCER_WINDOW_EVENT_RESIZE, this.windowEventResizeCallback);
         N.saucer_window_on(this.saucer.$handle, _Native.SAUCER_WINDOW_EVENT_FOCUS, this.windowEventFocusCallback);
         N.saucer_window_on(this.saucer.$handle, _Native.SAUCER_WINDOW_EVENT_CLOSE, this.windowEventCloseCallback);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    @SneakyThrows
+    public <T> T dispatch(@NonNull Supplier<T> task) {
+        // Pointers to avoid Java's final requirements.
+        // A CompletableFuture would be cleaner, but let's avoid creating garbage.
+        Object[] $result = new Object[1];
+        Throwable[] $exception = new Throwable[1];
+
+        N.saucer_window_dispatch(this.saucer.$handle, () -> {
+            try {
+                $result[0] = task.get();
+            } catch (Throwable t) {
+                $exception[0] = t;
+            }
+        });
+
+        if ($exception[0] == null) {
+            return (T) $result[0];
+        } else {
+            throw $exception[0];
+        }
     }
 
     @JavascriptGetter("isFocused")
@@ -288,6 +316,8 @@ class ImplSaucerWindow implements SaucerWindow {
 
         /** Requires {@link WindowCloseEventCallback} */
         static final int SAUCER_WINDOW_EVENT_CLOSE = 5;
+
+        void saucer_window_dispatch(_SafePointer $saucer, DispatchCallback callback);
 
         boolean saucer_window_focused(_SafePointer $saucer);
 

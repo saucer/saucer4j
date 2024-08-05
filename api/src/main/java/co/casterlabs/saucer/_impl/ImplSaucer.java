@@ -2,11 +2,6 @@ package co.casterlabs.saucer._impl;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.function.Supplier;
 
 import com.sun.jna.Callback;
 import com.sun.jna.Library;
@@ -20,30 +15,18 @@ import co.casterlabs.saucer.SaucerWindow;
 import co.casterlabs.saucer._impl.ImplSaucerWindow._Native.WindowVoidCallback;
 import co.casterlabs.saucer.utils.SaucerOptions;
 import lombok.NonNull;
-import lombok.SneakyThrows;
 
 @SuppressWarnings("deprecation")
 class ImplSaucer implements Saucer {
     private static final _Native N = _SaucerNative.load(_Native.class);
     static final String CUSTOM_SCHEME = "app";
 
-    private static final ExecutorService DISPATCH_THREADS = Executors.newCachedThreadPool((Runnable r) -> {
-        Thread t = new Thread(r);
-        t.setName("Saucer - Async Dispatch Thread @" + t.hashCode());
-        t.setDaemon(true);
-        return t;
-    });
-
-    private static volatile Thread runThread = null;
-    private static volatile boolean isShuttingDown = false;
     private static boolean hasRegisteredCustomScheme = false;
 
     static Set<ImplSaucer> windows = new HashSet<>();
 
     static {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            isShuttingDown = true;
-
             for (ImplSaucer window : windows.toArray(new ImplSaucer[0])) {
                 window.close();
             }
@@ -71,8 +54,7 @@ class ImplSaucer implements Saucer {
         }
 
         $options = options.toNative();
-
-        $handle = _SafePointer.of(N.saucer_new(this.$options.p()), N::saucer_free);
+        $handle = _SafePointer.of(N.saucer_new($options.p()), N::saucer_free);
 
         // These need to be initialized AFTER saucer is created.
         this.webview = new ImplSaucerWebview(this);
@@ -114,93 +96,8 @@ class ImplSaucer implements Saucer {
         this.isClosed = true;
     }
 
-    static <T> Future<T> dispatch(@NonNull Supplier<T> task) {
-        final CompletableFuture<T> future = new CompletableFuture<T>();
-
-        if (runThread == Thread.currentThread()) {
-            // Avoid dispatch()'ing to Saucer, since we're on the runThread already.
-            try {
-                T result = task.get();
-                future.complete(result);
-            } catch (Throwable t) {
-                future.completeExceptionally(t);
-            }
-        } else {
-            DISPATCH_THREADS.submit(() -> {
-                N.saucer_window_dispatch(() -> {
-                    // Saucer will queue this up and run it once we call run().
-                    try {
-                        T result = task.get();
-                        future.complete(result);
-                    } catch (Throwable t) {
-                        future.completeExceptionally(t);
-                    }
-                });
-            });
-        }
-        return future;
-    }
-
-    @SuppressWarnings("unchecked")
-    @SneakyThrows
-    static <T> T dispatchSync(@NonNull Supplier<T> task) {
-        if (runThread == null) {
-            throw new IllegalStateException(
-                "You tried to run something with dispatchSync() before calling run(). Did you mean to do this instead?\n"
-                    + "Saucer.dispatch(() -> { /* code here */ });\n"
-                    + "Saucer.run(SaucerRunStrategy.RUN_UNTIL_ALL_CLOSED);"
-            );
-        }
-
-        if (runThread == Thread.currentThread()) {
-            // Avoid dispatch()'ing to Saucer, since we're on the runThread already.
-            return task.get();
-        }
-
-        // Pointers to avoid Java's final requirements.
-        // A CompletableFuture would be cleaner, but let's avoid creating garbage.
-        Object[] $result = new Object[1];
-        Throwable[] $exception = new Throwable[1];
-
-        N.saucer_window_dispatch(() -> {
-            try {
-                $result[0] = task.get();
-            } catch (Throwable t) {
-                $exception[0] = t;
-            }
-        });
-
-        if ($exception[0] == null) {
-            return (T) $result[0];
-        } else {
-            throw $exception[0];
-        }
-    }
-
-    static void run(@NonNull SaucerRunStrategy strategy) {
-        if (runThread != null) {
-            throw new IllegalStateException("run() is already active!");
-        }
-
-        if (isShuttingDown) {
-            return;
-        }
-
-        try {
-            switch (strategy) {
-                case RUN_FOREVER:
-                    while (!isShuttingDown) {
-                        N.saucer_window_run();
-                    }
-                    break;
-
-                case RUN_UNTIL_ALL_CLOSED:
-                    N.saucer_window_run();
-                    return;
-            }
-        } finally {
-            runThread = null;
-        }
+    static void run() {
+        N.saucer_window_run();
     }
 
     static interface _Native extends Library {
@@ -227,8 +124,6 @@ class ImplSaucer implements Saucer {
         void saucer_window_close(_SafePointer $saucer);
 
         void saucer_window_run();
-
-        void saucer_window_dispatch(DispatchCallback callback);
 
         /**
          * @implNote Do not inline this. The JVM needs this to always be accessible

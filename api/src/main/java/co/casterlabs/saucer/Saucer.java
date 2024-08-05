@@ -1,13 +1,9 @@
 package co.casterlabs.saucer;
 
-import java.util.concurrent.Future;
-import java.util.function.Supplier;
-
 import co.casterlabs.commons.platform.LinuxLibC;
 import co.casterlabs.commons.platform.Platform;
 import co.casterlabs.saucer._impl._PackageBridge;
 import co.casterlabs.saucer._impl._SaucerNative;
-import co.casterlabs.saucer.documentation.ThreadSafe;
 import co.casterlabs.saucer.utils.SaucerOptions;
 import lombok.NonNull;
 import lombok.SneakyThrows;
@@ -24,62 +20,6 @@ public interface Saucer extends AutoCloseable {
     public SaucerMessages messages();
 
     /**
-     * Asynchronously dispatches the provided task on the main run thread.
-     * 
-     * @see     #run()
-     * 
-     * @apiNote When called from the main run thread, the task will be run
-     *          synchronously in-place.
-     */
-    @SneakyThrows
-    @ThreadSafe
-    public static void dispatch(@NonNull Runnable task) {
-        dispatch(() -> {
-            task.run();
-            return null;
-        });
-    }
-
-    /**
-     * Asynchronously dispatches the provided task on the main run thread, returning
-     * a future so you can retrieve the result.
-     * 
-     * @see     #run()
-     * 
-     * @apiNote When called from the main run thread, the task will be run
-     *          synchronously in-place.
-     */
-    @ThreadSafe
-    public static <T> Future<T> dispatch(@NonNull Supplier<T> task) {
-        return _PackageBridge.dispatch(task);
-    }
-
-    /**
-     * Synchronously dispatches the provided task on the main run thread.
-     * 
-     * @see #run()
-     */
-    @SneakyThrows
-    @ThreadSafe
-    public static void dispatchSync(@NonNull Runnable task) {
-        dispatchSync(() -> {
-            task.run();
-            return null;
-        });
-    }
-
-    /**
-     * Synchronously dispatches the provided task on the main run thread, returning
-     * the result.
-     * 
-     * @see #run()
-     */
-    @ThreadSafe
-    public static <T> T dispatchSync(@NonNull Supplier<T> task) {
-        return _PackageBridge.dispatchSync(task);
-    }
-
-    /**
      * Starts the window loop. Note that this blocks until the webview is closed by
      * the user.
      * 
@@ -88,8 +28,8 @@ public interface Saucer extends AutoCloseable {
      *           and you must call this method on said thread.
      * 
      */
-    public static void run(@NonNull SaucerRunStrategy strategy) {
-        _PackageBridge.run(strategy);
+    public static void run() {
+        _PackageBridge.run();
     }
 
     /**
@@ -107,7 +47,7 @@ public interface Saucer extends AutoCloseable {
 
     @SneakyThrows
     public static Saucer create(@NonNull SaucerOptions options) {
-        return dispatchSync(() -> _PackageBridge.create(options));
+        return _PackageBridge.create(options);
     }
 
     @SneakyThrows
@@ -164,19 +104,6 @@ public interface Saucer extends AutoCloseable {
 
     public static String getBackend() {
         return _SaucerNative.backend;
-    }
-
-    public static enum SaucerRunStrategy {
-        /**
-         * Causes run() to, well, run forever. It will only be stopped with a call to
-         * System.exit().
-         */
-        RUN_FOREVER,
-
-        /**
-         * Causes run() to return when the last window is closed.
-         */
-        RUN_UNTIL_ALL_CLOSED,
     }
 
 }
