@@ -64,7 +64,7 @@ class ImplSaucer implements Saucer {
         ImplSaucer.windows.remove(ImplSaucer.this);
     };
 
-    public ImplSaucer(@NonNull SaucerOptions options) {
+    public ImplSaucer(@NonNull SaucerOptions options) { // Always called from the main run thread.
         if (!hasRegisteredCustomScheme) {
             hasRegisteredCustomScheme = true;
             N.saucer_register_scheme(_SafePointer.allocate(CUSTOM_SCHEME));

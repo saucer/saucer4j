@@ -93,7 +93,7 @@ class ImplSaucerWindow implements SaucerWindow {
         }
     };
 
-    ImplSaucerWindow(ImplSaucer saucer) {
+    ImplSaucerWindow(ImplSaucer saucer) { // Always called from the main run thread.
         this.saucer = saucer;
 
         N.saucer_window_on(this.saucer.$handle, _Native.SAUCER_WINDOW_EVENT_MAXIMIZE, this.windowEventMaximizeCallback);
