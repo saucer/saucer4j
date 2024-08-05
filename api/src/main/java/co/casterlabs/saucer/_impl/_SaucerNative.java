@@ -12,6 +12,7 @@ import co.casterlabs.saucer.Saucer;
 import co.casterlabs.saucer.documentation.InternalUseOnly;
 import lombok.NonNull;
 
+@SuppressWarnings("deprecation")
 @Deprecated
 @InternalUseOnly
 public class _SaucerNative {

@@ -4,6 +4,7 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import java.lang.annotation.Retention;
 
+@SuppressWarnings("deprecation")
 @Deprecated
 @InternalUseOnly
 @Retention(SOURCE)

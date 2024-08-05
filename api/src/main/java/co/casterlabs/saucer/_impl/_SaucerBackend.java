@@ -20,6 +20,7 @@ import co.casterlabs.commons.io.streams.StreamUtil;
 import co.casterlabs.saucer.Saucer;
 import co.casterlabs.saucer.documentation.InternalUseOnly;
 
+@SuppressWarnings("deprecation")
 @Deprecated
 @InternalUseOnly
 public abstract class _SaucerBackend {

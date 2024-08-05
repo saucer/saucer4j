@@ -12,6 +12,7 @@ import lombok.NonNull;
 /**
  * This class only exists to expose some methods to the public package.
  */
+@SuppressWarnings("deprecation")
 @Deprecated
 @InternalUseOnly
 public class _PackageBridge {
