@@ -128,6 +128,7 @@ class ImplSaucer implements Saucer {
         } else {
             DISPATCH_THREADS.submit(() -> {
                 N.saucer_window_dispatch(() -> {
+                    // Saucer will queue this up and run it once we call run().
                     try {
                         T result = task.get();
                         future.complete(result);
