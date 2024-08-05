@@ -6,7 +6,6 @@ import com.sun.jna.Callback;
 import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 
-import co.casterlabs.saucer.Saucer;
 import co.casterlabs.saucer.SaucerWebview;
 import co.casterlabs.saucer._impl.ImplSaucerWebview._Native.WebviewPointerCallback;
 import co.casterlabs.saucer._impl.ImplSaucerWebview._Native.WebviewSchemeCallback;
@@ -133,98 +132,92 @@ class ImplSaucerWebview implements SaucerWebview {
     @JavascriptGetter("devtoolsVisible")
     @Override
     public boolean isDevtoolsVisible() {
-        return Saucer.dispatchSync(() -> N.saucer_webview_dev_tools(this.saucer.$handle));
+        return N.saucer_webview_dev_tools(this.saucer.$handle);
     }
 
     @JavascriptSetter("devtoolsVisible")
     @Override
     public void setDevtoolsVisible(boolean show) {
-        Saucer.dispatchSync(() -> N.saucer_webview_set_dev_tools(this.saucer.$handle, show));
+        N.saucer_webview_set_dev_tools(this.saucer.$handle, show);
     }
 
     @JavascriptGetter("currentUrl")
     @Override
     public String currentUrl() {
-        return Saucer.dispatchSync(() -> {
-            _SafePointer $url = N.saucer_webview_url(this.saucer.$handle);
-            return $url.p().getString(0, "UTF-8");
-        });
+        _SafePointer $url = N.saucer_webview_url(this.saucer.$handle);
+        return $url.p().getString(0, "UTF-8");
     }
 
     @JavascriptSetter("currentUrl")
     @Override
     public void setUrl(@NonNull String url) {
-        Saucer.dispatchSync(() -> N.saucer_webview_set_url(this.saucer.$handle, _SafePointer.allocate(url)));
+        N.saucer_webview_set_url(this.saucer.$handle, _SafePointer.allocate(url));
     }
 
     @JavascriptFunction
     @Override
     public void serveScheme(@NonNull String path) {
-        Saucer.dispatchSync(() -> N.saucer_webview_serve_scheme(this.saucer.$handle, _SafePointer.allocate(path), _SafePointer.allocate(ImplSaucer.CUSTOM_SCHEME)));
+        N.saucer_webview_serve_scheme(this.saucer.$handle, _SafePointer.allocate(path), _SafePointer.allocate(ImplSaucer.CUSTOM_SCHEME));
     }
 
     @JavascriptGetter("contextMenuAllowed")
     @Override
     public boolean isContextMenuAllowed() {
-        return Saucer.dispatchSync(() -> N.saucer_webview_context_menu(this.saucer.$handle));
+        return N.saucer_webview_context_menu(this.saucer.$handle);
     }
 
     @JavascriptSetter("contextMenuAllowed")
     @Override
     public void setContextMenuAllowed(boolean allowed) {
-        Saucer.dispatchSync(() -> N.saucer_webview_set_context_menu(this.saucer.$handle, allowed));
+        N.saucer_webview_set_context_menu(this.saucer.$handle, allowed);
     }
 
     @JavascriptFunction
     @Override
     public void executeJavaScript(@NonNull String scriptToExecute) {
-        Saucer.dispatchSync(() -> N.saucer_webview_execute(this.saucer.$handle, _SafePointer.allocate('{' + scriptToExecute + '}')));
+        N.saucer_webview_execute(this.saucer.$handle, _SafePointer.allocate('{' + scriptToExecute + '}'));
     }
 
     @JavascriptGetter("background")
     @Override
     public SaucerColor getBackground() {
-        return Saucer.dispatchSync(() -> {
-            _SafePointer $r = _SafePointer.allocate(1);
-            _SafePointer $g = _SafePointer.allocate(1);
-            _SafePointer $b = _SafePointer.allocate(1);
-            _SafePointer $a = _SafePointer.allocate(1);
+        _SafePointer $r = _SafePointer.allocate(1);
+        _SafePointer $g = _SafePointer.allocate(1);
+        _SafePointer $b = _SafePointer.allocate(1);
+        _SafePointer $a = _SafePointer.allocate(1);
 
-            N.saucer_webview_background(this.saucer.$handle, $r, $g, $b, $a);
+        N.saucer_webview_background(this.saucer.$handle, $r, $g, $b, $a);
 
-            return new SaucerColor(
-                $r.p().getByte(0),
-                $g.p().getByte(0),
-                $b.p().getByte(0),
-                $a.p().getByte(0)
-            );
-        });
+        return new SaucerColor(
+            $r.p().getByte(0),
+            $g.p().getByte(0),
+            $b.p().getByte(0),
+            $a.p().getByte(0)
+        );
     }
 
     @JavascriptSetter("background")
     @Override
     public void setBackground(@NonNull SaucerColor color) {
-        Saucer.dispatchSync(() -> N.saucer_webview_set_background(this.saucer.$handle, (byte) color.red(), (byte) color.green(), (byte) color.blue(), (byte) color.alpha()));
+        N.saucer_webview_set_background(this.saucer.$handle, (byte) color.red(), (byte) color.green(), (byte) color.blue(), (byte) color.alpha());
     }
 
     @Override
     public SaucerIcon getFavicon() {
-        return Saucer.dispatchSync(() -> {
-            Pointer icon = N.saucer_webview_favicon(this.saucer.$handle);
-            return new SaucerIcon(icon);
-        });
+        Pointer icon = N.saucer_webview_favicon(this.saucer.$handle);
+        return new SaucerIcon(icon);
     }
 
     @JavascriptGetter("forceDarkAppearance")
     @Override
     public boolean isForceDarkAppearance() {
-        return Saucer.dispatchSync(() -> N.saucer_webview_force_dark_mode(this.saucer.$handle));
+        return N.saucer_webview_force_dark_mode(this.saucer.$handle);
     }
 
     @JavascriptSetter("forceDarkAppearance")
     @Override
     public void setForceDarkAppearance(boolean shouldAppearDark) {
-        Saucer.dispatchSync(() -> N.saucer_webview_set_force_dark_mode(this.saucer.$handle, shouldAppearDark));
+        N.saucer_webview_set_force_dark_mode(this.saucer.$handle, shouldAppearDark);
     }
 
     @Override

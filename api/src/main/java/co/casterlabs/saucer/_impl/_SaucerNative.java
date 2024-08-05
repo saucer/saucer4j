@@ -8,7 +8,6 @@ import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
-import co.casterlabs.saucer.Saucer;
 import co.casterlabs.saucer.documentation.InternalUseOnly;
 import lombok.NonNull;
 
@@ -29,24 +28,20 @@ public class _SaucerNative {
     }
 
     public static void free(@NonNull Pointer $ptr) {
-        Saucer.dispatchSync(() -> MEMORY.saucer_memory_free($ptr));
+        MEMORY.saucer_memory_free($ptr);
     }
 
     public static Pointer allocateUnsafe(@NonNull String str) {
-        return Saucer.dispatchSync(() -> {
-            byte[] content = str.getBytes(Charset.defaultCharset());
-            Pointer $content = allocateUnsafe(content.length + 1);
-            $content.write(0, content, 0, content.length);
-            return $content;
-        });
+        byte[] content = str.getBytes(Charset.defaultCharset());
+        Pointer $content = allocateUnsafe(content.length + 1);
+        $content.write(0, content, 0, content.length);
+        return $content;
     }
 
     public static Pointer allocateUnsafe(int length) {
-        return Saucer.dispatchSync(() -> {
-            Pointer $content = MEMORY.saucer_memory_alloc(new size_t(length)); // NON GC'ABLE!
-            $content.clear(length);
-            return $content;
-        });
+        Pointer $content = MEMORY.saucer_memory_alloc(new size_t(length)); // NON GC'ABLE!
+        $content.clear(length);
+        return $content;
     }
 
     public static class size_t extends IntegerType {
