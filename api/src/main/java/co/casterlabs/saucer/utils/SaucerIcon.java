@@ -4,6 +4,7 @@ import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
+import co.casterlabs.saucer.Saucer;
 import co.casterlabs.saucer._impl._SafePointer;
 import co.casterlabs.saucer._impl._SaucerNative;
 import co.casterlabs.saucer.documentation.InternalUseOnly;
@@ -22,15 +23,17 @@ public final class SaucerIcon extends _SafePointer {
     }
 
     public SaucerIcon of(@NonNull byte[] data) {
-        _SafePointer $$result = _SafePointer.allocate(Native.POINTER_SIZE);
-        N.saucer_icon_from_data($$result.p(), new SaucerStash(data).p());
+        return Saucer.dispatchSync(() -> {
+            _SafePointer $$result = _SafePointer.allocate(Native.POINTER_SIZE);
+            N.saucer_icon_from_data($$result.p(), SaucerStash.of(data).p());
 
-        Pointer $result = $$result.p().getPointer(0);
-        return new SaucerIcon($result);
+            Pointer $result = $$result.p().getPointer(0);
+            return new SaucerIcon($result);
+        });
     }
 
     public boolean isEmpty() {
-        return N.saucer_icon_empty(this.p());
+        return Saucer.dispatchSync(() -> N.saucer_icon_empty(this.p()));
     }
 
     // https://github.com/saucer/saucer/blob/very-experimental/bindings/include/saucer/icon.h

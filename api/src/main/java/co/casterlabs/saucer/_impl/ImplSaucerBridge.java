@@ -16,6 +16,7 @@ import co.casterlabs.rakurai.json.Rson;
 import co.casterlabs.rakurai.json.element.JsonElement;
 import co.casterlabs.rakurai.json.element.JsonObject;
 import co.casterlabs.rakurai.json.element.JsonString;
+import co.casterlabs.saucer.Saucer;
 import co.casterlabs.saucer.SaucerBridge;
 import co.casterlabs.saucer._impl.ImplSaucerBridge._Native.MessageCallback;
 import co.casterlabs.saucer.bridge.JavascriptObject;
@@ -191,8 +192,10 @@ class ImplSaucerBridge implements SaucerBridge {
 
         String finalScript = "if (window.self === window.top) {\n" + String.join("\n\n", lines) + "\n}";
 
-        N.saucer_webview_clear_scripts(this.saucer.$handle);
-        N.saucer_webview_inject(this.saucer.$handle, _SafePointer.allocate(finalScript), _Native.SAUCER_LOAD_TIME_CREATION);
+        Saucer.dispatchSync(() -> {
+            N.saucer_webview_clear_scripts(this.saucer.$handle);
+            N.saucer_webview_inject(this.saucer.$handle, _SafePointer.allocate(finalScript), _Native.SAUCER_LOAD_TIME_CREATION);
+        });
         saucer.webview().reload();
     }
 

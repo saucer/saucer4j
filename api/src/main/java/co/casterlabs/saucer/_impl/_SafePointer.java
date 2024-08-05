@@ -6,6 +6,7 @@ import com.sun.jna.FromNativeContext;
 import com.sun.jna.NativeMapped;
 import com.sun.jna.Pointer;
 
+import co.casterlabs.saucer.Saucer;
 import co.casterlabs.saucer.documentation.InternalUseOnly;
 import lombok.NonNull;
 
@@ -89,8 +90,8 @@ public class _SafePointer implements NativeMapped {
 
     protected final void free() {
         if (this.hasBeenFreed) return;
-        this.free.accept($ptr);
-        this.hasBeenFreed = true; // Import!
+        Saucer.dispatchSync(() -> this.free.accept($ptr));
+        this.hasBeenFreed = true;
     }
 
     public Pointer p() {

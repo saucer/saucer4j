@@ -3,6 +3,7 @@ package co.casterlabs.saucer.utils;
 import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 
+import co.casterlabs.saucer.Saucer;
 import co.casterlabs.saucer._impl._SafePointer;
 import co.casterlabs.saucer._impl._SaucerNative;
 import co.casterlabs.saucer._impl._SaucerNative.size_t;
@@ -21,18 +22,20 @@ public final class SaucerStash extends _SafePointer {
         super.setupPointer(pointer, N::saucer_stash_free);
     }
 
-    public SaucerStash(@NonNull byte[] data) {
-        this(N.saucer_stash_from(data, new size_t(data.length)));
+    public static SaucerStash of(@NonNull byte[] data) {
+        return Saucer.dispatchSync(() -> new SaucerStash(N.saucer_stash_from(data, new size_t(data.length))));
     }
 
     public int size() {
-        return N.saucer_stash_size(this).intValue();
+        return Saucer.dispatchSync(() -> N.saucer_stash_size(this).intValue());
     }
 
     public byte[] data() {
-        Pointer pointer = N.saucer_stash_data(this);
-        int size = this.size();
-        return pointer.getByteArray(0, size);
+        return Saucer.dispatchSync(() -> {
+            Pointer pointer = N.saucer_stash_data(this);
+            int size = this.size();
+            return pointer.getByteArray(0, size);
+        });
     }
 
     // https://github.com/saucer/saucer/blob/very-experimental/bindings/include/saucer/stash.h

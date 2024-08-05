@@ -6,6 +6,7 @@ import com.sun.jna.Callback;
 import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 
+import co.casterlabs.saucer.Saucer;
 import co.casterlabs.saucer.SaucerWindow;
 import co.casterlabs.saucer._impl.ImplSaucerWindow._Native.WindowBooleanCallback;
 import co.casterlabs.saucer._impl.ImplSaucerWindow._Native.WindowCloseEventCallback;
@@ -106,162 +107,168 @@ class ImplSaucerWindow implements SaucerWindow {
     @JavascriptGetter("isFocused")
     @Override
     public boolean isFocused() {
-        return N.saucer_window_focused(this.saucer.$handle);
+        return Saucer.dispatchSync(() -> N.saucer_window_focused(this.saucer.$handle));
     }
 
     @JavascriptFunction
     @Override
     public void focus() {
-        N.saucer_window_focus(this.saucer.$handle);
+        Saucer.dispatchSync(() -> N.saucer_window_focus(this.saucer.$handle));
     }
 
     @JavascriptGetter("minimized")
     @Override
     public boolean isMinimized() {
-        return N.saucer_window_minimized(this.saucer.$handle);
+        return Saucer.dispatchSync(() -> N.saucer_window_minimized(this.saucer.$handle));
     }
 
     @JavascriptSetter("minimized")
     @Override
     public void setMinimized(boolean b) {
-        N.saucer_window_set_minimized(this.saucer.$handle, b);
+        Saucer.dispatchSync(() -> N.saucer_window_set_minimized(this.saucer.$handle, b));
     }
 
     @JavascriptGetter("maximized")
     @Override
     public boolean isMaximized() {
-        return N.saucer_window_maximized(this.saucer.$handle);
+        return Saucer.dispatchSync(() -> N.saucer_window_maximized(this.saucer.$handle));
     }
 
     @JavascriptSetter("maximized")
     @Override
     public void setMaximized(boolean b) {
-        N.saucer_window_set_maximized(this.saucer.$handle, b);
+        Saucer.dispatchSync(() -> N.saucer_window_set_maximized(this.saucer.$handle, b));
     }
 
     @JavascriptGetter("resizable")
     @Override
     public boolean isResizable() {
-        return N.saucer_window_resizable(this.saucer.$handle);
+        return Saucer.dispatchSync(() -> N.saucer_window_resizable(this.saucer.$handle));
     }
 
     @JavascriptSetter("resizable")
     @Override
     public void setResizable(boolean b) {
-        N.saucer_window_set_resizable(this.saucer.$handle, b);
+        Saucer.dispatchSync(() -> N.saucer_window_set_resizable(this.saucer.$handle, b));
     }
 
     @JavascriptGetter("decorated")
     @Override
     public boolean hasDecorations() {
-        return N.saucer_window_decorations(this.saucer.$handle);
+        return Saucer.dispatchSync(() -> N.saucer_window_decorations(this.saucer.$handle));
     }
 
     @JavascriptSetter("decorated")
     @Override
     public void showDecorations(boolean b) {
-        N.saucer_window_set_decorations(this.saucer.$handle, b);
+        Saucer.dispatchSync(() -> N.saucer_window_set_decorations(this.saucer.$handle, b));
     }
 
     @JavascriptGetter("alwaysOnTop")
     @Override
     public boolean isAlwaysOnTop() {
-        return N.saucer_window_always_on_top(this.saucer.$handle);
+        return Saucer.dispatchSync(() -> N.saucer_window_always_on_top(this.saucer.$handle));
     }
 
     @JavascriptSetter("alwaysOnTop")
     @Override
     public void setAlwaysOnTop(boolean b) {
-        N.saucer_window_set_always_on_top(this.saucer.$handle, b);
+        Saucer.dispatchSync(() -> N.saucer_window_set_always_on_top(this.saucer.$handle, b));
     }
 
     @JavascriptGetter("title")
     @Override
     public String getTitle() {
-        return N.saucer_window_title(this.saucer.$handle);
+        return Saucer.dispatchSync(() -> N.saucer_window_title(this.saucer.$handle));
     }
 
     @JavascriptSetter("title")
     @Override
     public void setTitle(@NonNull String title) {
-        N.saucer_window_set_title(this.saucer.$handle, _SafePointer.allocate(title));
+        Saucer.dispatchSync(() -> N.saucer_window_set_title(this.saucer.$handle, _SafePointer.allocate(title)));
     }
 
     @JavascriptGetter("size")
     @Override
     public SaucerSize getSize() {
-        _SafePointer $width = _SafePointer.allocate(Integer.BYTES);
-        _SafePointer $height = _SafePointer.allocate(Integer.BYTES);
+        return Saucer.dispatchSync(() -> {
+            _SafePointer $width = _SafePointer.allocate(Integer.BYTES);
+            _SafePointer $height = _SafePointer.allocate(Integer.BYTES);
 
-        N.saucer_window_size(this.saucer.$handle, $width, $height);
+            N.saucer_window_size(this.saucer.$handle, $width, $height);
 
-        int width = $width.p().getInt(0);
-        int height = $height.p().getInt(0);
+            int width = $width.p().getInt(0);
+            int height = $height.p().getInt(0);
 
-        return new SaucerSize(width, height);
+            return new SaucerSize(width, height);
+        });
     }
 
     @JavascriptSetter("size")
     @Override
     public void setSize(@NonNull SaucerSize size) {
-        N.saucer_window_set_size(this.saucer.$handle, size.width, size.height);
+        Saucer.dispatchSync(() -> N.saucer_window_set_size(this.saucer.$handle, size.width, size.height));
     }
 
     @JavascriptGetter("minSize")
     @Override
     public SaucerSize getMinSize() {
-        _SafePointer $width = _SafePointer.allocate(Integer.BYTES);
-        _SafePointer $height = _SafePointer.allocate(Integer.BYTES);
+        return Saucer.dispatchSync(() -> {
+            _SafePointer $width = _SafePointer.allocate(Integer.BYTES);
+            _SafePointer $height = _SafePointer.allocate(Integer.BYTES);
 
-        N.saucer_window_min_size(this.saucer.$handle, $width, $height);
+            N.saucer_window_min_size(this.saucer.$handle, $width, $height);
 
-        int width = $width.p().getInt(0);
-        int height = $height.p().getInt(0);
+            int width = $width.p().getInt(0);
+            int height = $height.p().getInt(0);
 
-        return new SaucerSize(width, height);
+            return new SaucerSize(width, height);
+        });
     }
 
     @JavascriptSetter("minSize")
     @Override
     public void setMinSize(@NonNull SaucerSize size) {
-        N.saucer_window_set_min_size(this.saucer.$handle, size.width, size.height);
+        Saucer.dispatchSync(() -> N.saucer_window_set_min_size(this.saucer.$handle, size.width, size.height));
     }
 
     @JavascriptGetter("maxSize")
     @Override
     public SaucerSize getMaxSize() {
-        _SafePointer $width = _SafePointer.allocate(Integer.BYTES);
-        _SafePointer $height = _SafePointer.allocate(Integer.BYTES);
+        return Saucer.dispatchSync(() -> {
+            _SafePointer $width = _SafePointer.allocate(Integer.BYTES);
+            _SafePointer $height = _SafePointer.allocate(Integer.BYTES);
 
-        N.saucer_window_max_size(this.saucer.$handle, $width, $height);
+            N.saucer_window_max_size(this.saucer.$handle, $width, $height);
 
-        int width = $width.p().getInt(0);
-        int height = $height.p().getInt(0);
+            int width = $width.p().getInt(0);
+            int height = $height.p().getInt(0);
 
-        return new SaucerSize(width, height);
+            return new SaucerSize(width, height);
+        });
     }
 
     @JavascriptSetter("maxSize")
     @Override
     public void setMaxSize(@NonNull SaucerSize size) {
-        N.saucer_window_set_max_size(this.saucer.$handle, size.width, size.height);
+        Saucer.dispatchSync(() -> N.saucer_window_set_max_size(this.saucer.$handle, size.width, size.height));
     }
 
     @JavascriptFunction
     @Override
     public void hide() {
-        N.saucer_window_hide(this.saucer.$handle);
+        Saucer.dispatchSync(() -> N.saucer_window_hide(this.saucer.$handle));
     }
 
     @JavascriptFunction
     @Override
     public void show() {
-        N.saucer_window_show(this.saucer.$handle);
+        Saucer.dispatchSync(() -> N.saucer_window_show(this.saucer.$handle));
     }
 
     @Override
     public void setIcon(@NonNull SaucerIcon icon) {
-        N.saucer_window_set_icon(this.saucer.$handle, icon.p());
+        Saucer.dispatchSync(() -> N.saucer_window_set_icon(this.saucer.$handle, icon.p()));
     }
 
     @Override

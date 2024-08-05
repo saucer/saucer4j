@@ -38,7 +38,7 @@ public interface SaucerSchemeHandler {
 
             byte[] data = StreamUtil.toBytes(in);
             String mime = MimeTypes.getMimeForFile(fullPath);
-            return new SaucerSchemeResponse(new SaucerStash(data), mime);
+            return new SaucerSchemeResponse(SaucerStash.of(data), mime);
         };
     }
 

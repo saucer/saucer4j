@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 
+import co.casterlabs.saucer.Saucer;
 import co.casterlabs.saucer._impl._SafePointer;
 import co.casterlabs.saucer._impl._SaucerNative;
 import co.casterlabs.saucer.documentation.InternalUseOnly;
@@ -78,20 +79,22 @@ public final class SaucerOptions {
     @Deprecated
     @InternalUseOnly
     public _SafePointer toNative() {
-        _SafePointer $instance = _SafePointer.of(N.saucer_options_new(), N::saucer_options_free);
+        return Saucer.dispatchSync(() -> {
+            _SafePointer $instance = _SafePointer.of(N.saucer_options_new(), N::saucer_options_free);
 
-        N.saucer_options_set_persistent_cookies($instance, this.persistientCookies);
-        N.saucer_options_set_hardware_acceleration($instance, this.hardwareAcceleration);
+            N.saucer_options_set_persistent_cookies($instance, this.persistientCookies);
+            N.saucer_options_set_hardware_acceleration($instance, this.hardwareAcceleration);
 
-        for (String flag : this.chromeFlags) {
-            N.saucer_options_add_chrome_flag($instance, _SaucerNative.allocateUnsafe(flag));
-        }
+            for (String flag : this.chromeFlags) {
+                N.saucer_options_add_chrome_flag($instance, _SaucerNative.allocateUnsafe(flag));
+            }
 
-        if (this.storagePath != null) {
-            N.saucer_options_set_storage_path($instance, _SaucerNative.allocateUnsafe(this.storagePath.toAbsolutePath().toString()));
-        }
+            if (this.storagePath != null) {
+                N.saucer_options_set_storage_path($instance, _SaucerNative.allocateUnsafe(this.storagePath.toAbsolutePath().toString()));
+            }
 
-        return $instance;
+            return $instance;
+        });
     }
 
     // https://github.com/saucer/saucer/blob/very-experimental/bindings/include/saucer/options.h
