@@ -6,6 +6,7 @@
 	<modules>
 		<module>_all</module>
 		<module>qt</module>
+		<module>qt_experimental</module>
 		<module>webview2</module>
 	</modules>
 
