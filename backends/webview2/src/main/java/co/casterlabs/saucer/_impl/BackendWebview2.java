@@ -41,6 +41,11 @@ public class BackendWebview2 extends _SaucerBackend {
         return "WebView2";
     }
 
+    @Override
+    public String getBuildType() {
+        return "Release";
+    }
+
     private static boolean regKeyPresent(String key) throws IOException {
         return !exec("reg", "query", key, "/v", "pv").contains("ERROR: ");
     }

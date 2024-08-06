@@ -38,4 +38,9 @@ public class BackendQt6 extends _SaucerBackend {
         return "Qt6";
     }
 
+    @Override
+    public String getBuildType() {
+        return "Release";
+    }
+
 }
