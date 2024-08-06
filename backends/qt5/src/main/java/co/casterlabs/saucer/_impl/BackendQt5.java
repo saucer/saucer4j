@@ -29,8 +29,6 @@ public class BackendQt5 extends _SaucerBackend {
     @Override
     public String[] supportedArchTargets() {
         return new String[] {
-                "aarch64",
-                "mips64el",
                 "x86_64"
         };
     }
