@@ -12,13 +12,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>co.casterlabs.saucer4j</groupId>
-			<artifactId>qt5</artifactId>
-			<version>${project.parent.version}</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>co.casterlabs.saucer4j</groupId>
-			<artifactId>qt6</artifactId>
+			<artifactId>qt</artifactId>
 			<version>${project.parent.version}</version>
 			<scope>compile</scope>
 		</dependency>
