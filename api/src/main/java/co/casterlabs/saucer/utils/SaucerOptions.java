@@ -1,5 +1,7 @@
 package co.casterlabs.saucer.utils;
 
+import java.io.File;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -25,7 +27,16 @@ public final class SaucerOptions {
     private boolean persistientCookies = true;
     private boolean hardwareAcceleration = false;
     private final List<String> chromeFlags = new LinkedList<>();
-    private @Nullable Path storagePath = null;
+    private @Nullable Path storagePath;
+
+    public SaucerOptions() {
+        try {
+            File codeSource = new File(SaucerOptions.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            this.storagePath = new File(codeSource.getParentFile(), ".saucer").toPath();
+        } catch (URISyntaxException ignored) {
+            this.storagePath = null; // default to $cwd/.saucer
+        }
+    }
 
     public List<String> getChromeFlags() {
         // Immutable.
