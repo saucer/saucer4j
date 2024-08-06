@@ -116,7 +116,7 @@ class ImplSaucerWindow implements SaucerWindow {
         Object[] $result = new Object[1];
         Throwable[] $exception = new Throwable[1];
 
-        N.saucer_window_dispatch(() -> {
+        N.saucer_window_dispatch(this.saucer.$handle, () -> {
             try {
                 $result[0] = task.get();
             } catch (Throwable t) {
@@ -317,7 +317,7 @@ class ImplSaucerWindow implements SaucerWindow {
         /** Requires {@link WindowCloseEventCallback} */
         static final int SAUCER_WINDOW_EVENT_CLOSE = 5;
 
-        void saucer_window_dispatch(DispatchCallback callback);
+        void saucer_window_dispatch(_SafePointer $saucer, DispatchCallback callback);
 
         boolean saucer_window_focused(_SafePointer $saucer);
 
