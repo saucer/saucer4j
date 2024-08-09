@@ -19,7 +19,7 @@ import lombok.NonNull;
 @SuppressWarnings("deprecation")
 class ImplSaucer implements Saucer {
     private static final _Native N = _SaucerNative.load(_Native.class);
-    static final String CUSTOM_SCHEME = "app";
+    static final _SafePointer CUSTOM_SCHEME = _SafePointer.allocate("app");
 
     private static boolean hasRegisteredCustomScheme = false;
 
@@ -50,7 +50,7 @@ class ImplSaucer implements Saucer {
     public ImplSaucer(@NonNull SaucerOptions options) {
         if (!hasRegisteredCustomScheme) {
             hasRegisteredCustomScheme = true;
-            N.saucer_register_scheme(_SafePointer.allocate(CUSTOM_SCHEME));
+            N.saucer_register_scheme(CUSTOM_SCHEME);
         }
 
         $options = options.toNative();

@@ -126,7 +126,7 @@ class ImplSaucerWebview implements SaucerWebview {
         N.saucer_webview_on(this.saucer.$handle, _Native.SAUCER_WEB_EVENT_URL_CHANGED, this.webEventUrlChangedCallback);
         N.saucer_webview_on(this.saucer.$handle, _Native.SAUCER_WEB_EVENT_DOM_READY, this.webEventDomReadyCallback);
 
-        N.saucer_webview_handle_scheme(this.saucer.$handle, _SafePointer.allocate(ImplSaucer.CUSTOM_SCHEME), this.schemeHandlerCallback);
+        N.saucer_webview_handle_scheme(this.saucer.$handle, ImplSaucer.CUSTOM_SCHEME, this.schemeHandlerCallback);
     }
 
     @JavascriptGetter("devtoolsVisible")
@@ -157,7 +157,7 @@ class ImplSaucerWebview implements SaucerWebview {
     @JavascriptFunction
     @Override
     public void serveScheme(@NonNull String path) {
-        N.saucer_webview_serve_scheme(this.saucer.$handle, _SafePointer.allocate(path), _SafePointer.allocate(ImplSaucer.CUSTOM_SCHEME));
+        N.saucer_webview_serve_scheme(this.saucer.$handle, _SafePointer.allocate(path), ImplSaucer.CUSTOM_SCHEME);
     }
 
     @JavascriptGetter("contextMenuAllowed")
