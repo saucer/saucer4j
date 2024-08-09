@@ -23,7 +23,7 @@ class ImplSaucer implements Saucer {
 
     private static boolean hasRegisteredCustomScheme = false;
 
-    static Set<ImplSaucer> windows = new HashSet<>();
+    private static Set<ImplSaucer> windows = new HashSet<>();
 
     static {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -34,17 +34,17 @@ class ImplSaucer implements Saucer {
     }
 
     private final _SafePointer $options;
-    final _SafePointer $handle;
+    /*final*/ _SafePointer $handle;
 
     final ImplSaucerWebview webview;
     final ImplSaucerWindow window;
     final ImplSaucerBridge bridge;
     final ImplSaucerMessages messages;
 
-    boolean isClosed = false;
+    private volatile boolean isClosed = false;
 
     private WindowVoidCallback windowEventClosedCallback = (Pointer $saucer) -> {
-        ImplSaucer.windows.remove(ImplSaucer.this);
+        this.isClosed = true;
     };
 
     public ImplSaucer(@NonNull SaucerOptions options) {
@@ -67,6 +67,7 @@ class ImplSaucer implements Saucer {
         // Keep this object in memory so that it doesn't get free()'d while Saucer is
         // trying to work on it.
         windows.add(this);
+
         N.saucer_window_on($handle, _Native.SAUCER_WINDOW_EVENT_CLOSED, this.windowEventClosedCallback);
     }
 
@@ -92,8 +93,13 @@ class ImplSaucer implements Saucer {
 
     @Override
     public void close() {
-        N.saucer_window_close($handle);
-        this.isClosed = true;
+        if (!this.isClosed) {
+            this.isClosed = true;
+            N.saucer_window_close($handle);
+        }
+
+        ImplSaucer.windows.remove(ImplSaucer.this);
+        $handle.free();
     }
 
     static void run() {

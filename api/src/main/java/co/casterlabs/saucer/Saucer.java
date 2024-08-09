@@ -1,5 +1,7 @@
 package co.casterlabs.saucer;
 
+import java.io.Closeable;
+
 import co.casterlabs.commons.platform.LinuxLibC;
 import co.casterlabs.commons.platform.Platform;
 import co.casterlabs.saucer._impl._PackageBridge;
@@ -9,7 +11,7 @@ import lombok.NonNull;
 import lombok.SneakyThrows;
 
 @SuppressWarnings("deprecation")
-public interface Saucer extends AutoCloseable {
+public interface Saucer extends Closeable {
 
     public SaucerWebview webview();
 
