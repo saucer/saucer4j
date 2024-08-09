@@ -192,7 +192,7 @@ class ImplSaucerBridge implements SaucerBridge {
         String finalScript = "if (window.self === window.top) {\n" + String.join("\n\n", lines) + "\n}";
 
         N.saucer_webview_clear_scripts(this.saucer.$handle);
-        N.saucer_webview_inject(this.saucer.$handle, _SafePointer.allocate(finalScript), _Native.SAUCER_LOAD_TIME_CREATION);
+        N.saucer_webview_inject(this.saucer.$handle, _SafePointer.allocate(finalScript), _Native.SAUCER_LOAD_TIME_CREATION, _Native.SAUCER_WEB_FRAME_TOP);
         saucer.webview().reload();
     }
 
@@ -201,9 +201,11 @@ class ImplSaucerBridge implements SaucerBridge {
         static final int SAUCER_LOAD_TIME_CREATION = 0;
 //        static final int SAUCER_LOAD_TIME_READY = 1;
 
+        static final int SAUCER_WEB_FRAME_TOP = 0;
+
         void saucer_webview_clear_scripts(_SafePointer $saucer);
 
-        void saucer_webview_inject(_SafePointer $saucer, _SafePointer $javascript, int loadTime);
+        void saucer_webview_inject(_SafePointer $saucer, _SafePointer $javascript, int loadTime, int framePolicy);
 
         void saucer_webview_on_message(_SafePointer $saucer, MessageCallback callback);
 
