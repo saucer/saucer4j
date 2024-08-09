@@ -26,7 +26,7 @@ public final class SaucerOptions {
 
     private boolean persistientCookies = true;
     private boolean hardwareAcceleration = false;
-    private final List<String> chromeFlags = new LinkedList<>();
+    private final List<String> browserFlags = new LinkedList<>();
     private @Nullable Path storagePath;
 
     public SaucerOptions() {
@@ -38,9 +38,9 @@ public final class SaucerOptions {
         }
     }
 
-    public List<String> getChromeFlags() {
+    public List<String> getBrowserFlags() {
         // Immutable.
-        return Collections.unmodifiableList(this.chromeFlags);
+        return Collections.unmodifiableList(this.browserFlags);
     }
 
     /**
@@ -65,14 +65,12 @@ public final class SaucerOptions {
     }
 
     /**
-     * Adds a special flag to the Chrome renderer.
+     * Adds a launch flag to the webview.
      * 
-     * @apiNote Only applicable for: Windows, Linux.
-     * 
-     * @return  this instance, for chaining.
+     * @return this instance, for chaining.
      */
-    public SaucerOptions addChromeFlag(@NonNull String flag) {
-        this.chromeFlags.add(flag);
+    public SaucerOptions addBrowserFlag(@NonNull String flag) {
+        this.browserFlags.add(flag);
         return this;
     }
 
@@ -94,8 +92,8 @@ public final class SaucerOptions {
         N.saucer_options_set_persistent_cookies($instance, this.persistientCookies);
         N.saucer_options_set_hardware_acceleration($instance, this.hardwareAcceleration);
 
-        for (String flag : this.chromeFlags) {
-            N.saucer_options_add_chrome_flag($instance, _SaucerNative.allocateUnsafe(flag));
+        for (String flag : this.browserFlags) {
+            N.saucer_options_add_browser_flag($instance, _SaucerNative.allocateUnsafe(flag));
         }
 
         if (this.storagePath != null) {
@@ -116,7 +114,7 @@ public final class SaucerOptions {
 
         void saucer_options_set_hardware_acceleration(_SafePointer $instance, boolean enabled);
 
-        void saucer_options_add_chrome_flag(_SafePointer $instance, @NoFree Pointer $flag);
+        void saucer_options_add_browser_flag(_SafePointer $instance, @NoFree Pointer $flag);
 
         void saucer_options_set_storage_path(_SafePointer $instance, @NoFree Pointer $path);
 
