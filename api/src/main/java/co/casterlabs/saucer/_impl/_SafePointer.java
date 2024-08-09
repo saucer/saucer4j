@@ -20,12 +20,13 @@ import lombok.NonNull;
  * @implSpec Sub-classes MUST call {@link #setupPointer(Pointer, Consumer)} or
  *           {@link #setupPointer(Pointer)}!
  */
+@SuppressWarnings("deprecation")
 @Deprecated
 @InternalUseOnly
 public class _SafePointer implements NativeMapped {
     private Pointer $ptr;
     private Consumer<Pointer> free;
-    private boolean hasBeenFreed = true; // Initial state.
+    private volatile boolean hasBeenFreed = true; // Initial state.
 
     protected void setupPointer(@NonNull Pointer $ptr, @NonNull Consumer<Pointer> free) {
         this.$ptr = $ptr;
@@ -87,13 +88,13 @@ public class _SafePointer implements NativeMapped {
         };
     }
 
-    protected final void free() {
+    protected synchronized final void free() {
         if (this.hasBeenFreed) return;
         this.free.accept($ptr);
         this.hasBeenFreed = true;
     }
 
-    public Pointer p() {
+    public synchronized Pointer p() {
         if (this.hasBeenFreed) {
             throw new IllegalStateException("Use after free!");
         }
