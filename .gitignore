@@ -20,3 +20,4 @@
 __MACOSX
 examples/src/main/java/com/example/saucer_java/Test.java
 examples/src/main/resources/Test.html
+saucer-bindings.dll
