@@ -6,7 +6,7 @@ import co.casterlabs.saucer._impl._SaucerBackend.FindThisSaucerBackend;
 
 @SuppressWarnings("deprecation")
 @FindThisSaucerBackend(2) // Should be higher than Qt6
-public class BackendGtk extends _SaucerBackend {
+public class BackendGtk4 extends _SaucerBackend {
 
     @Override
     public boolean checkDependencies() throws IOException {
@@ -36,7 +36,7 @@ public class BackendGtk extends _SaucerBackend {
 
     @Override
     public String getType() {
-        return "WebKitGTK";
+        return "Gtk4";
     }
 
     @Override

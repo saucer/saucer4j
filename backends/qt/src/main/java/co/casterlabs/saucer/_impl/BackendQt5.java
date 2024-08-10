@@ -35,7 +35,7 @@ public class BackendQt5 extends _SaucerBackend {
 
     @Override
     public String getType() {
-        return "Qt";
+        return "Qt5";
     }
 
     @Override
