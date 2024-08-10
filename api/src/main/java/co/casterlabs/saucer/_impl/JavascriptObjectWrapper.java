@@ -20,7 +20,7 @@ import co.casterlabs.saucer.bridge.JavascriptFunction;
 import co.casterlabs.saucer.bridge.JavascriptGetter;
 import co.casterlabs.saucer.bridge.JavascriptSetter;
 import co.casterlabs.saucer.bridge.JavascriptValue;
-import co.casterlabs.saucer.utils.Mutable;
+import co.casterlabs.saucer.bridge.Mutable;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 

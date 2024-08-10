@@ -3,44 +3,48 @@ package co.casterlabs.saucer.utils;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
-import org.jetbrains.annotations.Nullable;
 
 import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 
-import co.casterlabs.saucer._impl._SafePointer;
 import co.casterlabs.saucer._impl._SaucerNative;
+import co.casterlabs.saucer._impl.c.NoFree;
+import co.casterlabs.saucer._impl.c.SaucerPointerType;
+import co.casterlabs.saucer._impl.c._SaucerMemory;
 import co.casterlabs.saucer.documentation.InternalUseOnly;
-import co.casterlabs.saucer.documentation.NoFree;
-import lombok.Getter;
 import lombok.NonNull;
 
-@Getter
 @SuppressWarnings("deprecation")
-public final class SaucerOptions {
+public final class SaucerOptions extends SaucerPointerType<SaucerOptions> {
     private static final _Native N = _SaucerNative.load(_Native.class);
 
-    private boolean persistientCookies = true;
-    private boolean hardwareAcceleration = false;
-    private final List<String> browserFlags = new LinkedList<>();
-    private @Nullable Path storagePath;
-
+    @Deprecated
+    @InternalUseOnly
     public SaucerOptions() {
-        try {
-            File codeSource = new File(SaucerOptions.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-            this.storagePath = new File(codeSource.getParentFile(), ".saucer").toPath();
-        } catch (URISyntaxException ignored) {
-            this.storagePath = null; // default to $cwd/.saucer
-        }
+        // NOOP constructor for JNA.
     }
 
-    public List<String> getBrowserFlags() {
-        // Immutable.
-        return Collections.unmodifiableList(this.browserFlags);
+    @Override
+    protected SaucerOptions newInstanceForJNA() {
+        return new SaucerOptions();
+    }
+
+    @Override
+    protected void free() {
+        N.saucer_options_free(this);
+    }
+
+    /* ------------------------------------ */
+    /* ------------------------------------ */
+    /* ------------------------------------ */
+
+    public static SaucerOptions create() {
+        SaucerOptions options = N.saucer_options_new();
+        try {
+            File codeSource = new File(SaucerOptions.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            options.storagePath(new File(codeSource.getParentFile(), ".saucer").toPath());
+        } catch (URISyntaxException ignored) {}
+        return options;
     }
 
     /**
@@ -49,7 +53,7 @@ public final class SaucerOptions {
      * @return this instance, for chaining.
      */
     public SaucerOptions persistientCookies(boolean enabled) {
-        this.persistientCookies = enabled;
+        N.saucer_options_set_persistent_cookies(this, enabled);
         return this;
     }
 
@@ -60,7 +64,7 @@ public final class SaucerOptions {
      * @return this instance, for chaining.
      */
     public SaucerOptions hardwareAcceleration(boolean enabled) {
-        this.hardwareAcceleration = enabled;
+        N.saucer_options_set_hardware_acceleration(this, enabled);
         return this;
     }
 
@@ -70,7 +74,7 @@ public final class SaucerOptions {
      * @return this instance, for chaining.
      */
     public SaucerOptions addBrowserFlag(@NonNull String flag) {
-        this.browserFlags.add(flag);
+        N.saucer_options_add_browser_flag(this, _SaucerMemory.alloc(flag));
         return this;
     }
 
@@ -80,43 +84,25 @@ public final class SaucerOptions {
      * @return this instance, for chaining.
      */
     public SaucerOptions storagePath(@NonNull Path path) {
-        this.storagePath = path;
+        String pathAsString = path.toAbsolutePath().toString();
+        N.saucer_options_set_storage_path(this, _SaucerMemory.alloc(pathAsString));
         return this;
     }
 
-    @Deprecated
-    @InternalUseOnly
-    public _SafePointer toNative() {
-        _SafePointer $instance = _SafePointer.of(N.saucer_options_new(), N::saucer_options_free);
-
-        N.saucer_options_set_persistent_cookies($instance, this.persistientCookies);
-        N.saucer_options_set_hardware_acceleration($instance, this.hardwareAcceleration);
-
-        for (String flag : this.browserFlags) {
-            N.saucer_options_add_browser_flag($instance, _SaucerNative.allocateUnsafe(flag));
-        }
-
-        if (this.storagePath != null) {
-            N.saucer_options_set_storage_path($instance, _SaucerNative.allocateUnsafe(this.storagePath.toAbsolutePath().toString()));
-        }
-
-        return $instance;
-    }
-
-    // https://github.com/saucer/saucer/blob/very-experimental/bindings/include/saucer/options.h
+    // https://github.com/saucer/bindings/blob/main/include/saucer/options.h
     static interface _Native extends Library {
 
-        Pointer saucer_options_new();
+        SaucerOptions saucer_options_new();
 
-        void saucer_options_free(Pointer $instance);
+        void saucer_options_free(SaucerOptions instance);
 
-        void saucer_options_set_persistent_cookies(_SafePointer $instance, boolean enabled);
+        void saucer_options_set_persistent_cookies(SaucerOptions instance, boolean enabled);
 
-        void saucer_options_set_hardware_acceleration(_SafePointer $instance, boolean enabled);
+        void saucer_options_set_hardware_acceleration(SaucerOptions instance, boolean enabled);
 
-        void saucer_options_add_browser_flag(_SafePointer $instance, @NoFree Pointer $flag);
+        void saucer_options_add_browser_flag(SaucerOptions instance, @NoFree Pointer $flag);
 
-        void saucer_options_set_storage_path(_SafePointer $instance, @NoFree Pointer $path);
+        void saucer_options_set_storage_path(SaucerOptions instance, @NoFree Pointer $path);
 
     }
 

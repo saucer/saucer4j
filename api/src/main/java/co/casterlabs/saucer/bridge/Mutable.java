@@ -21,12 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package co.casterlabs.saucer.utils;
+package co.casterlabs.saucer.bridge;
 
 import org.jetbrains.annotations.Nullable;
 
 import co.casterlabs.rakurai.json.TypeToken;
-import co.casterlabs.saucer.bridge.JavascriptValue;
 import lombok.NonNull;
 
 /**

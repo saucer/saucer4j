@@ -9,17 +9,16 @@ import org.jetbrains.annotations.Nullable;
 import co.casterlabs.rakurai.json.Rson;
 import co.casterlabs.rakurai.json.element.JsonElement;
 import co.casterlabs.saucer.SaucerMessages;
-import co.casterlabs.saucer.documentation.PointerType;
 import lombok.NonNull;
 
 @SuppressWarnings("deprecation")
 class ImplSaucerMessages implements SaucerMessages {
-    private @PointerType ImplSaucer $saucer;
+    private _ImplSaucer saucer;
 
     private Map<SaucerMessageId, Consumer<JsonElement>> listeners = new HashMap<>();
 
-    ImplSaucerMessages(ImplSaucer $saucer) {
-        this.$saucer = $saucer;
+    ImplSaucerMessages(_ImplSaucer saucer) {
+        this.saucer = saucer;
     }
 
     synchronized void handle(@Nullable JsonElement data) {
@@ -34,7 +33,7 @@ class ImplSaucerMessages implements SaucerMessages {
 
     @Override
     public void emit(@NonNull Object data) {
-        $saucer.webview.executeJavaScript(
+        saucer.webview.executeJavaScript(
             String.format(
                 "window.saucer.messages.__internal(%s);",
                 Rson.DEFAULT.toJson(data).toString()

@@ -4,7 +4,7 @@ import java.io.Closeable;
 
 import co.casterlabs.commons.platform.LinuxLibC;
 import co.casterlabs.commons.platform.Platform;
-import co.casterlabs.saucer._impl._PackageBridge;
+import co.casterlabs.saucer._impl._ImplSaucer;
 import co.casterlabs.saucer._impl._SaucerNative;
 import co.casterlabs.saucer.utils.SaucerOptions;
 import lombok.NonNull;
@@ -31,7 +31,7 @@ public interface Saucer extends Closeable {
      * 
      */
     public static void run() {
-        _PackageBridge.run();
+        _ImplSaucer.run();
     }
 
     /**
@@ -42,14 +42,12 @@ public interface Saucer extends Closeable {
     public void close();
 
     public static Saucer create() {
-        return create(
-            new SaucerOptions() // Defaults are in here.
-        );
+        return create(SaucerOptions.create());
     }
 
     @SneakyThrows
     public static Saucer create(@NonNull SaucerOptions options) {
-        return _PackageBridge.create(options);
+        return _ImplSaucer.create(options);
     }
 
     @SneakyThrows

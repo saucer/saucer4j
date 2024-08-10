@@ -19,19 +19,17 @@ import co.casterlabs.rakurai.json.element.JsonString;
 import co.casterlabs.saucer.SaucerBridge;
 import co.casterlabs.saucer._impl.ImplSaucerBridge._Native.MessageCallback;
 import co.casterlabs.saucer.bridge.JavascriptObject;
-import co.casterlabs.saucer.documentation.PointerType;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 
 @SuppressWarnings("deprecation")
-@PointerType
 class ImplSaucerBridge implements SaucerBridge {
     private static final _Native N = _SaucerNative.load(_Native.class);
 
     private static final String init = Resources.loadResourceString("bridge/init.js");
     private static final String ipc_object_fmt = Resources.loadResourceString("bridge/ipc_object_fmt.js");
 
-    private ImplSaucer saucer;
+    private _ImplSaucer saucer;
 
     private Map<String, JavascriptObjectWrapper> objects = new HashMap<>();
 
@@ -146,10 +144,10 @@ class ImplSaucerBridge implements SaucerBridge {
         return true;
     };
 
-    ImplSaucerBridge(ImplSaucer saucer) {
+    ImplSaucerBridge(_ImplSaucer saucer) {
         this.saucer = saucer;
 
-        N.saucer_webview_on_message(this.saucer.$handle, this.messageCallback);
+        N.saucer_webview_on_message(this.saucer, this.messageCallback);
 
         this.defineObject("saucer.webview", this.saucer.webview());
         this.defineObject("saucer.window", this.saucer.window());
@@ -191,23 +189,27 @@ class ImplSaucerBridge implements SaucerBridge {
 
         String finalScript = "if (window.self === window.top) {\n" + String.join("\n\n", lines) + "\n}";
 
-        N.saucer_webview_clear_scripts(this.saucer.$handle);
-        N.saucer_webview_inject(this.saucer.$handle, _SafePointer.allocate(finalScript), _Native.SAUCER_LOAD_TIME_CREATION, _Native.SAUCER_WEB_FRAME_TOP);
+        N.saucer_webview_clear_scripts(this.saucer);
+        N.saucer_webview_inject(this.saucer, finalScript, _Native.SAUCER_LOAD_TIME_CREATION, _Native.SAUCER_WEB_FRAME_TOP);
         saucer.webview().reload();
     }
 
-    // https://github.com/saucer/saucer/blob/very-experimental/bindings/include/saucer/webview.h
+    /* ------------------------------------ */
+    /* ------------------------------------ */
+    /* ------------------------------------ */
+
+    // https://github.com/saucer/bindings/blob/main/include/saucer/webview.h
     static interface _Native extends Library {
         static final int SAUCER_LOAD_TIME_CREATION = 0;
 //        static final int SAUCER_LOAD_TIME_READY = 1;
 
         static final int SAUCER_WEB_FRAME_TOP = 0;
 
-        void saucer_webview_clear_scripts(_SafePointer $saucer);
+        void saucer_webview_clear_scripts(_ImplSaucer saucer);
 
-        void saucer_webview_inject(_SafePointer $saucer, _SafePointer $javascript, int loadTime, int framePolicy);
+        void saucer_webview_inject(_ImplSaucer saucer, String javascript, int loadTime, int framePolicy);
 
-        void saucer_webview_on_message(_SafePointer $saucer, MessageCallback callback);
+        void saucer_webview_on_message(_ImplSaucer saucer, MessageCallback callback);
 
         /**
          * @implNote Do not inline this. The JVM needs this to always be accessible

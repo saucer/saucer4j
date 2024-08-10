@@ -1,4 +1,4 @@
-package co.casterlabs.saucer.utils;
+package co.casterlabs.saucer.scheme;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -7,84 +7,102 @@ import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
-import co.casterlabs.saucer._impl._SafePointer;
 import co.casterlabs.saucer._impl._SaucerNative;
-import co.casterlabs.saucer._impl._SaucerNative.size_t;
+import co.casterlabs.saucer._impl.c.SaucerPointerType;
+import co.casterlabs.saucer._impl.c._SaucerMemory;
+import co.casterlabs.saucer._impl.c.size_t;
 import co.casterlabs.saucer.documentation.InternalUseOnly;
 import co.casterlabs.saucer.utils.SaucerStash;
 import lombok.Getter;
-import lombok.NonNull;
 
 @Getter
 @SuppressWarnings("deprecation")
-public final class SaucerSchemeRequest {
+public final class SaucerSchemeRequest extends SaucerPointerType<SaucerSchemeRequest> {
     private static final _Native N = _SaucerNative.load(_Native.class);
-
-    private Pointer $ptr;
 
     @Deprecated
     @InternalUseOnly
-    public SaucerSchemeRequest(@NonNull Pointer pointer) {
-        this.$ptr = pointer; // free()'d for us.
+    public SaucerSchemeRequest() {
+        // NOOP constructor for JNA.
     }
 
+    @Override
+    protected SaucerSchemeRequest newInstanceForJNA() {
+        return new SaucerSchemeRequest();
+    }
+
+    @Override
+    protected void free() {
+        // NOOP
+    }
+
+    /* ------------------------------------ */
+    /* ------------------------------------ */
+    /* ------------------------------------ */
+
     public String method() {
-        _SafePointer $method = N.saucer_request_method($ptr);
-        return $method.p().getString(0);
+        return N.saucer_request_method(this);
     }
 
     public String url() {
-        _SafePointer $full = N.saucer_request_url($ptr);
-        String full = $full.p().getString(0);
+        String full = N.saucer_request_url(this);
         return full.substring(full.indexOf(':') + 1); // "saucer:/index.html" -> "/index.html"
     }
 
     public SaucerStash payload() {
-        Pointer $stash = N.saucer_request_content($ptr);
-        return new SaucerStash($stash);
+        return N.saucer_request_content(this);
     }
 
     public Map<String, String> headers() {
-        // Note that `_SafePointer` will automatically get free()'d for us.
-        // But we still have to manually free the regular Pointers.
-        _SafePointer $$keys = _SafePointer.allocate(Native.POINTER_SIZE);
-        _SafePointer $$values = _SafePointer.allocate(Native.POINTER_SIZE);
-        _SafePointer $count = _SafePointer.allocate(Native.SIZE_T_SIZE);
-        N.saucer_request_headers($ptr, $$keys, $$values, $count);
+        // Setup the pointers for receiving the value.
+        Pointer $$keys = _SaucerMemory.alloc(Native.POINTER_SIZE);
+        Pointer $$values = _SaucerMemory.alloc(Native.POINTER_SIZE);
+        Pointer $count = _SaucerMemory.alloc(Native.SIZE_T_SIZE);
+        N.saucer_request_headers(this, $$keys, $$values, $count);
 
-        Pointer $keys = $$keys.p().getPointer(0);
-        Pointer $values = $$values.p().getPointer(0);
-        size_t count = size_t.from($count.p());
+        // Get their values & free.
+        Pointer $keys = $$keys.getPointer(0);
+        Pointer $values = $$values.getPointer(0);
+        size_t count = size_t.from($count);
+        _SaucerMemory.free($keys);
+        _SaucerMemory.free($$values);
+        _SaucerMemory.free($count);
 
+        // Convert the key/values pointers to arrays & free.
         Pointer[] keys = $keys.getPointerArray(0, count.intValue());
         Pointer[] values = $values.getPointerArray(0, count.intValue());
+        _SaucerMemory.free($keys);
+        _SaucerMemory.free($values);
 
-        _SaucerNative.free($keys);
-        _SaucerNative.free($values);
-
-        // Convert to mapping.
+        // Convert to map.
         Map<String, String> map = new HashMap<>();
         for (int idx = 0; idx < keys.length; idx++) {
             Pointer $key = keys[idx];
             Pointer $value = values[idx];
 
             map.put($key.getString(0), $value.getString(0));
-            _SaucerNative.free($key);
-            _SaucerNative.free($value);
+
+            // Don't forget to free!
+            _SaucerMemory.free($key);
+            _SaucerMemory.free($value);
         }
         return map;
     }
 
-    // https://github.com/saucer/saucer/blob/very-experimental/bindings/include/saucer/scheme.h
+    /* ------------------------------------ */
+    /* ------------------------------------ */
+    /* ------------------------------------ */
+
+    // https://github.com/saucer/bindings/blob/main/include/saucer/scheme.h
     static interface _Native extends Library {
 
-        _SafePointer saucer_request_url(Pointer $instance);
+        String saucer_request_url(SaucerSchemeRequest instance);
 
-        _SafePointer saucer_request_method(Pointer $instance);
+        String saucer_request_method(SaucerSchemeRequest instance);
 
-        /* already free()'d */ Pointer saucer_request_content(Pointer $instance);
+        SaucerStash saucer_request_content(SaucerSchemeRequest instance);
 
-        void saucer_request_headers(Pointer $instance, _SafePointer $$keys, _SafePointer $$values, _SafePointer $count);
+        void saucer_request_headers(SaucerSchemeRequest instance, Pointer $$keys, Pointer $$values, Pointer $count);
 
     }
 

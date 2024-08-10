@@ -29,8 +29,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import co.casterlabs.saucer.utils.Mutable;
-
 /**
  * Lets you expose a property/field to Javascript. You can optionally disable
  * get or sets, as well as register a watcher (via watchForMutate) which can be

@@ -9,7 +9,7 @@ public class URLExample {
 
     public static void main(String[] args) throws IOException {
         try (Saucer saucer = Saucer.create(
-            new SaucerOptions()
+            SaucerOptions.create()
                 .hardwareAcceleration(true) // May not work on all computers. You should do some testing to discover if you
                                             // need this feature and if your environments support it.
         )) {

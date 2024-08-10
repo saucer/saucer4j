@@ -4,7 +4,6 @@ import java.io.InputStream;
 
 import co.casterlabs.commons.io.streams.StreamUtil;
 import co.casterlabs.saucer.scheme.SaucerSchemeResponse.SaucerRequestError;
-import co.casterlabs.saucer.utils.MimeTypes;
 import co.casterlabs.saucer.utils.SaucerStash;
 import lombok.NonNull;
 
@@ -33,12 +32,12 @@ public interface SaucerSchemeHandler {
             }
 
             if (in == null) {
-                return new SaucerSchemeResponse(SaucerRequestError.SAUCER_REQUEST_ERROR_NOT_FOUND);
+                return SaucerSchemeResponse.error(SaucerRequestError.SAUCER_REQUEST_ERROR_NOT_FOUND);
             }
 
             byte[] data = StreamUtil.toBytes(in);
             String mime = MimeTypes.getMimeForFile(fullPath);
-            return new SaucerSchemeResponse(SaucerStash.of(data), mime);
+            return SaucerSchemeResponse.success(SaucerStash.of(data), mime);
         };
     }
 
