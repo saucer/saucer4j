@@ -30,7 +30,7 @@ public abstract class SaucerPointerType<T extends SaucerPointerType<?>> implemen
 
     @Override
     protected void finalize() throws Throwable {
-        if (!this.autoFree) {
+        if (this.autoFree) {
             this.free();
         }
     }
