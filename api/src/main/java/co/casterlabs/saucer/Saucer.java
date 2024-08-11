@@ -9,6 +9,7 @@ import co.casterlabs.commons.platform.Platform;
 import co.casterlabs.saucer._impl._ImplSaucer;
 import co.casterlabs.saucer._impl._SaucerNative;
 import co.casterlabs.saucer.documentation.AvailableFromJS;
+import co.casterlabs.saucer.documentation.NotThreadSafe;
 import co.casterlabs.saucer.utils.SaucerOptions;
 import lombok.NonNull;
 import lombok.SneakyThrows;
@@ -37,6 +38,7 @@ public interface Saucer extends Closeable {
      *           and you must call this method on said thread.
      * 
      */
+    @NotThreadSafe
     public static void run() {
         _ImplSaucer.run();
     }
@@ -49,11 +51,13 @@ public interface Saucer extends Closeable {
     @Override
     public void close();
 
+    @NotThreadSafe
     public static Saucer create() {
         return create(SaucerOptions.create());
     }
 
     @SneakyThrows
+    @NotThreadSafe
     public static Saucer create(@NonNull SaucerOptions options) {
         return _ImplSaucer.create(options);
     }
