@@ -16,6 +16,7 @@ import co.casterlabs.rakurai.json.Rson;
 import co.casterlabs.rakurai.json.element.JsonElement;
 import co.casterlabs.rakurai.json.element.JsonObject;
 import co.casterlabs.rakurai.json.element.JsonString;
+import co.casterlabs.saucer.Saucer;
 import co.casterlabs.saucer.SaucerBridge;
 import co.casterlabs.saucer._impl.ImplSaucerBridge._Native.MessageCallback;
 import co.casterlabs.saucer.bridge.JavascriptObject;
@@ -93,6 +94,12 @@ class ImplSaucerBridge implements SaucerBridge {
 
                 case "CLOSE": {
                     saucer.close();
+                    break;
+                }
+
+                case "OPEN_LINK": {
+                    String link = message.getString("link");
+                    Saucer.openLinkInSystemBrowser(link);
                     break;
                 }
 

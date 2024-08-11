@@ -1,6 +1,8 @@
 package co.casterlabs.saucer;
 
+import java.awt.Desktop;
 import java.io.Closeable;
+import java.net.URI;
 
 import co.casterlabs.commons.platform.LinuxLibC;
 import co.casterlabs.commons.platform.Platform;
@@ -50,10 +52,12 @@ public interface Saucer extends Closeable {
         return _ImplSaucer.create(options);
     }
 
+    @AvailableFromJS
     @SneakyThrows
     public static void openLinkInSystemBrowser(@NonNull String link) {
         switch (Platform.osDistribution) {
             case MACOS:
+                // We can't use Desktop/AWT while Saucer is running.
                 Runtime.getRuntime().exec(new String[] {
                         "open",
                         link
@@ -61,18 +65,30 @@ public interface Saucer extends Closeable {
                 break;
 
             case WINDOWS_NT:
-                Runtime.getRuntime().exec(new String[] {
-                        "rundll32",
-                        "url.dll,FileProtocolHandler",
-                        link
-                });
+                try {
+                    Desktop
+                        .getDesktop()
+                        .browse(URI.create(link));
+                } catch (UnsupportedOperationException ignored) {
+                    Runtime.getRuntime().exec(new String[] { // Antivirus software may trip the rundll32.
+                            "rundll32",
+                            "url.dll,FileProtocolHandler",
+                            link
+                    });
+                }
                 break;
 
             case LINUX:
-                Runtime.getRuntime().exec(new String[] {
-                        "xdg-open",
-                        link
-                });
+                try {
+                    Desktop
+                        .getDesktop()
+                        .browse(URI.create(link));
+                } catch (UnsupportedOperationException ignored) {
+                    Runtime.getRuntime().exec(new String[] { // The user might not have xdg-open.
+                            "xdg-open",
+                            link
+                    });
+                }
                 break;
 
             default:

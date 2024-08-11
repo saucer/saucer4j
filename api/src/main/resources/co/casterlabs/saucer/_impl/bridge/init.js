@@ -108,6 +108,14 @@ Object.defineProperty(SAUCER, "close", {
 	configurable: true,
 });
 
+Object.defineProperty(SAUCER, "openLinkInSystemBrowser", {
+	value: function (link) {
+		RPC.send({ type: "OPEN_LINK", link });
+	},
+	writable: true,
+	configurable: true,
+});
+
 Object.defineProperty(SAUCER, "MUTATION_POLL_RATE", {
 	value: 150,
 	writable: true,
