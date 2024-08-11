@@ -102,10 +102,12 @@ public interface Saucer extends Closeable {
         }
     }
 
+    @AvailableFromJS
     public static String getArchTarget() {
         return Platform.archTarget;
     }
 
+    @AvailableFromJS
     @SneakyThrows
     public static String getSystemTarget() {
         switch (Platform.osDistribution) {
@@ -124,6 +126,7 @@ public interface Saucer extends Closeable {
         }
     }
 
+    @AvailableFromJS
     public static String getBackend() {
         return _SaucerNative.backend;
     }

@@ -1,5 +1,7 @@
 const SAUCER = window.saucer;
 
+const initData = %s;
+
 function deepFreeze(object) {
 	for (const value of Object.values(object)) {
 		if ((value && typeof value === "object") || typeof value === "function") {
@@ -49,7 +51,7 @@ const RPC = {
 };
 Object.defineProperty(SAUCER, "__rpc", {
 	value: RPC,
-	writable: true,
+	writable: false,
 	configurable: true,
 });
 
@@ -96,7 +98,7 @@ const MESSAGES = {
 };
 Object.defineProperty(SAUCER, "messages", {
 	value: MESSAGES,
-	writable: true,
+	writable: false,
 	configurable: true,
 });
 
@@ -104,7 +106,7 @@ Object.defineProperty(SAUCER, "close", {
 	value: function () {
 		RPC.send({ type: "CLOSE" });
 	},
-	writable: true,
+	writable: false,
 	configurable: true,
 });
 
@@ -112,7 +114,7 @@ Object.defineProperty(SAUCER, "openLinkInSystemBrowser", {
 	value: function (link) {
 		RPC.send({ type: "OPEN_LINK", link });
 	},
-	writable: true,
+	writable: false,
 	configurable: true,
 });
 
@@ -145,3 +147,11 @@ async function checkForMutations() {
 	}
 }
 checkForMutations();
+
+for (const [key, value] of Object.entries(initData)) {
+	Object.defineProperty(SAUCER, key, {
+		value: value,
+		writable: false,
+		configurable: true,
+	});
+}

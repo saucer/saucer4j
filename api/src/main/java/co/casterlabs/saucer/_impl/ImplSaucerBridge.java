@@ -27,7 +27,7 @@ import lombok.SneakyThrows;
 class ImplSaucerBridge implements SaucerBridge {
     private static final _Native N = _SaucerNative.load(_Native.class);
 
-    private static final String init = Resources.loadResourceString("bridge/init.js");
+    private static final String init_fmt = Resources.loadResourceString("bridge/init_fmt.js");
     private static final String ipc_object_fmt = Resources.loadResourceString("bridge/ipc_object_fmt.js");
 
     private _ImplSaucer saucer;
@@ -180,7 +180,15 @@ class ImplSaucerBridge implements SaucerBridge {
     @Override
     public synchronized void apply() {
         List<String> lines = new LinkedList<>();
-        lines.add(init);
+        lines.add(
+            String.format(
+                init_fmt,
+                new JsonObject()
+                    .put("archTarget", Saucer.getArchTarget())
+                    .put("systemTarget", Saucer.getSystemTarget())
+                    .put("backend", Saucer.getBackend())
+            )
+        );
 
         for (JavascriptObjectWrapper object : this.objects.values()) {
             lines.add(
