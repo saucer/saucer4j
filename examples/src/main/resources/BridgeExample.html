@@ -13,12 +13,22 @@
 	</p>
 	<p>
 		Current nanoTime: <b id="nanoTime"></b>
+		<br />
+		Arch Target: <b id="archTarget"></b>
+		<br />
+		System Target: <b id="systemTarget"></b>
+		<br />
+		Current Backend: <b id="backend"></b>
 	</p><br />
 	<sub>With ❤️ from saucer_java</sub>
 	<script>
 		Example.onMutate("nanoTime", (nanoTime) => {
 			document.querySelector("#nanoTime").innerText = nanoTime;
 		});
+
+		document.querySelector("#archTarget").innerText = saucer.archTarget;
+		document.querySelector("#systemTarget").innerText = saucer.systemTarget;
+		document.querySelector("#backend").innerText = saucer.backend;
 	</script>
 </body>
 
