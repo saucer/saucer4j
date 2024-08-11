@@ -8,6 +8,7 @@ import co.casterlabs.commons.platform.LinuxLibC;
 import co.casterlabs.commons.platform.Platform;
 import co.casterlabs.saucer._impl._ImplSaucer;
 import co.casterlabs.saucer._impl._SaucerNative;
+import co.casterlabs.saucer.documentation.AvailableFromJS;
 import co.casterlabs.saucer.utils.SaucerOptions;
 import lombok.NonNull;
 import lombok.SneakyThrows;
@@ -15,12 +16,16 @@ import lombok.SneakyThrows;
 @SuppressWarnings("deprecation")
 public interface Saucer extends Closeable {
 
+    @AvailableFromJS
     public SaucerWebview webview();
 
+    @AvailableFromJS
     public SaucerWindow window();
 
+    @AvailableFromJS
     public SaucerBridge bridge();
 
+    @AvailableFromJS
     public SaucerMessages messages();
 
     /**
@@ -40,6 +45,7 @@ public interface Saucer extends Closeable {
      * Closes the webview, causing {@link #run()} to return. This also frees any
      * resources associated with Saucer.
      */
+    @AvailableFromJS
     @Override
     public void close();
 
