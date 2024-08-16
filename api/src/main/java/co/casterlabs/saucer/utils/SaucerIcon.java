@@ -36,7 +36,7 @@ public final class SaucerIcon extends SaucerPointerType<SaucerIcon> {
     /* ------------------------------------ */
     /* ------------------------------------ */
 
-    public @Nullable SaucerIcon of(@NonNull SaucerStash data) {
+    public static @Nullable SaucerIcon of(@NonNull SaucerStash data) {
         Pointer $$result = _SaucerMemory.alloc(Native.POINTER_SIZE);
         N.saucer_icon_from_data($$result, data);
 
