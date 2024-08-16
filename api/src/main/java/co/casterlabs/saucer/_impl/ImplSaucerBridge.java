@@ -3,6 +3,7 @@ package co.casterlabs.saucer._impl;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -171,6 +172,10 @@ class ImplSaucerBridge implements SaucerBridge {
         // Look for sub-objects and register them.
         // Note that this recurses until there are no more sub-objects.
         for (Field f : obj.getClass().getFields()) {
+            if (Modifier.isStatic(f.getModifiers())) {
+                continue;
+            }
+
             if (f.getType().isAnnotationPresent(JavascriptObject.class)) {
                 this.defineObject(name + "." + f.getName(), f.get(obj));
             }
