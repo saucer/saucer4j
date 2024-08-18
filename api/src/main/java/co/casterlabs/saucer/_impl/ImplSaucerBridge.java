@@ -4,7 +4,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +33,7 @@ class ImplSaucerBridge implements SaucerBridge {
 
     private _ImplSaucer saucer;
 
-    private Map<String, JavascriptObjectWrapper> objects = new HashMap<>();
+    private Map<String, JavascriptObjectWrapper> objects = new LinkedHashMap<>();
 
     private MessageCallback messageCallback = (Pointer $raw) -> {
         JsonObject message;
