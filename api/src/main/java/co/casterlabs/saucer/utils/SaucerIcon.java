@@ -1,5 +1,7 @@
 package co.casterlabs.saucer.utils;
 
+import java.nio.file.Path;
+
 import org.jetbrains.annotations.Nullable;
 
 import com.sun.jna.Library;
@@ -56,6 +58,16 @@ public final class SaucerIcon extends SaucerPointerType<SaucerIcon> {
         return N.saucer_icon_empty(this);
     }
 
+    /**
+     * @implNote On GTK, macOS, and Windows, this saves as a PNG.
+     * @implNote On QT, BMP, JPG, GIF, PNG, and various X-specific formats are
+     *           supported.
+     * @implNote <b>It is recommended you stick to PNG for compatibility.</b>
+     */
+    public void saveToFile(@NonNull Path target) {
+        N.saucer_icon_save(this, target.toAbsolutePath().toString());
+    }
+
     /* ------------------------------------ */
     /* ------------------------------------ */
     /* ------------------------------------ */
@@ -68,6 +80,8 @@ public final class SaucerIcon extends SaucerPointerType<SaucerIcon> {
         void saucer_icon_free(SaucerIcon instance);
 
         boolean saucer_icon_empty(SaucerIcon instance);
+
+        boolean saucer_icon_save(SaucerIcon instance, String path);
 
     }
 
