@@ -65,7 +65,7 @@ public final class SaucerSchemeRequest extends SaucerPointerType<SaucerSchemeReq
         Pointer $keys = $$keys.getPointer(0);
         Pointer $values = $$values.getPointer(0);
         size_t count = size_t.from($count);
-        _SaucerMemory.free($keys);
+        _SaucerMemory.free($$keys);
         _SaucerMemory.free($$values);
         _SaucerMemory.free($count);
 
