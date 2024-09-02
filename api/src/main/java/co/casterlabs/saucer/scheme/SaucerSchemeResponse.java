@@ -48,6 +48,18 @@ public final class SaucerSchemeResponse extends SaucerPointerType<SaucerSchemeRe
         return N.saucer_response_unexpected(error.ordinal());
     }
 
+    /* ------------------------------------ */
+    /* ------------------------------------ */
+    /* ------------------------------------ */
+
+    /**
+     * @return this instance, for chaining.
+     */
+    public SaucerSchemeResponse status(int statusCode) {
+        N.saucer_response_set_status(this, statusCode);
+        return this;
+    }
+
     /**
      * @return this instance, for chaining.
      */
@@ -56,12 +68,16 @@ public final class SaucerSchemeResponse extends SaucerPointerType<SaucerSchemeRe
         return this;
     }
 
+    /* -------------------------1----------- */
+    /* ------------------------------------ */
+    /* ------------------------------------ */
+
     public static enum SaucerRequestError {
-        SAUCER_REQUEST_ERROR_FAILED,
-        SAUCER_REQUEST_ERROR_DENIED,
-        SAUCER_REQUEST_ERROR_ABORTED,
-        SAUCER_REQUEST_ERROR_BAD_URL,
-        SAUCER_REQUEST_ERROR_NOT_FOUND,
+        NOT_FOUND,
+        INVALID,
+        ABORTED,
+        DENIED,
+        FAILED,
     }
 
     /* ------------------------------------ */
@@ -86,6 +102,8 @@ public final class SaucerSchemeResponse extends SaucerPointerType<SaucerSchemeRe
         void saucer_response_free(SaucerSchemeResponse instance);
 
         void saucer_response_add_header(SaucerSchemeResponse instance, String key, String value);
+
+        void saucer_response_set_status(SaucerSchemeResponse instance, int statusCode);
 
     }
 

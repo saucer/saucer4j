@@ -16,8 +16,6 @@ public class IconAndTitleExample {
                                             // need this feature and if your environments support it.
         )) {
 
-            saucer.webview().setContextMenuAllowed(true); // Allow the right-click menu.
-
             saucer.webview().setListener(new SaucerWebviewListener() {
                 @Override
                 public void onTitleChanged(String newTitle) {
@@ -31,6 +29,8 @@ public class IconAndTitleExample {
                     saucer.window().setIcon(newIcon);
                 }
             });
+
+            saucer.webview().setContextMenuAllowed(true); // Allow the right-click menu.
 
             saucer.webview().setUrl("https://google.com");
 

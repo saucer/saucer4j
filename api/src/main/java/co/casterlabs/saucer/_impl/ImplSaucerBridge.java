@@ -5,8 +5,6 @@ import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import com.sun.jna.Callback;
@@ -20,7 +18,11 @@ import co.casterlabs.rakurai.json.element.JsonString;
 import co.casterlabs.saucer.Saucer;
 import co.casterlabs.saucer.SaucerBridge;
 import co.casterlabs.saucer._impl.ImplSaucerBridge._Native.MessageCallback;
+import co.casterlabs.saucer.bridge.JavascriptFunction;
 import co.casterlabs.saucer.bridge.JavascriptObject;
+import co.casterlabs.saucer.utils.SaucerScript;
+import co.casterlabs.saucer.utils.SaucerScript.SaucerFramePolicy;
+import co.casterlabs.saucer.utils.SaucerScript.SaucerLoadTime;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 
@@ -134,14 +136,14 @@ class ImplSaucerBridge implements SaucerBridge {
 
         JsonElement requestId = message.get("requestId");
         if (isError) {
-            saucer.webview.executeJavaScript(
+            this.executeJavaScript(
                 String.format(
                     "if (window.saucer.__rpc.waiting[%s]) window.saucer.__rpc.waiting[%s].reject(%s);",
                     requestId, requestId, returnValue
                 )
             );
         } else {
-            saucer.webview.executeJavaScript(
+            this.executeJavaScript(
                 String.format(
                     "if (window.saucer.__rpc.waiting[%s]) window.saucer.__rpc.waiting[%s].resolve(%s);",
                     requestId, requestId, returnValue
@@ -157,8 +159,27 @@ class ImplSaucerBridge implements SaucerBridge {
 
         N.saucer_webview_on_message(this.saucer, this.messageCallback);
 
-        this.defineObject("saucer.webview", this.saucer.webview());
-        this.defineObject("saucer.window", this.saucer.window());
+        this.injectScript(
+            SaucerScript.createPermanent(
+                String.format(
+                    init_fmt,
+                    new JsonObject()
+                        .put("archTarget", Saucer.getArchTarget())
+                        .put("systemTarget", Saucer.getSystemTarget())
+                        .put("backend", Saucer.getBackend())
+                ),
+                SaucerLoadTime.DOM_CREATION,
+                SaucerFramePolicy.TOP
+            )
+        );
+
+        this.clear();
+    }
+
+    @JavascriptFunction
+    @Override
+    public void executeJavaScript(@NonNull String scriptToExecute) {
+        N.saucer_webview_execute(this.saucer, '{' + scriptToExecute + '}');
     }
 
     @SneakyThrows
@@ -180,38 +201,33 @@ class ImplSaucerBridge implements SaucerBridge {
                 this.defineObject(name + "." + f.getName(), f.get(obj));
             }
         }
+
+        this.injectScript(
+            SaucerScript.create(
+                String.format(
+                    "{\n" + ipc_object_fmt + "\n}",
+                    new JsonString(wrapper.id),
+                    new JsonString(wrapper.path),
+                    Rson.DEFAULT.toJson(wrapper.functions()),
+                    Rson.DEFAULT.toJson(wrapper.properties())
+                ),
+                SaucerLoadTime.DOM_CREATION,
+                SaucerFramePolicy.TOP
+            )
+        );
     }
 
     @Override
-    public synchronized void apply() {
-        List<String> lines = new LinkedList<>();
-        lines.add(
-            String.format(
-                init_fmt,
-                new JsonObject()
-                    .put("archTarget", Saucer.getArchTarget())
-                    .put("systemTarget", Saucer.getSystemTarget())
-                    .put("backend", Saucer.getBackend())
-            )
-        );
+    public void injectScript(@NonNull SaucerScript script) {
+        N.saucer_webview_inject(this.saucer, script);
+    }
 
-        for (JavascriptObjectWrapper object : this.objects.values()) {
-            lines.add(
-                String.format(
-                    "{\n" + ipc_object_fmt + "\n}",
-                    new JsonString(object.id),
-                    new JsonString(object.path),
-                    Rson.DEFAULT.toJson(object.functions()),
-                    Rson.DEFAULT.toJson(object.properties())
-                )
-            );
-        }
-
-        String finalScript = "if (window.self === window.top) {\n" + String.join("\n\n", lines) + "\n}";
-
+    @Override
+    public synchronized void clear() {
         N.saucer_webview_clear_scripts(this.saucer);
-        N.saucer_webview_inject(this.saucer, finalScript, _Native.SAUCER_LOAD_TIME_CREATION, _Native.SAUCER_WEB_FRAME_TOP);
-        saucer.webview().reload();
+        this.objects.clear();
+        this.defineObject("saucer.webview", this.saucer.webview());
+        this.defineObject("saucer.window", this.saucer.window());
     }
 
     /* ------------------------------------ */
@@ -220,16 +236,14 @@ class ImplSaucerBridge implements SaucerBridge {
 
     // https://github.com/saucer/bindings/blob/main/include/saucer/webview.h
     static interface _Native extends Library {
-        static final int SAUCER_LOAD_TIME_CREATION = 0;
-//        static final int SAUCER_LOAD_TIME_READY = 1;
 
-        static final int SAUCER_WEB_FRAME_TOP = 0;
+        void saucer_webview_on_message(_ImplSaucer saucer, MessageCallback callback);
+
+        void saucer_webview_execute(_ImplSaucer saucer, String script);
 
         void saucer_webview_clear_scripts(_ImplSaucer saucer);
 
-        void saucer_webview_inject(_ImplSaucer saucer, String javascript, int loadTime, int framePolicy);
-
-        void saucer_webview_on_message(_ImplSaucer saucer, MessageCallback callback);
+        void saucer_webview_inject(_ImplSaucer saucer, SaucerScript script);
 
         /**
          * @implNote Do not inline this. The JVM needs this to always be accessible

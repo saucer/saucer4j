@@ -9,6 +9,8 @@ import co.casterlabs.saucer.utils.SaucerOptions;
 public class UndecoratedExample {
 
     public static void main(String[] args) throws IOException {
+        Saucer.registerCustomScheme("app");
+
         try (Saucer saucer = Saucer.create(
             SaucerOptions.create()
                 .hardwareAcceleration(true) // May not work on all computers. You should do some testing to discover if you
@@ -19,7 +21,7 @@ public class UndecoratedExample {
             saucer.webview().setContextMenuAllowed(true); // Allow the right-click menu.
 
             saucer.webview().setSchemeHandler(SaucerSchemeHandler.fromResources(UndecoratedExample.class)); // Read the contents from our resources.
-            saucer.webview().serveScheme("UndecoratedExample.html");
+            saucer.webview().setUrl("app://authority/UndecoratedExample.html");
 
             saucer.window().show();
 

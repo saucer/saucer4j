@@ -9,6 +9,7 @@ import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 
 import co.casterlabs.saucer.SaucerWindow;
+import co.casterlabs.saucer._impl.ImplSaucerWindow._Native.SAUCER_WINDOW_EVENT;
 import co.casterlabs.saucer._impl.ImplSaucerWindow._Native.WindowBooleanCallback;
 import co.casterlabs.saucer._impl.ImplSaucerWindow._Native.WindowCloseEventCallback;
 import co.casterlabs.saucer._impl.ImplSaucerWindow._Native.WindowResizeEventCallback;
@@ -32,10 +33,21 @@ class ImplSaucerWindow implements SaucerWindow {
 
     private @Nullable SaucerWindowListener eventListener;
 
+    private WindowBooleanCallback windowEventDecoratedCallback = (Pointer $saucer, boolean isDecorated) -> {
+        try {
+//            System.out.printf("maximized: %b\n", isMaximized);
+            if (this.eventListener == null) return;
+            this.eventListener.onDecorated(isDecorated);
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    };
+
     private WindowBooleanCallback windowEventMaximizeCallback = (Pointer $saucer, boolean isMaximized) -> {
         try {
 //            System.out.printf("maximized: %b\n", isMaximized);
             if (this.eventListener == null) return;
+            this.eventListener.onMaximize(isMaximized);
         } catch (Throwable t) {
             t.printStackTrace();
         }
@@ -45,6 +57,7 @@ class ImplSaucerWindow implements SaucerWindow {
         try {
 //            System.out.printf("minimized: %b\n", isMinimized);
             if (this.eventListener == null) return;
+            this.eventListener.onMinimize(isMinimized);
         } catch (Throwable t) {
             t.printStackTrace();
         }
@@ -75,11 +88,7 @@ class ImplSaucerWindow implements SaucerWindow {
 //            System.out.printf("focus: %b\n", hasFocus);
             if (this.eventListener == null) return;
 
-            if (hasFocus) {
-                this.eventListener.onFocused();
-            } else {
-                this.eventListener.onBlur();
-            }
+            this.eventListener.onFocus(hasFocus);
         } catch (Throwable t) {
             t.printStackTrace();
         }
@@ -99,12 +108,13 @@ class ImplSaucerWindow implements SaucerWindow {
     ImplSaucerWindow(_ImplSaucer saucer) {
         this.saucer = saucer;
 
-        N.saucer_window_on(this.saucer, _Native.SAUCER_WINDOW_EVENT_MAXIMIZE, this.windowEventMaximizeCallback);
-        N.saucer_window_on(this.saucer, _Native.SAUCER_WINDOW_EVENT_MINIMIZE, this.windowEventMinimizeCallback);
-        N.saucer_window_on(this.saucer, _Native.SAUCER_WINDOW_EVENT_CLOSED, this.windowEventClosedCallback);
-        N.saucer_window_on(this.saucer, _Native.SAUCER_WINDOW_EVENT_RESIZE, this.windowEventResizeCallback);
-        N.saucer_window_on(this.saucer, _Native.SAUCER_WINDOW_EVENT_FOCUS, this.windowEventFocusCallback);
-        N.saucer_window_on(this.saucer, _Native.SAUCER_WINDOW_EVENT_CLOSE, this.windowEventCloseCallback);
+        N.saucer_window_on(this.saucer, SAUCER_WINDOW_EVENT.DECORATED.ordinal(), this.windowEventDecoratedCallback);
+        N.saucer_window_on(this.saucer, SAUCER_WINDOW_EVENT.MAXIMIZE.ordinal(), this.windowEventMaximizeCallback);
+        N.saucer_window_on(this.saucer, SAUCER_WINDOW_EVENT.MINIMIZE.ordinal(), this.windowEventMinimizeCallback);
+        N.saucer_window_on(this.saucer, SAUCER_WINDOW_EVENT.CLOSED.ordinal(), this.windowEventClosedCallback);
+        N.saucer_window_on(this.saucer, SAUCER_WINDOW_EVENT.RESIZE.ordinal(), this.windowEventResizeCallback);
+        N.saucer_window_on(this.saucer, SAUCER_WINDOW_EVENT.FOCUS.ordinal(), this.windowEventFocusCallback);
+        N.saucer_window_on(this.saucer, SAUCER_WINDOW_EVENT.CLOSE.ordinal(), this.windowEventCloseCallback);
     }
 
     @Override
@@ -308,23 +318,28 @@ class ImplSaucerWindow implements SaucerWindow {
 
     // https://github.com/saucer/saucer/blob/very-experimental/bindings/include/saucer/window.h
     static interface _Native extends Library {
-        /** Requires {@link WindowBooleanCallback} */
-        static final int SAUCER_WINDOW_EVENT_MAXIMIZE = 0;
+        static enum SAUCER_WINDOW_EVENT {
+            /** Requires {@link WindowBooleanCallback} */
+            DECORATED,
 
-        /** Requires {@link WindowBooleanCallback} */
-        static final int SAUCER_WINDOW_EVENT_MINIMIZE = 1;
+            /** Requires {@link WindowBooleanCallback} */
+            MAXIMIZE,
 
-        /** Requires {@link WindowVoidCallback} */
-        static final int SAUCER_WINDOW_EVENT_CLOSED = 2;
+            /** Requires {@link WindowBooleanCallback} */
+            MINIMIZE,
 
-        /** Requires {@link WindowResizeEventCallback} */
-        static final int SAUCER_WINDOW_EVENT_RESIZE = 3;
+            /** Requires {@link WindowVoidCallback} */
+            CLOSED,
 
-        /** Requires {@link WindowBooleanCallback} */
-        static final int SAUCER_WINDOW_EVENT_FOCUS = 4;
+            /** Requires {@link WindowResizeEventCallback} */
+            RESIZE,
 
-        /** Requires {@link WindowCloseEventCallback} */
-        static final int SAUCER_WINDOW_EVENT_CLOSE = 5;
+            /** Requires {@link WindowBooleanCallback} */
+            FOCUS,
+
+            /** Requires {@link WindowCloseEventCallback} */
+            CLOSE,
+        }
 
         void saucer_window_hide(_ImplSaucer saucer);
 

@@ -185,20 +185,15 @@ public interface SaucerWindow {
 
     public static interface SaucerWindowListener {
 
+        default void onDecorated(boolean isDecorated) {}
+
         default void onResize(int width, int height) {}
 
-        default void onMaximize() {}
+        default void onMaximize(boolean isMaximized) {}
 
-        default void onMinimize() {}
+        default void onMinimize(boolean isMinimized) {}
 
-        /**
-         * Called when a minimized window is made visible again.
-         */
-        default void onRestore() {}
-
-        default void onFocused() {}
-
-        default void onBlur() {}
+        default void onFocus(boolean hasFocus) {}
 
         /**
          * @return true, if you want to prevent the webview from closing.

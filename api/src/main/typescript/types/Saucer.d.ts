@@ -60,7 +60,7 @@ export declare type SaucerWebview = {
    *
    * Set this value to change it.
    */
-  currentUrl: Promise<string> | string;
+  url: Promise<string> | string;
 
   /**
    * The background color of the Saucer window. Note that this is
@@ -81,14 +81,19 @@ export declare type SaucerWebview = {
   forceDarkAppearance: Promise<boolean> | boolean;
 
   /**
+   * Navigates backward.
+   */
+  back(): void;
+
+  /**
+   * Navigates forward.
+   */
+  forward(): void;
+
+  /**
    * Reloads the current page.
    */
   reload(): void;
-
-  /**
-   * Executes the provided JavaScript (dangerous).
-   */
-  executeJavaScript(code: string): Promise<void>;
 };
 
 export declare type SaucerSize = {
@@ -227,4 +232,4 @@ declare global {
   }
 }
 
-export {};
+export { };

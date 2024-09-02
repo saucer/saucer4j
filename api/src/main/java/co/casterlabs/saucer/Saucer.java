@@ -62,6 +62,10 @@ public interface Saucer extends Closeable {
         return _ImplSaucer.create(options);
     }
 
+    public static void registerCustomScheme(@NonNull String scheme) {
+        _ImplSaucer.registerCustomScheme(scheme);
+    }
+
     @AvailableFromJS
     @SneakyThrows
     public static void openLinkInSystemBrowser(@NonNull String link) {

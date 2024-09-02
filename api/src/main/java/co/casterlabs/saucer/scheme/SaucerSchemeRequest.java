@@ -1,5 +1,6 @@
 package co.casterlabs.saucer.scheme;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,9 +45,9 @@ public final class SaucerSchemeRequest extends SaucerPointerType<SaucerSchemeReq
         return N.saucer_request_method(this);
     }
 
-    public String url() {
+    public URI uri() {
         String full = N.saucer_request_url(this);
-        return full.substring(full.indexOf(':') + 1); // "saucer:/index.html" -> "/index.html"
+        return URI.create(full);
     }
 
     public SaucerStash payload() {

@@ -1,6 +1,8 @@
 package co.casterlabs.saucer._impl;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import com.sun.jna.Callback;
@@ -23,9 +25,10 @@ import lombok.NonNull;
 @InternalUseOnly
 public class _ImplSaucer extends SaucerPointerType<_ImplSaucer> implements Saucer {
     private static final _Native N = _SaucerNative.load(_Native.class);
-    static final Pointer CUSTOM_SCHEME = _SaucerMemory.alloc("app");
 
-    private static boolean hasRegisteredCustomScheme = false;
+    static final Map<String, Pointer> customSchemes = new HashMap<>();
+
+    private static boolean alreadyLoaded = false;
 
     private static Set<_ImplSaucer> windows = new HashSet<>();
 
@@ -76,11 +79,8 @@ public class _ImplSaucer extends SaucerPointerType<_ImplSaucer> implements Sauce
         this.isClosed = true;
     };
 
-    public static _ImplSaucer create(@NonNull SaucerOptions options) {
-        if (!hasRegisteredCustomScheme) {
-            hasRegisteredCustomScheme = true;
-            N.saucer_register_scheme(CUSTOM_SCHEME);
-        }
+    public static synchronized _ImplSaucer create(@NonNull SaucerOptions options) {
+        alreadyLoaded = true;
 
         _ImplSaucer saucer = N.saucer_new(options);
         saucer.options = options;
@@ -91,8 +91,6 @@ public class _ImplSaucer extends SaucerPointerType<_ImplSaucer> implements Sauce
         saucer.messages = new ImplSaucerMessages(saucer);
         saucer.bridge = new ImplSaucerBridge(saucer); // !MUST BE LAST!
 
-        saucer.bridge.apply(); // Apply the defaults.
-
         // Keep this object in memory so that it doesn't get free()'d while Saucer is
         // trying to work on it.
         windows.add(saucer);
@@ -100,6 +98,16 @@ public class _ImplSaucer extends SaucerPointerType<_ImplSaucer> implements Sauce
         N.saucer_window_on(saucer, _Native.SAUCER_WINDOW_EVENT_CLOSED, saucer.windowEventClosedCallback);
 
         return saucer;
+    }
+
+    public static synchronized void registerCustomScheme(@NonNull String scheme) {
+        assert !customSchemes.containsKey(scheme) : "Scheme '" + scheme + "' is already registered!";
+        assert !alreadyLoaded : "You must register all of your custom schemes before calling Saucer.create()";
+
+        Pointer schemePointer = _SaucerMemory.alloc(scheme);
+        N.saucer_register_scheme(schemePointer);
+
+        customSchemes.put(scheme, schemePointer);
     }
 
     @Override
@@ -157,7 +165,7 @@ public class _ImplSaucer extends SaucerPointerType<_ImplSaucer> implements Sauce
         /* ---------------------------- */
 
         /** Requires {@link WindowVoidCallback} */
-        static final int SAUCER_WINDOW_EVENT_CLOSED = 2;
+        static final int SAUCER_WINDOW_EVENT_CLOSED = 3; // TODO keep this in-sync.
 
         long saucer_window_on(_ImplSaucer instance, int event, Callback callback);
 

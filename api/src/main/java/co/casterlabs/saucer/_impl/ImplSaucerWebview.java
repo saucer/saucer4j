@@ -7,6 +7,7 @@ import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 
 import co.casterlabs.saucer.SaucerWebview;
+import co.casterlabs.saucer._impl.ImplSaucerWebview._Native.SAUCER_WEB_EVENT;
 import co.casterlabs.saucer._impl.ImplSaucerWebview._Native.WebviewIconCallback;
 import co.casterlabs.saucer._impl.ImplSaucerWebview._Native.WebviewSchemeCallback;
 import co.casterlabs.saucer._impl.ImplSaucerWebview._Native.WebviewStringCallback;
@@ -40,13 +41,13 @@ class ImplSaucerWebview implements SaucerWebview {
     private WebviewSchemeCallback schemeHandlerCallback = (Pointer _unused, SaucerSchemeRequest request) -> {
         SaucerSchemeResponse response;
         if (this.schemeHandler == null) {
-            response = SaucerSchemeResponse.error(SaucerRequestError.SAUCER_REQUEST_ERROR_NOT_FOUND);
+            response = SaucerSchemeResponse.error(SaucerRequestError.NOT_FOUND);
         } else {
             try {
                 response = this.schemeHandler.handle(request);
             } catch (Throwable t) {
                 t.printStackTrace();
-                response = SaucerSchemeResponse.error(SaucerRequestError.SAUCER_REQUEST_ERROR_FAILED);
+                response = SaucerSchemeResponse.error(SaucerRequestError.FAILED);
             }
         }
 
@@ -119,14 +120,16 @@ class ImplSaucerWebview implements SaucerWebview {
     ImplSaucerWebview(_ImplSaucer saucer) {
         this.saucer = saucer;
 
-        N.saucer_webview_on(this.saucer, _Native.SAUCER_WEB_EVENT_TITLE_CHANGED, this.webEventTitleChangedCallback);
-        N.saucer_webview_on(this.saucer, _Native.SAUCER_WEB_EVENT_LOAD_FINISHED, this.webEventLoadFinishedCallback);
-        N.saucer_webview_on(this.saucer, _Native.SAUCER_WEB_EVENT_ICON_CHANGED, this.webEventIconChangedCallback);
-        N.saucer_webview_on(this.saucer, _Native.SAUCER_WEB_EVENT_LOAD_STARTED, this.webEventLoadStartedCallback);
-        N.saucer_webview_on(this.saucer, _Native.SAUCER_WEB_EVENT_URL_CHANGED, this.webEventUrlChangedCallback);
-        N.saucer_webview_on(this.saucer, _Native.SAUCER_WEB_EVENT_DOM_READY, this.webEventDomReadyCallback);
+        N.saucer_webview_on(this.saucer, SAUCER_WEB_EVENT.TITLE_CHANGED.ordinal(), this.webEventTitleChangedCallback);
+        N.saucer_webview_on(this.saucer, SAUCER_WEB_EVENT.LOAD_FINISHED.ordinal(), this.webEventLoadFinishedCallback);
+        N.saucer_webview_on(this.saucer, SAUCER_WEB_EVENT.ICON_CHANGED.ordinal(), this.webEventIconChangedCallback);
+        N.saucer_webview_on(this.saucer, SAUCER_WEB_EVENT.LOAD_STARTED.ordinal(), this.webEventLoadStartedCallback);
+        N.saucer_webview_on(this.saucer, SAUCER_WEB_EVENT.URL_CHANGED.ordinal(), this.webEventUrlChangedCallback);
+        N.saucer_webview_on(this.saucer, SAUCER_WEB_EVENT.DOM_READY.ordinal(), this.webEventDomReadyCallback);
 
-        N.saucer_webview_handle_scheme(this.saucer, _ImplSaucer.CUSTOM_SCHEME, this.schemeHandlerCallback);
+        for (Pointer $scheme : _ImplSaucer.customSchemes.values()) {
+            N.saucer_webview_handle_scheme(this.saucer, $scheme, this.schemeHandlerCallback);
+        }
     }
 
     @JavascriptGetter("devtoolsVisible")
@@ -141,7 +144,7 @@ class ImplSaucerWebview implements SaucerWebview {
         N.saucer_webview_set_dev_tools(this.saucer, show);
     }
 
-    @JavascriptGetter("currentUrl")
+    @JavascriptGetter("url")
     @Override
     public String currentUrl() {
         Pointer $url = N.saucer_webview_url(this.saucer);
@@ -150,16 +153,10 @@ class ImplSaucerWebview implements SaucerWebview {
         return url;
     }
 
-    @JavascriptSetter("currentUrl")
+    @JavascriptSetter("url")
     @Override
     public void setUrl(@NonNull String url) {
         N.saucer_webview_set_url(this.saucer, url);
-    }
-
-    @JavascriptFunction
-    @Override
-    public void serveScheme(@NonNull String path) {
-        N.saucer_webview_serve_scheme(this.saucer, path, _ImplSaucer.CUSTOM_SCHEME);
     }
 
     @JavascriptGetter("contextMenuAllowed")
@@ -176,8 +173,20 @@ class ImplSaucerWebview implements SaucerWebview {
 
     @JavascriptFunction
     @Override
-    public void executeJavaScript(@NonNull String scriptToExecute) {
-        N.saucer_webview_execute(this.saucer, '{' + scriptToExecute + '}');
+    public void back() {
+        N.saucer_webview_back(this.saucer);
+    }
+
+    @JavascriptFunction
+    @Override
+    public void forward() {
+        N.saucer_webview_forward(this.saucer);
+    }
+
+    @JavascriptFunction
+    @Override
+    public void reload() {
+        N.saucer_webview_reload(this.saucer);
     }
 
     @JavascriptGetter("background")
@@ -240,25 +249,31 @@ class ImplSaucerWebview implements SaucerWebview {
 
     // https://github.com/saucer/saucer/blob/very-experimental/bindings/include/saucer/webview.h
     static interface _Native extends Library {
-        /** Requires {@link WebviewStringCallback} */
-        static final int SAUCER_WEB_EVENT_TITLE_CHANGED = 0;
+        static enum SAUCER_WEB_EVENT {
+            /** Requires {@link WebviewStringCallback} */
+            TITLE_CHANGED,
 
-        /** Requires {@link WindowVoidCallback} */
-        static final int SAUCER_WEB_EVENT_LOAD_FINISHED = 1;
+            /** Requires {@link WindowVoidCallback} */
+            LOAD_FINISHED,
 
-        /** Requires {@link WebviewIconCallback} */
-        static final int SAUCER_WEB_EVENT_ICON_CHANGED = 2;
+            /** Requires {@link WebviewIconCallback} */
+            ICON_CHANGED,
 
-        /** Requires {@link WindowVoidCallback} */
-        static final int SAUCER_WEB_EVENT_LOAD_STARTED = 3;
+            /** Requires {@link WindowVoidCallback} */
+            LOAD_STARTED,
 
-        /** Requires {@link WebviewStringCallback} */
-        static final int SAUCER_WEB_EVENT_URL_CHANGED = 4;
+            /** Requires {@link WebviewStringCallback} */
+            URL_CHANGED,
 
-        /** Requires {@link WindowVoidCallback} */
-        static final int SAUCER_WEB_EVENT_DOM_READY = 5;
+            /** Requires {@link WindowVoidCallback} */
+            DOM_READY,
+        }
 
-        void saucer_webview_execute(_ImplSaucer saucer, String script);
+        void saucer_webview_back(_ImplSaucer saucer);
+
+        void saucer_webview_forward(_ImplSaucer saucer);
+
+        void saucer_webview_reload(_ImplSaucer saucer);
 
         @RequiresFree
         SaucerIcon saucer_webview_favicon(_ImplSaucer saucer);
@@ -271,8 +286,6 @@ class ImplSaucerWebview implements SaucerWebview {
         Pointer saucer_webview_url(_ImplSaucer saucer);
 
         void saucer_webview_set_url(_ImplSaucer saucer, String url);
-
-        void saucer_webview_serve_scheme(_ImplSaucer saucer, String path, Pointer $scheme);
 
         boolean saucer_webview_context_menu(_ImplSaucer saucer);
 

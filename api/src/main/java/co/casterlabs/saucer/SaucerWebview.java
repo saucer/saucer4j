@@ -35,9 +35,6 @@ public interface SaucerWebview {
     @AvailableFromJS
     public void setUrl(@NonNull String url);
 
-    @AvailableFromJS
-    public void serveScheme(@NonNull String path);
-
     /**
      * @return whether or not the context menu is enabled.
      */
@@ -51,19 +48,25 @@ public interface SaucerWebview {
     public void setContextMenuAllowed(boolean allowed);
 
     /**
-     * Executes the given JavaScript code in the webview.
-     */
-    @AvailableFromJS
-    public void executeJavaScript(@NonNull String scriptToExecute);
-
-    /**
-     * Reloads the current URL.
+     * Navigates backward.
      */
     @JavascriptFunction
     @AvailableFromJS
-    default void reload() {
-        this.executeJavaScript("location.reload();");
-    }
+    public void back();
+
+    /**
+     * Navigates forward.
+     */
+    @JavascriptFunction
+    @AvailableFromJS
+    public void forward();
+
+    /**
+     * Reloads the current page.
+     */
+    @JavascriptFunction
+    @AvailableFromJS
+    public void reload();
 
     /**
      * @return the background color of the Saucer window. Note that this is

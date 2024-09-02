@@ -33,7 +33,7 @@ class ImplSaucerMessages implements SaucerMessages {
 
     @Override
     public void emit(@NonNull Object data) {
-        saucer.webview.executeJavaScript(
+        saucer.bridge.executeJavaScript(
             String.format(
                 "window.saucer.messages.__internal(%s);",
                 Rson.DEFAULT.toJson(data).toString()

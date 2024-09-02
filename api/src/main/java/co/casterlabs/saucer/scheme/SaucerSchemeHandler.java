@@ -18,7 +18,7 @@ public interface SaucerSchemeHandler {
 
     public static SaucerSchemeHandler fromResources(@NonNull Class<?> clazz, @NonNull String basePath) {
         return (SaucerSchemeRequest request) -> {
-            String fullPath = basePath + request.url();
+            String fullPath = basePath + request.uri().getPath();
 
             InputStream in = clazz.getResourceAsStream(fullPath);
             if (in == null) {
@@ -32,7 +32,7 @@ public interface SaucerSchemeHandler {
             }
 
             if (in == null) {
-                return SaucerSchemeResponse.error(SaucerRequestError.SAUCER_REQUEST_ERROR_NOT_FOUND);
+                return SaucerSchemeResponse.error(SaucerRequestError.NOT_FOUND);
             }
 
             byte[] data = StreamUtil.toBytes(in);
