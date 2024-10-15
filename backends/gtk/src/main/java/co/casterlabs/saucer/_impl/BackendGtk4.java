@@ -11,7 +11,7 @@ public class BackendGtk4 extends _SaucerBackend {
     @Override
     public boolean checkDependencies() throws IOException {
         return checkForLibraries(
-            "libgtk-4",
+            "libgtk-4-1",
             "libwebkitgtk-6.0",
             "libadwaita-1"
         );
