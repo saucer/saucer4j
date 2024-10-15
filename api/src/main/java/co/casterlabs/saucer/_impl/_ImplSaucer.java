@@ -18,7 +18,7 @@ import co.casterlabs.saucer._impl.ImplSaucerWindow._Native.WindowVoidCallback;
 import co.casterlabs.saucer._impl.c.SaucerPointerType;
 import co.casterlabs.saucer._impl.c._SaucerMemory;
 import co.casterlabs.saucer.documentation.InternalUseOnly;
-import co.casterlabs.saucer.utils.SaucerOptions;
+import co.casterlabs.saucer.utils.SaucerPreferences;
 import lombok.NonNull;
 
 @Deprecated
@@ -58,7 +58,7 @@ public class _ImplSaucer extends SaucerPointerType<_ImplSaucer> implements Sauce
     @Override
     protected void free() {
         N.saucer_free(this);
-        this.options = null; // GC will auto-free.
+        this.preferences = null; // GC will auto-free.
     }
 
     /* ------------------------------------ */
@@ -66,7 +66,7 @@ public class _ImplSaucer extends SaucerPointerType<_ImplSaucer> implements Sauce
     /* ------------------------------------ */
 
     @SuppressWarnings("unused")
-    private SaucerOptions options; // ref.
+    private SaucerPreferences preferences; // ref.
 
     ImplSaucerWebview webview;
     ImplSaucerWindow window;
@@ -76,14 +76,14 @@ public class _ImplSaucer extends SaucerPointerType<_ImplSaucer> implements Sauce
     private volatile boolean isClosed = false;
 
     private WindowVoidCallback windowEventClosedCallback = (Pointer $saucer) -> {
-        this.isClosed = true;
+        this.close();
     };
 
-    public static synchronized _ImplSaucer create(@NonNull SaucerOptions options) {
+    public static synchronized _ImplSaucer create(@NonNull SaucerPreferences preferences) {
         alreadyLoaded = true;
 
-        _ImplSaucer saucer = N.saucer_new(options);
-        saucer.options = options;
+        _ImplSaucer saucer = N.saucer_new(preferences);
+        saucer.preferences = preferences;
 
         // These need to be initialized AFTER saucer is created.
         saucer.webview = new ImplSaucerWebview(saucer);
@@ -140,10 +140,6 @@ public class _ImplSaucer extends SaucerPointerType<_ImplSaucer> implements Sauce
         _ImplSaucer.windows.remove(_ImplSaucer.this);
     }
 
-    public static void run() {
-        N.saucer_window_run();
-    }
-
     /* ------------------------------------ */
     /* ------------------------------------ */
     /* ------------------------------------ */
@@ -156,7 +152,7 @@ public class _ImplSaucer extends SaucerPointerType<_ImplSaucer> implements Sauce
 
         void saucer_register_scheme(Pointer $name);
 
-        _ImplSaucer saucer_new(SaucerOptions options);
+        _ImplSaucer saucer_new(SaucerPreferences options);
 
         void saucer_free(_ImplSaucer instance);
 
@@ -170,8 +166,6 @@ public class _ImplSaucer extends SaucerPointerType<_ImplSaucer> implements Sauce
         long saucer_window_on(_ImplSaucer instance, int event, Callback callback);
 
         void saucer_window_close(_ImplSaucer instance);
-
-        void saucer_window_run();
 
     }
 

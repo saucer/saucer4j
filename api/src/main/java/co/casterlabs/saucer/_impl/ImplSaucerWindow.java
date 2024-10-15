@@ -1,7 +1,5 @@
 package co.casterlabs.saucer._impl;
 
-import java.util.function.Supplier;
-
 import org.jetbrains.annotations.Nullable;
 
 import com.sun.jna.Callback;
@@ -22,7 +20,6 @@ import co.casterlabs.saucer.bridge.JavascriptSetter;
 import co.casterlabs.saucer.utils.SaucerIcon;
 import co.casterlabs.saucer.utils.SaucerSize;
 import lombok.NonNull;
-import lombok.SneakyThrows;
 
 @JavascriptObject
 @SuppressWarnings("deprecation")
@@ -115,30 +112,6 @@ class ImplSaucerWindow implements SaucerWindow {
         N.saucer_window_on(this.saucer, SAUCER_WINDOW_EVENT.RESIZE.ordinal(), this.windowEventResizeCallback);
         N.saucer_window_on(this.saucer, SAUCER_WINDOW_EVENT.FOCUS.ordinal(), this.windowEventFocusCallback);
         N.saucer_window_on(this.saucer, SAUCER_WINDOW_EVENT.CLOSE.ordinal(), this.windowEventCloseCallback);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    @SneakyThrows
-    public <T> T dispatch(@NonNull Supplier<T> task) {
-        // Pointers to avoid Java's final requirements.
-        // A CompletableFuture would be cleaner, but let's avoid creating garbage.
-        Object[] $result = new Object[1];
-        Throwable[] $exception = new Throwable[1];
-
-        N.saucer_window_dispatch(this.saucer, () -> {
-            try {
-                $result[0] = task.get();
-            } catch (Throwable t) {
-                $exception[0] = t;
-            }
-        });
-
-        if ($exception[0] == null) {
-            return (T) $result[0];
-        } else {
-            throw $exception[0];
-        }
     }
 
     @JavascriptGetter("isFocused")
@@ -386,8 +359,6 @@ class ImplSaucerWindow implements SaucerWindow {
         void saucer_window_set_max_size(_ImplSaucer saucer, int width, int height);
 
         long saucer_window_on(_ImplSaucer saucer, int event, Callback callback);
-
-        void saucer_window_dispatch(_ImplSaucer saucer, DispatchCallback callback);
 
         void saucer_window_set_icon(_ImplSaucer saucer, SaucerIcon icon);
 

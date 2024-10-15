@@ -7,6 +7,7 @@ import co.casterlabs.saucer.documentation.AvailableFromJS;
 import co.casterlabs.saucer.scheme.SaucerSchemeHandler;
 import co.casterlabs.saucer.utils.SaucerColor;
 import co.casterlabs.saucer.utils.SaucerIcon;
+import co.casterlabs.saucer.utils.SaucerNavigation;
 import lombok.NonNull;
 
 public interface SaucerWebview {
@@ -123,17 +124,27 @@ public interface SaucerWebview {
 
     public static interface SaucerWebviewListener {
 
-        default void onLoadFinished() {}
-
-        default void onLoadStarted() {}
-
-        default void onUrlChanged(String newUrl) {}
-
         default void onDomReady() {}
 
-        default void onTitleChanged(String newTitle) {}
+        default void onNavigated(String newUrl) {}
 
-        default void onIconChanged(SaucerIcon newIcon) {}
+        /**
+         * @return true, if the navigation should be handled normally.
+         */
+        default boolean onNavigate(SaucerNavigation navigation) {
+            return true;
+        }
+
+        default void onFavicon(SaucerIcon newIcon) {}
+
+        default void onTitle(String newTitle) {}
+
+        default void onLoad(SaucerWebviewLoadState state) {}
+
+        public static enum SaucerWebviewLoadState {
+            STARTED,
+            FINISHED
+        }
 
     }
 

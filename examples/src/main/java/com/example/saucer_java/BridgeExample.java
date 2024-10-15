@@ -8,18 +8,21 @@ import co.casterlabs.saucer.bridge.JavascriptGetter;
 import co.casterlabs.saucer.bridge.JavascriptObject;
 import co.casterlabs.saucer.bridge.JavascriptValue;
 import co.casterlabs.saucer.scheme.SaucerSchemeHandler;
-import co.casterlabs.saucer.utils.SaucerOptions;
+import co.casterlabs.saucer.utils.SaucerApp;
+import co.casterlabs.saucer.utils.SaucerPreferences;
 
 public class BridgeExample {
 
     public static void main(String[] args) throws IOException {
-        Saucer.registerCustomScheme("app");
+        SaucerApp.initialize("com.example.saucer4j", () -> {
+            Saucer.registerCustomScheme("app");
 
-        try (Saucer saucer = Saucer.create(
-            SaucerOptions.create()
-                .hardwareAcceleration(true) // May not work on all computers. You should do some testing to discover if you
-                                            // need this feature and if your environments support it.
-        )) {
+            Saucer saucer = Saucer.create(
+                SaucerPreferences.create()
+                    .hardwareAcceleration(true) // May not work on all computers. You should do some testing to discover if you
+                                                // need this feature and if your environments support it.
+            );
+
             saucer.bridge().defineObject("Example", new BridgeObjectExample(saucer));
 
             saucer.webview().setContextMenuAllowed(true); // Allow the right-click menu.
@@ -28,10 +31,7 @@ public class BridgeExample {
             saucer.webview().setUrl("app://authority/BridgeExample.html");
 
             saucer.window().show();
-
-            // This blocks until the window is closed.
-            Saucer.run();
-        }
+        });
     }
 
     @JavascriptObject

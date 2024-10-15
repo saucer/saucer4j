@@ -7,12 +7,14 @@ import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 
 import co.casterlabs.saucer.SaucerWebview;
+import co.casterlabs.saucer.SaucerWebview.SaucerWebviewListener.SaucerWebviewLoadState;
 import co.casterlabs.saucer._impl.ImplSaucerWebview._Native.SAUCER_WEB_EVENT;
 import co.casterlabs.saucer._impl.ImplSaucerWebview._Native.WebviewIconCallback;
+import co.casterlabs.saucer._impl.ImplSaucerWebview._Native.WebviewLoadCallback;
+import co.casterlabs.saucer._impl.ImplSaucerWebview._Native.WebviewNavigateCallback;
 import co.casterlabs.saucer._impl.ImplSaucerWebview._Native.WebviewSchemeCallback;
 import co.casterlabs.saucer._impl.ImplSaucerWebview._Native.WebviewStringCallback;
 import co.casterlabs.saucer._impl.ImplSaucerWebview._Native.WebviewVoidCallback;
-import co.casterlabs.saucer._impl.ImplSaucerWindow._Native.WindowVoidCallback;
 import co.casterlabs.saucer._impl.c.NoFree;
 import co.casterlabs.saucer._impl.c.RequiresFree;
 import co.casterlabs.saucer._impl.c._SaucerMemory;
@@ -26,6 +28,7 @@ import co.casterlabs.saucer.scheme.SaucerSchemeResponse;
 import co.casterlabs.saucer.scheme.SaucerSchemeResponse.SaucerRequestError;
 import co.casterlabs.saucer.utils.SaucerColor;
 import co.casterlabs.saucer.utils.SaucerIcon;
+import co.casterlabs.saucer.utils.SaucerNavigation;
 import lombok.NonNull;
 
 @SuppressWarnings("deprecation")
@@ -55,63 +58,60 @@ class ImplSaucerWebview implements SaucerWebview {
         return response;
     };
 
-    private WebviewStringCallback webEventTitleChangedCallback = (Pointer _unused, Pointer $newTitle) -> {
-        try {
-            if (this.eventListener == null) return;
-//            System.out.printf("titleChanged: %s\n", newUrl);
-            String newTitle = $newTitle.getString(0, "UTF-8");
-            this.eventListener.onTitleChanged(newTitle);
-        } catch (Throwable t) {
-            t.printStackTrace();
-        }
-    };
-
-    private WebviewVoidCallback webEventLoadFinishedCallback = (Pointer _unused) -> {
-        try {
-//            System.out.println("webLoadFinished");
-            if (this.eventListener == null) return;
-            this.eventListener.onLoadFinished();
-        } catch (Throwable t) {
-            t.printStackTrace();
-        }
-    };
-
-    private WebviewIconCallback webEventIconChangedCallback = (Pointer _unused, SaucerIcon newIcon) -> {
-        try {
-            if (this.eventListener == null) return;
-//            System.out.printf("iconChanged: %s\n", newUrl);
-            this.eventListener.onIconChanged(newIcon);
-        } catch (Throwable t) {
-            t.printStackTrace();
-        }
-    };
-
-    private WebviewVoidCallback webEventLoadStartedCallback = (Pointer _unused) -> {
-        try {
-//            System.out.println("loadStarted");
-            if (this.eventListener == null) return;
-            this.eventListener.onLoadStarted();
-        } catch (Throwable t) {
-            t.printStackTrace();
-        }
-    };
-
-    private WebviewStringCallback webEventUrlChangedCallback = (Pointer _unused, Pointer $newUrl) -> {
-        try {
-            if (this.eventListener == null) return;
-//            System.out.printf("urlChanged: %s\n", newUrl);
-            String newUrl = $newUrl.getString(0, "UTF-8");
-            this.eventListener.onUrlChanged(newUrl);
-        } catch (Throwable t) {
-            t.printStackTrace();
-        }
-    };
-
     private WebviewVoidCallback webEventDomReadyCallback = (Pointer _unused) -> {
         try {
-//            System.out.println("domReady");
             if (this.eventListener == null) return;
             this.eventListener.onDomReady();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    };
+
+    private WebviewStringCallback webEventNavigatedCallback = (Pointer _unused, Pointer $newUrl) -> {
+        try {
+            if (this.eventListener == null) return;
+            String newTitle = $newUrl.getString(0, "UTF-8");
+            this.eventListener.onTitle(newTitle);
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    };
+
+    private WebviewNavigateCallback webEventNavigateCallback = (Pointer _unused, SaucerNavigation navigation) -> {
+        try {
+            if (this.eventListener == null) return 0;
+            return this.eventListener.onNavigate(navigation) ? 0 : 1;
+        } catch (Throwable t) {
+            t.printStackTrace();
+            return 0;
+        }
+    };
+
+    private WebviewIconCallback webEventFaviconCallback = (Pointer _unused, SaucerIcon newIcon) -> {
+        try {
+            if (this.eventListener == null) return;
+            this.eventListener.onFavicon(newIcon);
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    };
+
+    private WebviewStringCallback webEventTitleCallback = (Pointer _unused, Pointer $newTitle) -> {
+        try {
+            if (this.eventListener == null) return;
+            String newTitle = $newTitle.getString(0, "UTF-8");
+            this.eventListener.onTitle(newTitle);
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    };
+
+    private WebviewLoadCallback webEventLoadCallback = (Pointer _unused, Pointer $state) -> {
+        try {
+            if (this.eventListener == null) return;
+
+            int state = $state.getInt(0);
+            this.eventListener.onLoad(SaucerWebviewLoadState.values()[state]);
         } catch (Throwable t) {
             t.printStackTrace();
         }
@@ -120,12 +120,12 @@ class ImplSaucerWebview implements SaucerWebview {
     ImplSaucerWebview(_ImplSaucer saucer) {
         this.saucer = saucer;
 
-        N.saucer_webview_on(this.saucer, SAUCER_WEB_EVENT.TITLE_CHANGED.ordinal(), this.webEventTitleChangedCallback);
-        N.saucer_webview_on(this.saucer, SAUCER_WEB_EVENT.LOAD_FINISHED.ordinal(), this.webEventLoadFinishedCallback);
-        N.saucer_webview_on(this.saucer, SAUCER_WEB_EVENT.ICON_CHANGED.ordinal(), this.webEventIconChangedCallback);
-        N.saucer_webview_on(this.saucer, SAUCER_WEB_EVENT.LOAD_STARTED.ordinal(), this.webEventLoadStartedCallback);
-        N.saucer_webview_on(this.saucer, SAUCER_WEB_EVENT.URL_CHANGED.ordinal(), this.webEventUrlChangedCallback);
         N.saucer_webview_on(this.saucer, SAUCER_WEB_EVENT.DOM_READY.ordinal(), this.webEventDomReadyCallback);
+        N.saucer_webview_on(this.saucer, SAUCER_WEB_EVENT.NAVIGATED.ordinal(), this.webEventNavigatedCallback);
+        N.saucer_webview_on(this.saucer, SAUCER_WEB_EVENT.NAVIGATE.ordinal(), this.webEventNavigateCallback);
+        N.saucer_webview_on(this.saucer, SAUCER_WEB_EVENT.FAVICON.ordinal(), this.webEventFaviconCallback);
+        N.saucer_webview_on(this.saucer, SAUCER_WEB_EVENT.TITLE.ordinal(), this.webEventTitleCallback);
+        N.saucer_webview_on(this.saucer, SAUCER_WEB_EVENT.LOAD.ordinal(), this.webEventLoadCallback);
 
         for (Pointer $scheme : _ImplSaucer.customSchemes.values()) {
             N.saucer_webview_handle_scheme(this.saucer, $scheme, this.schemeHandlerCallback);
@@ -247,26 +247,27 @@ class ImplSaucerWebview implements SaucerWebview {
         this.schemeHandler = handler;
     }
 
-    // https://github.com/saucer/saucer/blob/very-experimental/bindings/include/saucer/webview.h
+    // https://github.com/saucer/bindings/blob/main/include/saucer/webview.h
     static interface _Native extends Library {
         static enum SAUCER_WEB_EVENT {
-            /** Requires {@link WebviewStringCallback} */
-            TITLE_CHANGED,
+            /** Requires {@link WebviewVoidCallback} */
+            DOM_READY,
 
-            /** Requires {@link WindowVoidCallback} */
-            LOAD_FINISHED,
+            /** Requires {@link WebviewStringCallback} */
+            NAVIGATED,
+
+            /** Requires {@link WebviewNavigateCallback} */
+            NAVIGATE,
 
             /** Requires {@link WebviewIconCallback} */
-            ICON_CHANGED,
-
-            /** Requires {@link WindowVoidCallback} */
-            LOAD_STARTED,
+            FAVICON,
 
             /** Requires {@link WebviewStringCallback} */
-            URL_CHANGED,
+            TITLE,
 
-            /** Requires {@link WindowVoidCallback} */
-            DOM_READY,
+            /** Requires {@link WebviewLoadCallback} */
+            LOAD,
+
         }
 
         void saucer_webview_back(_ImplSaucer saucer);
@@ -315,8 +316,27 @@ class ImplSaucerWebview implements SaucerWebview {
          * @implNote Do not inline this. The JVM needs this to always be accessible
          *           otherwise it will garbage collect and ruin our day.
          */
+        static interface WebviewNavigateCallback extends Callback {
+            /**
+             * 0 = allow, 1 = block
+             */
+            int callback(Pointer $saucer, SaucerNavigation nav);
+        }
+
+        /**
+         * @implNote Do not inline this. The JVM needs this to always be accessible
+         *           otherwise it will garbage collect and ruin our day.
+         */
         static interface WebviewIconCallback extends Callback {
             void callback(Pointer $saucer, SaucerIcon icon);
+        }
+
+        /**
+         * @implNote Do not inline this. The JVM needs this to always be accessible
+         *           otherwise it will garbage collect and ruin our day.
+         */
+        static interface WebviewLoadCallback extends Callback {
+            void callback(Pointer $saucer, Pointer $state);
         }
 
         /**

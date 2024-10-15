@@ -1,37 +1,13 @@
 package co.casterlabs.saucer;
 
-import java.util.function.Supplier;
-
 import org.jetbrains.annotations.Nullable;
 
 import co.casterlabs.saucer.documentation.AvailableFromJS;
 import co.casterlabs.saucer.utils.SaucerIcon;
 import co.casterlabs.saucer.utils.SaucerSize;
 import lombok.NonNull;
-import lombok.SneakyThrows;
 
 public interface SaucerWindow {
-
-    /**
-     * Synchronously dispatches the provided task on the main run thread.
-     * 
-     * @see #run()
-     */
-    @SneakyThrows
-    default void dispatch(@NonNull Runnable task) {
-        dispatch(() -> {
-            task.run();
-            return null;
-        });
-    }
-
-    /**
-     * Synchronously dispatches the provided task on the main run thread, returning
-     * the result.
-     * 
-     * @see #run()
-     */
-    public <T> T dispatch(@NonNull Supplier<T> task);
 
     /**
      * @return whether or not Saucer is in the foreground/focused.

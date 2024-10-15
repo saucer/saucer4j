@@ -3,26 +3,25 @@ package com.example.saucer_java;
 import java.io.IOException;
 
 import co.casterlabs.saucer.Saucer;
-import co.casterlabs.saucer.utils.SaucerOptions;
+import co.casterlabs.saucer.utils.SaucerApp;
+import co.casterlabs.saucer.utils.SaucerPreferences;
 
 public class URLExample {
 
     public static void main(String[] args) throws IOException {
-        try (Saucer saucer = Saucer.create(
-            SaucerOptions.create()
-                .hardwareAcceleration(true) // May not work on all computers. You should do some testing to discover if you
-                                            // need this feature and if your environments support it.
-        )) {
+        SaucerApp.initialize("com.example.saucer4j", () -> {
+            Saucer saucer = Saucer.create(
+                SaucerPreferences.create()
+                    .hardwareAcceleration(true) // May not work on all computers. You should do some testing to discover if you
+                                                // need this feature and if your environments support it.
+            );
 
             saucer.webview().setContextMenuAllowed(true); // Allow the right-click menu.
 
             saucer.webview().setUrl("https://duckduckgo.com");
 
             saucer.window().show();
-
-            // This blocks until the window is closed.
-            Saucer.run();
-        }
+        });
     }
 
 }

@@ -42,16 +42,16 @@ public final class SaucerSchemeRequest extends SaucerPointerType<SaucerSchemeReq
     /* ------------------------------------ */
 
     public String method() {
-        return N.saucer_request_method(this);
+        return N.saucer_scheme_request_method(this);
     }
 
     public URI uri() {
-        String full = N.saucer_request_url(this);
+        String full = N.saucer_scheme_request_url(this);
         return URI.create(full);
     }
 
     public SaucerStash payload() {
-        return N.saucer_request_content(this);
+        return N.saucer_scheme_request_content(this);
     }
 
     public Map<String, String> headers() {
@@ -59,7 +59,7 @@ public final class SaucerSchemeRequest extends SaucerPointerType<SaucerSchemeReq
         Pointer $$keys = _SaucerMemory.alloc(Native.POINTER_SIZE);
         Pointer $$values = _SaucerMemory.alloc(Native.POINTER_SIZE);
         Pointer $count = _SaucerMemory.alloc(Native.SIZE_T_SIZE);
-        N.saucer_request_headers(this, $$keys, $$values, $count);
+        N.saucer_scheme_request_headers(this, $$keys, $$values, $count);
 
         // Get their values & free.
         Pointer $keys = $$keys.getPointer(0);
@@ -97,13 +97,13 @@ public final class SaucerSchemeRequest extends SaucerPointerType<SaucerSchemeReq
     // https://github.com/saucer/bindings/blob/main/include/saucer/scheme.h
     static interface _Native extends Library {
 
-        String saucer_request_url(SaucerSchemeRequest instance);
+        String saucer_scheme_request_url(SaucerSchemeRequest instance);
 
-        String saucer_request_method(SaucerSchemeRequest instance);
+        String saucer_scheme_request_method(SaucerSchemeRequest instance);
 
-        SaucerStash saucer_request_content(SaucerSchemeRequest instance);
+        SaucerStash saucer_scheme_request_content(SaucerSchemeRequest instance);
 
-        void saucer_request_headers(SaucerSchemeRequest instance, Pointer $$keys, Pointer $$values, Pointer $count);
+        void saucer_scheme_request_headers(SaucerSchemeRequest instance, Pointer $$keys, Pointer $$values, Pointer $count);
 
     }
 

@@ -28,7 +28,7 @@ public final class SaucerSchemeResponse extends SaucerPointerType<SaucerSchemeRe
 
     @Override
     protected void free() {
-        N.saucer_response_free(this);
+        N.saucer_scheme_response_free(this);
     }
 
     @Override
@@ -41,11 +41,11 @@ public final class SaucerSchemeResponse extends SaucerPointerType<SaucerSchemeRe
     /* ------------------------------------ */
 
     public static SaucerSchemeResponse success(@NonNull SaucerStash data, @NonNull String mimeType) {
-        return N.saucer_response_new(data, mimeType);
+        return N.saucer_scheme_response_new(data, mimeType);
     }
 
     public static SaucerSchemeResponse error(@NonNull SaucerRequestError error) {
-        return N.saucer_response_unexpected(error.ordinal());
+        return N.saucer_scheme_response_unexpected(error.ordinal());
     }
 
     /* ------------------------------------ */
@@ -56,7 +56,7 @@ public final class SaucerSchemeResponse extends SaucerPointerType<SaucerSchemeRe
      * @return this instance, for chaining.
      */
     public SaucerSchemeResponse status(int statusCode) {
-        N.saucer_response_set_status(this, statusCode);
+        N.saucer_scheme_response_set_status(this, statusCode);
         return this;
     }
 
@@ -64,7 +64,7 @@ public final class SaucerSchemeResponse extends SaucerPointerType<SaucerSchemeRe
      * @return this instance, for chaining.
      */
     public SaucerSchemeResponse header(@NonNull String key, @NonNull String value) {
-        N.saucer_response_add_header(this, key, value);
+        N.saucer_scheme_response_add_header(this, key, value);
         return this;
     }
 
@@ -88,10 +88,10 @@ public final class SaucerSchemeResponse extends SaucerPointerType<SaucerSchemeRe
     static interface _Native extends Library {
 
         @NoFree
-        SaucerSchemeResponse saucer_response_new(SaucerStash stash, String mime);
+        SaucerSchemeResponse saucer_scheme_response_new(SaucerStash stash, String mime);
 
         @NoFree
-        SaucerSchemeResponse saucer_response_unexpected(int error);
+        SaucerSchemeResponse saucer_scheme_response_unexpected(int error);
 
         /**
          * @apiNote Under normal circumstances this function should not be used. Once a
@@ -99,11 +99,11 @@ public final class SaucerSchemeResponse extends SaucerPointerType<SaucerSchemeRe
          *          is automatically deleted. You may use this function to free the
          *          response in case of an exception.
          */
-        void saucer_response_free(SaucerSchemeResponse instance);
+        void saucer_scheme_response_free(SaucerSchemeResponse instance);
 
-        void saucer_response_add_header(SaucerSchemeResponse instance, String key, String value);
+        void saucer_scheme_response_add_header(SaucerSchemeResponse instance, String key, String value);
 
-        void saucer_response_set_status(SaucerSchemeResponse instance, int statusCode);
+        void saucer_scheme_response_set_status(SaucerSchemeResponse instance, int statusCode);
 
     }
 

@@ -1,8 +1,10 @@
 package co.casterlabs.saucer._impl;
 
+import java.awt.Desktop;
 import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,7 +19,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import org.reflections.Reflections;
 
 import co.casterlabs.commons.io.streams.StreamUtil;
-import co.casterlabs.saucer.Saucer;
+import co.casterlabs.commons.platform.Platform;
 import co.casterlabs.saucer._impl._SaucerBackend.FindThisSaucerBackend;
 import lombok.SneakyThrows;
 
@@ -145,7 +147,46 @@ class Resources {
             );
 
             if (chosenResult == 0) {
-                Saucer.openLinkInSystemBrowser(helpUrl);
+                // We can't use SaucerDesktop at this point. So manual mode it is :D
+                switch (Platform.osDistribution) {
+                    case MACOS:
+                        // We can't use Desktop/AWT while Saucer is running.
+                        Runtime.getRuntime().exec(new String[] {
+                                "open",
+                                helpUrl
+                        });
+                        break;
+
+                    case WINDOWS_NT:
+                        try {
+                            Desktop
+                                .getDesktop()
+                                .browse(URI.create(helpUrl));
+                        } catch (UnsupportedOperationException ignored) {
+                            Runtime.getRuntime().exec(new String[] { // Antivirus software may trip the rundll32.
+                                    "rundll32",
+                                    "url.dll,FileProtocolHandler",
+                                    helpUrl
+                            });
+                        }
+                        break;
+
+                    case LINUX:
+                        try {
+                            Desktop
+                                .getDesktop()
+                                .browse(URI.create(helpUrl));
+                        } catch (UnsupportedOperationException ignored) {
+                            Runtime.getRuntime().exec(new String[] { // The user might not have xdg-open.
+                                    "xdg-open",
+                                    helpUrl
+                            });
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
             }
         }
         throw new RuntimeException(message + " | " + buttonName + ": " + helpUrl);

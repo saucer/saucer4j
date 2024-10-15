@@ -20,6 +20,7 @@ import co.casterlabs.saucer.SaucerBridge;
 import co.casterlabs.saucer._impl.ImplSaucerBridge._Native.MessageCallback;
 import co.casterlabs.saucer.bridge.JavascriptFunction;
 import co.casterlabs.saucer.bridge.JavascriptObject;
+import co.casterlabs.saucer.utils.SaucerDesktop;
 import co.casterlabs.saucer.utils.SaucerScript;
 import co.casterlabs.saucer.utils.SaucerScript.SaucerFramePolicy;
 import co.casterlabs.saucer.utils.SaucerScript.SaucerLoadTime;
@@ -102,7 +103,7 @@ class ImplSaucerBridge implements SaucerBridge {
 
                 case "OPEN_LINK": {
                     String link = message.getString("link");
-                    Saucer.openLinkInSystemBrowser(link);
+                    SaucerDesktop.open(link);
                     break;
                 }
 
