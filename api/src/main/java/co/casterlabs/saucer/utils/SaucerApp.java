@@ -17,6 +17,7 @@ import lombok.SneakyThrows;
 public class SaucerApp {
     private static final _Native N = _SaucerNative.load(_Native.class);
     private static Pointer $instance;
+    private static Thread mainThread;
 
     @Deprecated
     @InternalUseOnly
@@ -39,11 +40,14 @@ public class SaucerApp {
         if ($instance != null) return; // Silently fail if the app has already been initialized.
 
         $instance = N.saucer_application_acquire(appId);
-        new Thread(() -> SaucerApp.dispatch(continueWith)).start(); // Start executing continueWith ASAP.
+        mainThread = Thread.currentThread();
 
+        new Thread(() -> SaucerApp.dispatch(continueWith)).start(); // Start executing continueWith ASAP.
         N.saucer_application_run($instance);
+
         N.saucer_application_free($instance); // After run() returns, the app is done. So we free and set null.
         $instance = null;
+        mainThread = null;
     }
 
     public static void quit() {
@@ -55,11 +59,12 @@ public class SaucerApp {
             N.saucer_application_free(old_$instance);
         });
         $instance = null;
+        mainThread = null;
     }
 
     public static boolean isInMainThread() {
         check();
-        return N.saucer_application_thread_safe($instance);
+        return Thread.currentThread() == mainThread;
     }
 
     /**
@@ -117,8 +122,6 @@ public class SaucerApp {
         Pointer saucer_application_acquire(String id);
 
         void saucer_application_free(Pointer $instance);
-
-        boolean saucer_application_thread_safe(Pointer $instance);
 
         /**
          * @implNote Do not inline this. The JVM needs this to always be accessible
