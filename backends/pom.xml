@@ -8,6 +8,7 @@
 		<module>gtk</module>
 		<module>qt</module>
 		<module>qt_experimental</module>
+		<module>webkit</module>
 		<module>webview2</module>
 	</modules>
 
