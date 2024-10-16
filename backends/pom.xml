@@ -5,10 +5,10 @@
 
 	<modules>
 		<module>_all</module>
-		<module>gtk</module>
 		<module>qt</module>
 		<module>qt_experimental</module>
 		<module>webkit</module>
+		<module>webkitgtk</module>
 		<module>webview2</module>
 	</modules>
 

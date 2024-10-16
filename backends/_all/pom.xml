@@ -12,12 +12,6 @@
 	<dependencies>
 		<dependency>
 			<groupId>co.casterlabs.saucer4j</groupId>
-			<artifactId>gtk</artifactId>
-			<version>${project.parent.version}</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>co.casterlabs.saucer4j</groupId>
 			<artifactId>qt</artifactId>
 			<version>${project.parent.version}</version>
 			<scope>compile</scope>
@@ -25,6 +19,12 @@
 		<dependency>
 			<groupId>co.casterlabs.saucer4j</groupId>
 			<artifactId>webkit</artifactId>
+			<version>${project.parent.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>co.casterlabs.saucer4j</groupId>
+			<artifactId>webkitgtk</artifactId>
 			<version>${project.parent.version}</version>
 			<scope>compile</scope>
 		</dependency>
