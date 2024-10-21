@@ -3,7 +3,10 @@ package co.casterlabs.saucer._impl;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -41,7 +44,9 @@ class JavascriptObjectWrapper {
         this.path = path;
         this.obj = obj;
 
-        for (Method m : this.obj.getClass().getMethods()) {
+        for (Method m : getAllMethods(obj, obj.getClass())) {
+            m.setAccessible(true);
+
             if (m.isAnnotationPresent(JavascriptGetter.class)) {
                 JavascriptGetter annotation = m.getDeclaredAnnotation(JavascriptGetter.class);
                 String name = annotation.value().isEmpty() ? m.getName() : annotation.value();
@@ -61,7 +66,9 @@ class JavascriptObjectWrapper {
                 this.functions.put(name, m);
             }
         }
-        for (Field f : this.obj.getClass().getFields()) {
+        for (Field f : getAllFields(obj, obj.getClass())) {
+            f.setAccessible(true);
+
             if (f.isAnnotationPresent(JavascriptValue.class)) {
                 JavascriptValue annotation = f.getDeclaredAnnotation(JavascriptValue.class);
                 String name = annotation.value().isEmpty() ? f.getName() : annotation.value();
@@ -203,6 +210,34 @@ class JavascriptObjectWrapper {
             return has;
         }
 
+    }
+
+    /**
+     * This recurses through the inheritance to look for private fields.
+     * 
+     * @return
+     */
+    public static List<Field> getAllFields(Object obj, Class<?> clazz) {
+        if (clazz == null) return Collections.emptyList();
+
+        List<Field> fields = new LinkedList<>();
+        fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
+        fields.addAll(getAllFields(obj, clazz.getSuperclass()));
+        return fields;
+    }
+
+    /**
+     * This recurses through the inheritance to look for private fields.
+     * 
+     * @return
+     */
+    public static List<Method> getAllMethods(Object obj, Class<?> clazz) {
+        if (clazz == null) return Collections.emptyList();
+
+        List<Method> methods = new LinkedList<>();
+        methods.addAll(Arrays.asList(clazz.getDeclaredMethods()));
+        methods.addAll(getAllMethods(obj, clazz.getSuperclass()));
+        return methods;
     }
 
 }

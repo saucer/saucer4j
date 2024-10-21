@@ -207,7 +207,9 @@ class ImplSaucerBridge implements SaucerBridge {
 
         // Look for sub-objects and register them.
         // Note that this recurses until there are no more sub-objects.
-        for (Field f : obj.getClass().getFields()) {
+        for (Field f : JavascriptObjectWrapper.getAllFields(obj, obj.getClass())) {
+            f.setAccessible(true);
+
             if (Modifier.isStatic(f.getModifiers())) {
                 continue;
             }

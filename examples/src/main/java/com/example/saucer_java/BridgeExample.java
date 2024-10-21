@@ -38,7 +38,7 @@ public class BridgeExample {
     public static class BridgeObjectExample {
         private Saucer saucer;
 
-        public final NestedBridgeObjectExample nested = new NestedBridgeObjectExample();
+        private final NestedBridgeObjectExample nested = new NestedBridgeObjectExample();
 
         /**
          * Saucer will automatically read the field and send updates to the webview to
