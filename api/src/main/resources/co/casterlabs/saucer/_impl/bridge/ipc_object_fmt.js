@@ -35,7 +35,7 @@ for (const propertyName of propertyNames) {
 
 	// Listen for WFM events for this property.
 	object.onMutate(propertyName, (value) => {
-		object[propertyName] = value;
+		object[propertyName] = Promise.resolve(value);
 	});
 	
 	Object.defineProperty(object, propertyName, {
