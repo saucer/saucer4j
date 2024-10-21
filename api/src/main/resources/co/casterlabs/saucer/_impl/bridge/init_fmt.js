@@ -2,16 +2,6 @@ const SAUCER = window.saucer;
 
 const initData = %s;
 
-function deepFreeze(object) {
-	for (const value of Object.values(object)) {
-		if ((value && typeof value === "object") || typeof value === "function") {
-			deepFreeze(value);
-		}
-	}
-
-	return Object.freeze(object);
-}
-
 const RPC = {
 	__idx: 0,
 	waiting: {},
@@ -83,8 +73,6 @@ const MESSAGES = {
 	},
 
 	__internal: function (data) {
-		deepFreeze(data);
-
 		Object.values(MESSAGES.__listeners).forEach((callback) => {
 			try {
 				callback(data);
