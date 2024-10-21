@@ -94,11 +94,11 @@ class ImplSaucerWindow implements SaucerWindow {
     private WindowCloseEventCallback windowEventCloseCallback = (Pointer $saucer) -> {
         try {
 //            System.out.println("close");
-            if (this.eventListener == null) return false;
-            return this.eventListener.shouldAvoidClosing();
+            if (this.eventListener == null) return 0;
+            return this.eventListener.shouldAvoidClosing() ? 1 : 0;
         } catch (Throwable t) {
             t.printStackTrace();
-            return false;
+            return 0;
         }
     };
 
@@ -375,7 +375,10 @@ class ImplSaucerWindow implements SaucerWindow {
          *           otherwise it will garbage collect and ruin our day.
          */
         static interface WindowCloseEventCallback extends Callback {
-            boolean callback(Pointer $saucer);
+            /**
+             * 0 = Allow, 1 = Block
+             */
+            int callback(Pointer $saucer);
         }
 
         /**
