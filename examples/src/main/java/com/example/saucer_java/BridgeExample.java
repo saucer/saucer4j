@@ -38,6 +38,8 @@ public class BridgeExample {
     public static class BridgeObjectExample {
         private Saucer saucer;
 
+        public final NestedBridgeObjectExample nested = new NestedBridgeObjectExample();
+
         /**
          * Saucer will automatically read the field and send updates to the webview to
          * reduce IPC calls (speed up).
@@ -69,6 +71,16 @@ public class BridgeExample {
         @JavascriptFunction
         public void openDevTools() {
             this.saucer.webview().setDevtoolsVisible(true);
+        }
+
+    }
+
+    @JavascriptObject
+    public static class NestedBridgeObjectExample {
+
+        @JavascriptGetter
+        public String hello() {
+            return "Hello world!";
         }
 
     }

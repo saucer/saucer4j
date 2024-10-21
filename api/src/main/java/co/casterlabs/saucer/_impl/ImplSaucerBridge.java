@@ -191,18 +191,6 @@ class ImplSaucerBridge implements SaucerBridge {
         JavascriptObjectWrapper wrapper = new JavascriptObjectWrapper(name, obj);
         this.objects.put(wrapper.id, wrapper);
 
-        // Look for sub-objects and register them.
-        // Note that this recurses until there are no more sub-objects.
-        for (Field f : obj.getClass().getFields()) {
-            if (Modifier.isStatic(f.getModifiers())) {
-                continue;
-            }
-
-            if (f.getType().isAnnotationPresent(JavascriptObject.class)) {
-                this.defineObject(name + "." + f.getName(), f.get(obj));
-            }
-        }
-
         this.injectScript(
             SaucerScript.create(
                 String.format(
@@ -216,6 +204,18 @@ class ImplSaucerBridge implements SaucerBridge {
                 SaucerFramePolicy.TOP
             )
         );
+
+        // Look for sub-objects and register them.
+        // Note that this recurses until there are no more sub-objects.
+        for (Field f : obj.getClass().getFields()) {
+            if (Modifier.isStatic(f.getModifiers())) {
+                continue;
+            }
+
+            if (f.getType().isAnnotationPresent(JavascriptObject.class)) {
+                this.defineObject(name + "." + f.getName(), f.get(obj));
+            }
+        }
     }
 
     @Override

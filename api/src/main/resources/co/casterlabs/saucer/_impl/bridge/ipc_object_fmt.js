@@ -6,6 +6,8 @@ const path = %s.split(".");
 const functionNames = %s;
 const propertyNames = %s;
 
+// console.debug(id, path, functionNames, propertyNames);
+
 RPC.__wfmHandlers[id] = {};
 
 const object = {
