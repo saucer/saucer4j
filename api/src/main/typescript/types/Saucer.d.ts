@@ -124,6 +124,13 @@ export declare type SaucerWindow = {
   decorated: Promise<boolean> | boolean;
 
   /**
+   * whether or not Saucer is visible.
+   *
+   * See also `show()` and `hide()`.
+   */
+  isVisible: Promise<boolean> | boolean;
+
+  /**
    * Whether or not Saucer is in the foreground/focused.
    *
    * See also `focus()`.

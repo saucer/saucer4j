@@ -114,6 +114,12 @@ class ImplSaucerWindow implements SaucerWindow {
         N.saucer_window_on(this.saucer, SAUCER_WINDOW_EVENT.CLOSE.ordinal(), this.windowEventCloseCallback);
     }
 
+    @JavascriptGetter("isVisible")
+    @Override
+    public boolean isVisible() {
+        return N.saucer_window_visible(this.saucer);
+    }
+
     @JavascriptGetter("isFocused")
     @Override
     public boolean isFocused() {
@@ -317,6 +323,8 @@ class ImplSaucerWindow implements SaucerWindow {
         void saucer_window_hide(_ImplSaucer saucer);
 
         void saucer_window_show(_ImplSaucer saucer);
+
+        boolean saucer_window_visible(_ImplSaucer saucer);
 
         boolean saucer_window_focused(_ImplSaucer saucer);
 

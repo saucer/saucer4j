@@ -10,6 +10,19 @@ import lombok.NonNull;
 public interface SaucerWindow {
 
     /**
+     * @return   whether or not Saucer is visible.
+     * 
+     * @implNote On some windowing systems, this is inherently unknowable. In that
+     *           case, it will match the last action executed (e.g show()/hide())
+     *           and <i>may</i> be out of sync with the windowing system.
+     * 
+     * @see      #show()
+     * @see      #hide()
+     */
+    @AvailableFromJS
+    public boolean isVisible();
+
+    /**
      * @return whether or not Saucer is in the foreground/focused.
      */
     @AvailableFromJS
