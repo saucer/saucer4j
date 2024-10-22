@@ -53,19 +53,27 @@ public abstract class _SaucerBackend {
         String resourcePath = String.format("natives/%s-%s-%s-%s.zip", Saucer.getSystemTarget(), this.getType(), Saucer.getArchTarget(), this.getBuildType());
 
         // Grab the zip file from this Jar, extract it to the temp folder above.
-        try (InputStream in = Resources.loadResource(resourcePath); ZipInputStream zin = new ZipInputStream(in)) {
-            for (ZipEntry ze; (ze = zin.getNextEntry()) != null;) {
-                Path resolvedPath = targetDir.resolve(ze.getName()).normalize();
-                if (!resolvedPath.startsWith(targetDir)) {
-                    // https://snyk.io/research/zip-slip-vulnerability
-                    throw new RuntimeException("Attempted zip-slip!" + ze.getName());
+        try (InputStream in = Resources.loadResource(resourcePath)) {
+            if (in == null) {
+                throw new IOException("Could not find native in resources. Expected: " + resourcePath);
+            }
+
+            try (ZipInputStream zin = new ZipInputStream(in)) {
+                for (ZipEntry ze; (ze = zin.getNextEntry()) != null;) {
+                    Path resolvedPath = targetDir.resolve(ze.getName()).normalize();
+                    if (!resolvedPath.startsWith(targetDir)) {
+                        // https://snyk.io/research/zip-slip-vulnerability
+                        throw new RuntimeException("Attempted zip-slip!" + ze.getName());
+                    }
+                    if (ze.isDirectory()) {
+                        Files.createDirectories(resolvedPath);
+                    } else {
+                        Files.createDirectories(resolvedPath.getParent());
+                        Files.copy(zin, resolvedPath);
+                    }
                 }
-                if (ze.isDirectory()) {
-                    Files.createDirectories(resolvedPath);
-                } else {
-                    Files.createDirectories(resolvedPath.getParent());
-                    Files.copy(zin, resolvedPath);
-                }
+            } catch (IOException e) {
+                throw new IOException("Error when extracting native from resources: " + resourcePath, e);
             }
         }
     }
