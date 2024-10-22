@@ -2,6 +2,8 @@ package co.casterlabs.saucer._impl;
 
 import java.io.IOException;
 
+import co.casterlabs.commons.platform.OSDistribution;
+import co.casterlabs.commons.platform.Platform;
 import co.casterlabs.saucer._impl._SaucerBackend.FindThisSaucerBackend;
 
 @SuppressWarnings("deprecation")
@@ -10,8 +12,11 @@ public class BackendWebview2 extends _SaucerBackend {
 
     @Override
     public boolean checkDependencies() throws IOException {
-        // https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution?tabs=dotnetcsharp#detect-if-a-webview2-runtime-is-already-installed
+        if (Platform.osDistribution != OSDistribution.WINDOWS_NT) {
+            return false;
+        }
 
+        // https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution?tabs=dotnetcsharp#detect-if-a-webview2-runtime-is-already-installed
         if (regKeyPresent("HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Microsoft\\EdgeUpdate\\Clients\\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}")) {
             return true;
         }
@@ -46,8 +51,12 @@ public class BackendWebview2 extends _SaucerBackend {
         return "Release";
     }
 
-    private static boolean regKeyPresent(String key) throws IOException {
-        return !exec("reg", "query", key, "/v", "pv").contains("ERROR: ");
+    private static boolean regKeyPresent(String key) {
+        try {
+            return !exec("reg", "query", key, "/v", "pv").contains("ERROR: ");
+        } catch (IOException ignored) {
+            return false;
+        }
     }
 
 }

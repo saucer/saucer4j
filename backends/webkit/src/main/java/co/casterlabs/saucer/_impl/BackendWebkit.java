@@ -2,6 +2,8 @@ package co.casterlabs.saucer._impl;
 
 import java.io.IOException;
 
+import co.casterlabs.commons.platform.OSDistribution;
+import co.casterlabs.commons.platform.Platform;
 import co.casterlabs.saucer._impl._SaucerBackend.FindThisSaucerBackend;
 
 @SuppressWarnings("deprecation")
@@ -10,7 +12,7 @@ public class BackendWebkit extends _SaucerBackend {
 
     @Override
     public boolean checkDependencies() throws IOException {
-        return true;
+        return Platform.osDistribution == OSDistribution.MACOS;
     }
 
     @Override
