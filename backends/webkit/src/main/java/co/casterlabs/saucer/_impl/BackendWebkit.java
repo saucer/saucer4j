@@ -23,7 +23,8 @@ public class BackendWebkit extends _SaucerBackend {
     @Override
     public String[] supportedArchTargets() {
         return new String[] {
-                "aarch64"
+                "aarch64",
+                "x86_64"
         };
     }
 
