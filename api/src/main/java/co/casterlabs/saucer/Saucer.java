@@ -69,6 +69,9 @@ public interface Saucer extends Closeable {
             case WINDOWS_NT:
                 return "Windows";
 
+            case MACOS:
+                return "macOS";
+
             default:
                 return null;
         }
