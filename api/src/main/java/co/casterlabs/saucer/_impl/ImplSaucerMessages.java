@@ -33,6 +33,7 @@ class ImplSaucerMessages implements SaucerMessages {
 
     @Override
     public void emit(@NonNull Object data) {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         saucer.bridge.executeJavaScript(
             String.format(
                 "window.saucer.messages.__internal(%s);",

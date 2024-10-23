@@ -117,96 +117,112 @@ class ImplSaucerWindow implements SaucerWindow {
     @JavascriptGetter("isVisible")
     @Override
     public boolean isVisible() {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         return N.saucer_window_visible(this.saucer);
     }
 
     @JavascriptGetter("isFocused")
     @Override
     public boolean isFocused() {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         return N.saucer_window_focused(this.saucer);
     }
 
     @JavascriptFunction
     @Override
     public void focus() {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         N.saucer_window_focus(this.saucer);
     }
 
     @JavascriptGetter("minimized")
     @Override
     public boolean isMinimized() {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         return N.saucer_window_minimized(this.saucer);
     }
 
     @JavascriptSetter("minimized")
     @Override
     public void setMinimized(boolean b) {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         N.saucer_window_set_minimized(this.saucer, b);
     }
 
     @JavascriptGetter("maximized")
     @Override
     public boolean isMaximized() {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         return N.saucer_window_maximized(this.saucer);
     }
 
     @JavascriptSetter("maximized")
     @Override
     public void setMaximized(boolean b) {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         N.saucer_window_set_maximized(this.saucer, b);
     }
 
     @JavascriptGetter("resizable")
     @Override
     public boolean isResizable() {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         return N.saucer_window_resizable(this.saucer);
     }
 
     @JavascriptSetter("resizable")
     @Override
     public void setResizable(boolean b) {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         N.saucer_window_set_resizable(this.saucer, b);
     }
 
     @JavascriptGetter("decorated")
     @Override
     public boolean hasDecorations() {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         return N.saucer_window_decorations(this.saucer);
     }
 
     @JavascriptSetter("decorated")
     @Override
     public void showDecorations(boolean b) {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         N.saucer_window_set_decorations(this.saucer, b);
     }
 
     @JavascriptGetter("alwaysOnTop")
     @Override
     public boolean isAlwaysOnTop() {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         return N.saucer_window_always_on_top(this.saucer);
     }
 
     @JavascriptSetter("alwaysOnTop")
     @Override
     public void setAlwaysOnTop(boolean b) {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         N.saucer_window_set_always_on_top(this.saucer, b);
     }
 
     @JavascriptGetter("title")
     @Override
     public String getTitle() {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         return N.saucer_window_title(this.saucer);
     }
 
     @JavascriptSetter("title")
     @Override
     public void setTitle(@NonNull String title) {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         N.saucer_window_set_title(this.saucer, title);
     }
 
     @JavascriptGetter("size")
     @Override
     public SaucerSize getSize() {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         Pointer $width = _SaucerMemory.alloc(Integer.BYTES);
         Pointer $height = _SaucerMemory.alloc(Integer.BYTES);
 
@@ -224,12 +240,14 @@ class ImplSaucerWindow implements SaucerWindow {
     @JavascriptSetter("size")
     @Override
     public void setSize(@NonNull SaucerSize size) {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         N.saucer_window_set_size(this.saucer, size.width, size.height);
     }
 
     @JavascriptGetter("minSize")
     @Override
     public SaucerSize getMinSize() {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         Pointer $width = _SaucerMemory.alloc(Integer.BYTES);
         Pointer $height = _SaucerMemory.alloc(Integer.BYTES);
 
@@ -247,12 +265,14 @@ class ImplSaucerWindow implements SaucerWindow {
     @JavascriptSetter("minSize")
     @Override
     public void setMinSize(@NonNull SaucerSize size) {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         N.saucer_window_set_min_size(this.saucer, size.width, size.height);
     }
 
     @JavascriptGetter("maxSize")
     @Override
     public SaucerSize getMaxSize() {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         Pointer $width = _SaucerMemory.alloc(Integer.BYTES);
         Pointer $height = _SaucerMemory.alloc(Integer.BYTES);
 
@@ -270,28 +290,33 @@ class ImplSaucerWindow implements SaucerWindow {
     @JavascriptSetter("maxSize")
     @Override
     public void setMaxSize(@NonNull SaucerSize size) {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         N.saucer_window_set_max_size(this.saucer, size.width, size.height);
     }
 
     @JavascriptFunction
     @Override
     public void hide() {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         N.saucer_window_hide(this.saucer);
     }
 
     @JavascriptFunction
     @Override
     public void show() {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         N.saucer_window_show(this.saucer);
     }
 
     @Override
     public void setIcon(@NonNull SaucerIcon icon) {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         N.saucer_window_set_icon(this.saucer, icon);
     }
 
     @Override
     public void setListener(@Nullable SaucerWindowListener listener) {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         this.eventListener = listener;
     }
 

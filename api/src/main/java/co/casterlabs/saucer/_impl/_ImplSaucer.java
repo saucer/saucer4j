@@ -32,14 +32,6 @@ public class _ImplSaucer extends SaucerPointerType<_ImplSaucer> implements Sauce
 
     private static Set<_ImplSaucer> windows = new HashSet<>();
 
-    static {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            for (_ImplSaucer window : windows.toArray(new _ImplSaucer[0])) {
-                window.close();
-            }
-        }));
-    }
-
     /* ------------------------------------ */
     /* ------------------------------------ */
     /* ------------------------------------ */
@@ -73,7 +65,7 @@ public class _ImplSaucer extends SaucerPointerType<_ImplSaucer> implements Sauce
     ImplSaucerBridge bridge;
     ImplSaucerMessages messages;
 
-    private volatile boolean isClosed = false;
+    volatile boolean isClosed = false;
 
     private WindowVoidCallback windowEventClosedCallback = (Pointer $saucer) -> {
         this.close();
@@ -112,21 +104,25 @@ public class _ImplSaucer extends SaucerPointerType<_ImplSaucer> implements Sauce
 
     @Override
     public SaucerWebview webview() {
+        assert !this.isClosed : "This instance has been closed.";
         return this.webview;
     }
 
     @Override
     public SaucerWindow window() {
+        assert !this.isClosed : "This instance has been closed.";
         return this.window;
     }
 
     @Override
     public SaucerBridge bridge() {
+        assert !this.isClosed : "This instance has been closed.";
         return this.bridge;
     }
 
     @Override
     public SaucerMessages messages() {
+        assert !this.isClosed : "This instance has been closed.";
         return this.messages;
     }
 
@@ -135,9 +131,8 @@ public class _ImplSaucer extends SaucerPointerType<_ImplSaucer> implements Sauce
         if (!this.isClosed) {
             this.isClosed = true;
             N.saucer_window_close(this);
+            _ImplSaucer.windows.remove(_ImplSaucer.this);
         }
-
-        _ImplSaucer.windows.remove(_ImplSaucer.this);
     }
 
     /* ------------------------------------ */

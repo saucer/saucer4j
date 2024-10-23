@@ -180,12 +180,14 @@ class ImplSaucerBridge implements SaucerBridge {
     @JavascriptFunction
     @Override
     public void executeJavaScript(@NonNull String scriptToExecute) {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         N.saucer_webview_execute(this.saucer, '{' + scriptToExecute + '}');
     }
 
     @SneakyThrows
     @Override
     public synchronized void defineObject(@NonNull String name, @NonNull Object obj) {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         assert obj.getClass().isAnnotationPresent(JavascriptObject.class) : "Class MUST be annotated with @JavascriptObject";
 
         JavascriptObjectWrapper wrapper = new JavascriptObjectWrapper(name, obj);
@@ -222,11 +224,13 @@ class ImplSaucerBridge implements SaucerBridge {
 
     @Override
     public void injectScript(@NonNull SaucerScript script) {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         N.saucer_webview_inject(this.saucer, script);
     }
 
     @Override
     public synchronized void clear() {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         N.saucer_webview_clear_scripts(this.saucer);
         this.objects.clear();
         this.defineObject("saucer.webview", this.saucer.webview());

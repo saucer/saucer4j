@@ -135,18 +135,21 @@ class ImplSaucerWebview implements SaucerWebview {
     @JavascriptGetter("devtoolsVisible")
     @Override
     public boolean isDevtoolsVisible() {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         return N.saucer_webview_dev_tools(this.saucer);
     }
 
     @JavascriptSetter("devtoolsVisible")
     @Override
     public void setDevtoolsVisible(boolean show) {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         N.saucer_webview_set_dev_tools(this.saucer, show);
     }
 
     @JavascriptGetter("url")
     @Override
     public String currentUrl() {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         Pointer $url = N.saucer_webview_url(this.saucer);
         String url = $url.getString(0, "UTF-8");
         _SaucerMemory.free($url);
@@ -156,42 +159,49 @@ class ImplSaucerWebview implements SaucerWebview {
     @JavascriptSetter("url")
     @Override
     public void setUrl(@NonNull String url) {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         N.saucer_webview_set_url(this.saucer, url);
     }
 
     @JavascriptGetter("contextMenuAllowed")
     @Override
     public boolean isContextMenuAllowed() {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         return N.saucer_webview_context_menu(this.saucer);
     }
 
     @JavascriptSetter("contextMenuAllowed")
     @Override
     public void setContextMenuAllowed(boolean allowed) {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         N.saucer_webview_set_context_menu(this.saucer, allowed);
     }
 
     @JavascriptFunction
     @Override
     public void back() {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         N.saucer_webview_back(this.saucer);
     }
 
     @JavascriptFunction
     @Override
     public void forward() {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         N.saucer_webview_forward(this.saucer);
     }
 
     @JavascriptFunction
     @Override
     public void reload() {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         N.saucer_webview_reload(this.saucer);
     }
 
     @JavascriptGetter("background")
     @Override
     public SaucerColor getBackground() {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         Pointer $r = _SaucerMemory.alloc(1);
         Pointer $g = _SaucerMemory.alloc(1);
         Pointer $b = _SaucerMemory.alloc(1);
@@ -217,33 +227,39 @@ class ImplSaucerWebview implements SaucerWebview {
     @JavascriptSetter("background")
     @Override
     public void setBackground(@NonNull SaucerColor color) {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         N.saucer_webview_set_background(this.saucer, (byte) color.red(), (byte) color.green(), (byte) color.blue(), (byte) color.alpha());
     }
 
     @Override
     public SaucerIcon getFavicon() {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         return N.saucer_webview_favicon(this.saucer);
     }
 
     @JavascriptGetter("forceDarkAppearance")
     @Override
     public boolean isForceDarkAppearance() {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         return N.saucer_webview_force_dark_mode(this.saucer);
     }
 
     @JavascriptSetter("forceDarkAppearance")
     @Override
     public void setForceDarkAppearance(boolean shouldAppearDark) {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         N.saucer_webview_set_force_dark_mode(this.saucer, shouldAppearDark);
     }
 
     @Override
     public void setListener(@Nullable SaucerWebviewListener listener) {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         this.eventListener = listener;
     }
 
     @Override
     public void setSchemeHandler(@Nullable SaucerSchemeHandler handler) {
+        assert !this.saucer.isClosed : "This instance has been closed.";
         this.schemeHandler = handler;
     }
 
