@@ -44,7 +44,7 @@ public final class SaucerSchemeRequest extends SaucerPointerType<SaucerSchemeReq
         return N.saucer_scheme_request_method(this);
     }
 
-    public String uri() {
+    public String url() {
         return N.saucer_scheme_request_url(this);
     }
 

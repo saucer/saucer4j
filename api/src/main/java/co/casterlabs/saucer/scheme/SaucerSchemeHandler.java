@@ -19,7 +19,7 @@ public interface SaucerSchemeHandler {
 
     public static SaucerSchemeHandler fromResources(@NonNull Class<?> clazz, @NonNull String basePath) {
         return (SaucerSchemeRequest request) -> {
-            String fullPath = basePath + URI.create(request.uri()).getPath();
+            String fullPath = basePath + URI.create(request.url()).getPath();
 
             InputStream in = clazz.getResourceAsStream(fullPath);
             if (in == null) {
