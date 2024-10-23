@@ -1,6 +1,7 @@
 package co.casterlabs.saucer.scheme;
 
 import java.io.InputStream;
+import java.net.URI;
 
 import co.casterlabs.commons.io.streams.StreamUtil;
 import co.casterlabs.saucer.scheme.SaucerSchemeResponse.SaucerRequestError;
@@ -18,7 +19,7 @@ public interface SaucerSchemeHandler {
 
     public static SaucerSchemeHandler fromResources(@NonNull Class<?> clazz, @NonNull String basePath) {
         return (SaucerSchemeRequest request) -> {
-            String fullPath = basePath + request.uri().getPath();
+            String fullPath = basePath + URI.create(request.uri()).getPath();
 
             InputStream in = clazz.getResourceAsStream(fullPath);
             if (in == null) {
