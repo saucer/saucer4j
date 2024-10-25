@@ -58,7 +58,7 @@ class Resources {
         }
         alreadyLoaded = true;
 
-        Resources.class.getClassLoader().setPackageAssertionStatus("co.casterlas.saucer", true);
+        Resources.class.getClassLoader().setPackageAssertionStatus("app.saucer", true);
 
         try {
             UIManager.setLookAndFeel(
