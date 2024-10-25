@@ -3,7 +3,7 @@
 	<artifactId>_all</artifactId>
 
 	<parent>
-		<groupId>co.casterlabs.saucer4j</groupId>
+		<groupId>app.saucer.saucer4j</groupId>
 		<artifactId>backends</artifactId>
 		<version>PLACEHOLDER</version>
 		<relativePath>../pom.xml</relativePath>
@@ -11,25 +11,25 @@
 	
 	<dependencies>
 		<dependency>
-			<groupId>co.casterlabs.saucer4j</groupId>
+			<groupId>app.saucer.saucer4j</groupId>
 			<artifactId>qt</artifactId>
 			<version>${project.parent.version}</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>co.casterlabs.saucer4j</groupId>
+			<groupId>app.saucer.saucer4j</groupId>
 			<artifactId>webkit</artifactId>
 			<version>${project.parent.version}</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>co.casterlabs.saucer4j</groupId>
+			<groupId>app.saucer.saucer4j</groupId>
 			<artifactId>webkitgtk</artifactId>
 			<version>${project.parent.version}</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>co.casterlabs.saucer4j</groupId>
+			<groupId>app.saucer.saucer4j</groupId>
 			<artifactId>webview2</artifactId>
 			<version>${project.parent.version}</version>
 			<scope>compile</scope>

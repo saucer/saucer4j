@@ -3,7 +3,7 @@
 	<artifactId>webview2</artifactId>
 
 	<parent>
-		<groupId>co.casterlabs.saucer4j</groupId>
+		<groupId>app.saucer.saucer4j</groupId>
 		<artifactId>backends</artifactId>
 		<version>PLACEHOLDER</version>
 		<relativePath>../pom.xml</relativePath>

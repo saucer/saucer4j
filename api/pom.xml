@@ -5,7 +5,7 @@
 	<artifactId>api</artifactId>
 
 	<parent>
-		<groupId>co.casterlabs.saucer4j</groupId>
+		<groupId>app.saucer.saucer4j</groupId>
 		<artifactId>saucer4j</artifactId>
 		<version>PLACEHOLDER</version>
 		<relativePath>../pom.xml</relativePath>
