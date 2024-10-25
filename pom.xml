@@ -9,6 +9,7 @@
 		<module>api</module>
 		<module>backends</module>
 		<module>examples</module>
+		<module>bundler</module>
 	</modules>
 
 	<properties>
