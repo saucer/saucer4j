@@ -18,6 +18,7 @@ import app.saucer.bundler.util.Adoptium;
 import app.saucer.bundler.util.FileUtil;
 import app.saucer.bundler.util.Icon;
 import app.saucer.bundler.util.Maven;
+import app.saucer.bundler.util.PEUtil;
 import app.saucer.bundler.util.archive.ArchiveCreator;
 import app.saucer.bundler.util.archive.ArchiveExtractor;
 import app.saucer.bundler.util.archive.Archives;
@@ -416,10 +417,10 @@ public class Bundler {
                             new File(resourcesFolder, "icon.ico").toPath(),
                             icon.toIco()
                         );
-                        // TODO edit the .exe file.
+                        PEUtil.setExeIcon(new File(this.buildFolder, this.buildOptions.getName() + ".exe"), new File(resourcesFolder, "icon.ico"));
                         break;
                 }
-            } catch (IOException e) {
+            } catch (IOException | InterruptedException e) {
                 LOGGER.fatal("create -> Unable to write image icon, aborting.\n%s", e);
                 throw new BundlerAbortError(Bundler.EXIT_CODE_ERROR);
             }

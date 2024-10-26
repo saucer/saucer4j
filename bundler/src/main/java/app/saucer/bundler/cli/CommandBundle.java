@@ -95,7 +95,7 @@ public class CommandBundle implements Runnable {
         } catch (BundlerAbortError e) {
             System.exit(e.desiredExitCode);
         } catch (Throwable t) {
-            Bundler.LOGGER.severe("An error occurred whilst bundling! Aborting...\n", t);
+            Bundler.LOGGER.severe("An error occurred whilst bundling! Aborting...\n%s", t);
             System.exit(Bundler.EXIT_CODE_ERROR);
         }
     }
