@@ -1,9 +1,11 @@
 package app.saucer._impl;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -201,7 +203,7 @@ class JavascriptObjectWrapper {
 
         @SneakyThrows
         private boolean check() {
-            int currentHashCode = Objects.hashCode(this.f.get(obj));
+            int currentHashCode = hash(this.f.get(obj));
             boolean has = this.isFirstCheck || this.lastHashCode != currentHashCode;
 
             this.isFirstCheck = false;
@@ -238,6 +240,46 @@ class JavascriptObjectWrapper {
         methods.addAll(Arrays.asList(clazz.getDeclaredMethods()));
         methods.addAll(getAllMethods(obj, clazz.getSuperclass()));
         return methods;
+    }
+
+    private static int hash(Object o) {
+        try {
+            if (o instanceof Map<?, ?>) {
+                // We need to hash all of the keys and values, recursively.
+                Map<?, ?> m = (Map<?, ?>) o;
+
+                int result = 1;
+                for (Map.Entry<?, ?> entry : m.entrySet().toArray(new Map.Entry[0])) {
+                    result = 31 * result + (entry.getKey() == null ? 0 : hash(entry.getKey()));
+                    result = 31 * result + (entry.getValue() == null ? 0 : hash(entry.getValue()));
+                }
+                return result;
+            } else if (o instanceof Collection<?>) {
+                // We need to hash all of the elements, recursively.
+                Collection<?> c = (Collection<?>) o;
+
+                int result = 1;
+                for (Object element : c.toArray()) {
+                    result = 31 * result + (element == null ? 0 : hash(element));
+                }
+                return result;
+            } else if (o.getClass().isArray()) {
+                // We need to hash all of the elements, recursively.
+                final int length = Array.getLength(o);
+
+                int result = 1;
+                for (int idx = 0; idx < length; idx++) {
+                    Object element = Array.get(o, idx);
+                    result = 31 * result + (element == null ? 0 : hash(element));
+                }
+                return result;
+            }
+        } catch (StackOverflowError e) {
+            // There's probably a circular reference in the maps/collections. We'll ignore
+            // them and return the normal hashCode (fall through).
+        }
+
+        return Objects.hashCode(o);
     }
 
 }
