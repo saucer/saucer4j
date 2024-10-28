@@ -243,6 +243,8 @@ class JavascriptObjectWrapper {
     }
 
     private static int hash(Object o) {
+        if (o == null) return 0;
+
         try {
             if (o instanceof Map<?, ?>) {
                 // We need to hash all of the keys and values, recursively.
