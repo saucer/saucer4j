@@ -171,7 +171,7 @@ public class Bundler {
             String version;
             String suffix;
             {
-                String[] splitDep = dependency.split("|", 2);
+                String[] splitDep = dependency.split("\\|", 2);
                 repo = splitDep[0];
 
                 String[] depParts = splitDep[1].split(":", 4);
