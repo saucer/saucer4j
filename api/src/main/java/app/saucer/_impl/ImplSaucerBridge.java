@@ -4,7 +4,9 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Deque;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 import com.sun.jna.Callback;
@@ -37,11 +39,19 @@ class ImplSaucerBridge implements SaucerBridge {
     private _ImplSaucer saucer;
 
     private Map<String, JavascriptObjectWrapper> objects = new LinkedHashMap<>();
+    private Deque<String> alreadyHandledMessages = new LinkedList<>();
 
     private MessageCallback messageCallback = (Pointer $raw) -> {
         JsonObject message;
         try {
             String raw = $raw.getString(0, "UTF-8");
+
+            if (this.alreadyHandledMessages.contains(raw)) {
+                return true;
+            }
+            this.alreadyHandledMessages.add(raw);
+            if (this.alreadyHandledMessages.size() > 50) this.alreadyHandledMessages.removeFirst();
+
             message = Rson.DEFAULT.fromJson(raw, JsonObject.class);
         } catch (Throwable t) {
             t.printStackTrace();
