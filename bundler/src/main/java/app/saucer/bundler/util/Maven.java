@@ -26,9 +26,10 @@ public class Maven {
         LOGGER.debug("Url: %s, Path: %s", downloadUrl, dependency);
 
         if (dependency.exists()) {
-            LOGGER.info("This JRE build is cached. Using that instead.");
+            LOGGER.info("Found cached dependency for %s", downloadUrl);
         } else {
-            LOGGER.info("Found a link. Downloading...");
+            dependency.getParentFile().mkdirs();
+            LOGGER.info("Downloading dependency for %s", downloadUrl);
 
             httpClient.send(
                 HttpRequest.newBuilder()
