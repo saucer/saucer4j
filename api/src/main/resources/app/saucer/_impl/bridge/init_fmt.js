@@ -14,22 +14,15 @@ const RPC = {
 	sendWithPromise: async function (data) {
 		// const start = Date.now();
 		const requestId = RPC.__idx++;
-		let watchDogTask = -1;
 		// console.debug("[Saucer]", "RPC.sendWithPromise", data, requestId);
 		try {
 			return await new Promise((resolve, reject) => {
 				RPC.waiting[requestId] = { resolve, reject };
 				SAUCER.internal.send_message(JSON.stringify({ ...data, requestId }));
-				watchDogTask = setInterval(() => {
-					// Retry.
-					console.warn("[Saucer]", "send_message appears to not have worked. Retrying...");
-					SAUCER.internal.send_message(JSON.stringify({ ...data, requestId }));
-				}, SAUCER.MUTATION_POLL_RATE);
 			});
 		} finally {
 			// console.debug("[Saucer]", "RPC sendWithPromise took ", Date.now() - start);
 			delete RPC.waiting[requestId];
-			clearInterval(watchDogTask);
 		}
 	},
 
