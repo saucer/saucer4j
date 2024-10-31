@@ -2,7 +2,7 @@ package app.saucer._impl;
 
 import java.io.IOException;
 
-import app.saucer._impl._SaucerBackend;
+import app.saucer.SaucerBackendType;
 import app.saucer._impl._SaucerBackend.FindThisSaucerBackend;
 import co.casterlabs.commons.platform.OSDistribution;
 import co.casterlabs.commons.platform.Platform;
@@ -32,8 +32,8 @@ public class BackendWebkit extends _SaucerBackend {
     }
 
     @Override
-    public String getType() {
-        return "WebKit";
+    public SaucerBackendType getType() {
+        return SaucerBackendType.WEBKIT;
     }
 
     @Override

@@ -2,7 +2,7 @@ package app.saucer._impl;
 
 import java.io.IOException;
 
-import app.saucer._impl._SaucerBackend;
+import app.saucer.SaucerBackendType;
 import app.saucer._impl._SaucerBackend.FindThisSaucerBackend;
 
 @SuppressWarnings("deprecation")
@@ -36,8 +36,8 @@ public class BackendWebKitGtk extends _SaucerBackend {
     }
 
     @Override
-    public String getType() {
-        return "WebKitGtk";
+    public SaucerBackendType getType() {
+        return SaucerBackendType.WEBKITGTK;
     }
 
     @Override

@@ -5,6 +5,7 @@ import java.util.Collections;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 
+import app.saucer.SaucerBackendType;
 import app.saucer.documentation.InternalUseOnly;
 import lombok.NonNull;
 
@@ -12,7 +13,7 @@ import lombok.NonNull;
 @Deprecated
 @InternalUseOnly
 public class _SaucerNative {
-    public static String backend;
+    public static SaucerBackendType backend;
 
     public static <T extends Library> T load(@NonNull Class<T> clazz) {
         Resources.loadNatives();

@@ -17,6 +17,7 @@ import com.sun.jna.Library;
 import com.sun.jna.Native;
 
 import app.saucer.Saucer;
+import app.saucer.SaucerBackendType;
 import app.saucer.documentation.InternalUseOnly;
 import co.casterlabs.commons.io.streams.StreamUtil;
 
@@ -42,7 +43,7 @@ public abstract class _SaucerBackend {
 
     public abstract String[] supportedArchTargets();
 
-    public abstract String getType();
+    public abstract SaucerBackendType getType();
 
     /**
      * @return usually "Release" or "Debug"

@@ -2,7 +2,7 @@ package app.saucer._impl;
 
 import java.io.IOException;
 
-import app.saucer._impl._SaucerBackend;
+import app.saucer.SaucerBackendType;
 import app.saucer._impl._SaucerBackend.FindThisSaucerBackend;
 import co.casterlabs.commons.platform.OSDistribution;
 import co.casterlabs.commons.platform.Platform;
@@ -43,8 +43,8 @@ public class BackendWebview2 extends _SaucerBackend {
     }
 
     @Override
-    public String getType() {
-        return "WebView2";
+    public SaucerBackendType getType() {
+        return SaucerBackendType.WEBVIEW2;
     }
 
     @Override

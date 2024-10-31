@@ -2,7 +2,7 @@ package app.saucer._impl;
 
 import java.io.IOException;
 
-import app.saucer._impl._SaucerBackend;
+import app.saucer.SaucerBackendType;
 import app.saucer._impl._SaucerBackend.FindThisSaucerBackend;
 
 @SuppressWarnings("deprecation")
@@ -35,8 +35,8 @@ public class BackendQt6 extends _SaucerBackend {
     }
 
     @Override
-    public String getType() {
-        return "Qt6";
+    public SaucerBackendType getType() {
+        return SaucerBackendType.QT6;
     }
 
     @Override

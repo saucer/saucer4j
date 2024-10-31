@@ -78,7 +78,7 @@ public interface Saucer extends Closeable {
     }
 
     @AvailableFromJS
-    public static String getBackend() {
+    public static SaucerBackendType getBackend() {
         return _SaucerNative.backend;
     }
 

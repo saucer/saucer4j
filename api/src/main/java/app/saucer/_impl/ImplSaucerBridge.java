@@ -177,7 +177,7 @@ class ImplSaucerBridge implements SaucerBridge {
                     new JsonObject()
                         .put("archTarget", Saucer.getArchTarget())
                         .put("systemTarget", Saucer.getSystemTarget())
-                        .put("backend", Saucer.getBackend())
+                        .put("backend", Saucer.getBackend().name())
                 ),
                 SaucerLoadTime.DOM_CREATION,
                 SaucerFramePolicy.TOP
