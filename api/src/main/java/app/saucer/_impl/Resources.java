@@ -99,7 +99,7 @@ class Resources {
                 // they're doing in this case.
                 String forced = EnvironmentAndProperties.natives_forceBackend;
                 for (_SaucerBackend backend : backends) {
-                    if (backend.getType().name().equalsIgnoreCase(forced)) {
+                    if (backend.getType().name().equalsIgnoreCase(forced) || backend.getType().toString().equalsIgnoreCase(forced)) {
                         chosenBackend = backend;
                         break;
                     }

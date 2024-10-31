@@ -51,7 +51,7 @@ public abstract class _SaucerBackend {
     public abstract String getBuildType();
 
     public void extractTo(Path targetDir) throws IOException {
-        String resourcePath = String.format("natives/%s-%s-%s-%s.zip", Saucer.getSystemTarget(), this.getType(), Saucer.getArchTarget(), this.getBuildType());
+        String resourcePath = String.format("natives/%s-%s-%s-%s.zip", Saucer.getSystemTarget(), this.getType().toString(), Saucer.getArchTarget(), this.getBuildType());
 
         // Grab the zip file from this Jar, extract it to the temp folder above.
         try (InputStream in = Resources.loadResource(resourcePath)) {
