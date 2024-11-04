@@ -1,0 +1,14 @@
+# IDE
+/.vscode
+
+# Build
+/_include
+/build
+
+# Testing
+/runtime
+test.jar
+/.saucer
+/launcher.exe
+/launcher
+/bundle.json
