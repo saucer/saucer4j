@@ -225,8 +225,6 @@ int java_start_vm(int argc, char *argv[], DYNHandle handle)
     //     }
 
     jint destroy_code = (*jvm)->DestroyJavaVM(jvm);
-    printf("destroyed\n");
-
     if (destroy_code != JNI_OK)
     {
         printf("Got %d while destroying VM\n", (int)destroy_code);
