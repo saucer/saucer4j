@@ -28,15 +28,15 @@ public class Adoptium {
 
     private static final Map<BuildTargetArch, String> ARCH_MAPPING = Map.of(
     // @formatter:off
-        BuildTargetArch.x86,     "x86",
+//        BuildTargetArch.x86,     "x86",
         BuildTargetArch.x86_64,  "x64",
-        BuildTargetArch.ppc64,   "ppc64",
+//        BuildTargetArch.ppc64,   "ppc64",
         BuildTargetArch.ppc64le, "ppc64le",
-        BuildTargetArch.s390x,   "s390x",
+//        BuildTargetArch.s390x,   "s390x",
         BuildTargetArch.aarch64, "aarch64",
-        BuildTargetArch.arm,     "arm",
-        BuildTargetArch.sparcv9, "sparcv9",
-        BuildTargetArch.riscv64, "riscv64"
+        BuildTargetArch.arm,     "arm"
+//        BuildTargetArch.sparcv9, "sparcv9",
+//        BuildTargetArch.riscv64, "riscv64"
         // @formatter:on
     );
 
@@ -44,10 +44,10 @@ public class Adoptium {
     // @formatter:off
         BuildTargetOS.windows,   "windows",
         BuildTargetOS.macos,     "mac",
-        BuildTargetOS.gnulinux,  "linux",
-        BuildTargetOS.musllinux, "alpine-linux",
-        BuildTargetOS.solaris,   "solaris",
-        BuildTargetOS.aix,       "aix"
+        BuildTargetOS.gnulinux,  "linux"
+//        BuildTargetOS.musllinux, "alpine-linux",
+//        BuildTargetOS.solaris,   "solaris",
+//        BuildTargetOS.aix,       "aix"
         // @formatter:on
     );
 

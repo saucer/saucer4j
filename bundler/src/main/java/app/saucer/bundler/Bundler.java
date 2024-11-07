@@ -5,25 +5,25 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.LinkedList;
 import java.util.List;
 
 import app.saucer.bundler.cli.CommandBundle;
-import app.saucer.bundler.cli.Main;
 import app.saucer.bundler.config.BuildExecutableSubsystem;
 import app.saucer.bundler.config.BuildTargetOS;
 import app.saucer.bundler.util.Adoptium;
 import app.saucer.bundler.util.FileUtil;
 import app.saucer.bundler.util.Icon;
+import app.saucer.bundler.util.LauncherUtil;
 import app.saucer.bundler.util.Maven;
 import app.saucer.bundler.util.PEUtil;
 import app.saucer.bundler.util.archive.ArchiveCreator;
 import app.saucer.bundler.util.archive.ArchiveExtractor;
 import app.saucer.bundler.util.archive.Archives;
 import app.saucer.bundler.util.archive.Archives.Format;
-import co.casterlabs.commons.io.streams.StreamUtil;
+import co.casterlabs.rakurai.json.element.JsonArray;
+import co.casterlabs.rakurai.json.element.JsonObject;
 import xyz.e3ndr.fastloggingframework.logging.FastLogger;
 
 public class Bundler {
@@ -211,17 +211,27 @@ public class Bundler {
 
         try {
             Bundler.LOGGER.info("create -> Building arguments...");
-            String vmArgs = this.buildOptions.getAdditionalVmArgs();
+            JsonArray arguments = new JsonArray();
 
-            vmArgs += " -classpath ";
-            vmArgs += String.join(
-                this.buildOptions.getTargetOS() == BuildTargetOS.windows ? ";" : ":",
-                this.classpath
+            arguments.add(
+                String.format(
+                    "-Djava.class.path=%s",
+                    String.join(
+                        this.buildOptions.getTargetOS() == BuildTargetOS.windows ? ";" : ":",
+                        this.classpath
+                    )
+                )
             );
+            this.buildOptions.getAdditionalVmArgs().forEach(arguments::add);
 
-            vmArgs += " " + this.buildOptions.getMain();
+            String main = this.buildOptions.getMain();
 
-            Files.writeString(new File(resourcesFolder, "vmargs.txt").toPath(), vmArgs);
+            String bundleInfo = new JsonObject()
+                .put("args", arguments)
+                .put("main", main)
+                .toString(false);
+
+            Files.writeString(new File(resourcesFolder, "bundle.json").toPath(), bundleInfo);
         } catch (IOException e) {
             Bundler.LOGGER.fatal("create -> Unable to write vmargs.txt, aborting.\n%s", e);
             throw new BundlerAbortError(Bundler.EXIT_CODE_ERROR);
@@ -229,125 +239,34 @@ public class Bundler {
 
         Bundler.LOGGER.info("create -> Creating executable...");
         try {
-            switch (this.buildOptions.getTargetOS()) {
-                case macos:
-                    if (makeMacOSBundle) {
-                        try (InputStream in = Main.class.getResourceAsStream("/macos-bundle-launcher")) {
-                            String content = StreamUtil.toString(in, StandardCharsets.UTF_8)
-                                .replace("\r\n", "\n"); // Just in case.
-                            Files.writeString(new File(this.buildFolder, "Contents/MacOS/" + this.buildOptions.getName()).toPath(), content);
-                        }
-                        try {
-                            Files.writeString(
-                                new File(this.buildFolder, "Contents/Info.plist").toPath(),
-                                ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                                    + "<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n"
-                                    + "<plist version=\"1.0\">\n"
-                                    + "<dict>\n"
-                                    + "  <key>CFBundleGetInfoString</key>\n"
-                                    + "  <string>{name}</string>\n"
-                                    + "  <key>CFBundleExecutable</key>\n"
-                                    + "  <string>{name}</string>\n"
-                                    + "  <key>CFBundleIdentifier</key>\n"
-                                    + "  <string>{id}</string>\n"
-                                    + "  <key>CFBundleName</key>\n"
-                                    + "  <string>{name}</string>\n"
-                                    + "  <key>CFBundleIconFile</key>\n"
-                                    + "  <string>icons.icns</string>\n"
-                                    + "  <key>CFBundleShortVersionString</key>\n"
-                                    + "  <string>1.0</string>\n"
-                                    + "  <key>CFBundleInfoDictionaryVersion</key>\n"
-                                    + "  <string>6.0</string>\n"
-                                    + "  <key>CFBundlePackageType</key>\n"
-                                    + "  <string>APPL</string>\n"
-                                    + "  <key>IFMajorVersion</key>\n"
-                                    + "  <integer>0</integer>\n"
-                                    + "  <key>IFMinorVersion</key>\n"
-                                    + "  <integer>1</integer>\n"
-                                    + "  <key>NSHighResolutionCapable</key>\n"
-                                    + "  <true/>\n"
-                                    + "  <key>NSAppTransportSecurity</key>\n"
-                                    + "  <dict>\n"
-                                    + "    <key>NSAllowsArbitraryLoads</key>\n"
-                                    + "    <true/>\n"
-                                    + "    <key>NSExceptionDomains</key>\n"
-                                    + "    <dict>\n"
-                                    + "      <key>127.0.0.1</key>\n"
-                                    + "      <dict>\n"
-                                    + "        <key>NSExceptionAllowsInsecureHTTPLoads</key>\n"
-                                    + "        <true/>\n"
-                                    + "        <key>NSIncludesSubdomains</key>\n"
-                                    + "        <false/>\n"
-                                    + "      </dict>\n"
-                                    + "      <key>::1</key>\n"
-                                    + "      <dict>\n"
-                                    + "        <key>NSExceptionAllowsInsecureHTTPLoads</key>\n"
-                                    + "        <true/>\n"
-                                    + "        <key>NSIncludesSubdomains</key>\n"
-                                    + "        <false/>\n"
-                                    + "      </dict>\n"
-                                    + "      <key>localhost</key>\n"
-                                    + "      <dict>\n"
-                                    + "        <key>NSExceptionAllowsInsecureHTTPLoads</key>\n"
-                                    + "        <true/>\n"
-                                    + "        <key>NSIncludesSubdomains</key>\n"
-                                    + "        <false/>\n"
-                                    + "      </dict>\n"
-                                    + "    </dict>\n"
-                                    + "  </dict>\n"
-                                    + "</dict>\n"
-                                    + "</plist>")
-                                        .replace("{name}", this.buildOptions.getName())
-                                        .replace("{id}", this.buildOptions.getId())
-                            );
-                        } catch (IOException e) {
-                            LOGGER.fatal("create -> Unable to write Info.plist, aborting.\n%s", e);
-                            throw new BundlerAbortError(Bundler.EXIT_CODE_ERROR);
-                        }
-                        break;
-                    }
-                    // Otherwise, fall through and use the normal Unix launcher.
+            if (makeMacOSBundle) {
+                try (InputStream in = LauncherUtil.get(this.buildOptions.getTargetArch(), this.buildOptions.getTargetOS());
+                    OutputStream out = new FileOutputStream(new File(this.buildFolder, "Contents/MacOS/" + this.buildOptions.getName()))) {
+                    in.transferTo(out);
+                }
+                try {
+                    Files.writeString(
+                        new File(this.buildFolder, "Contents/Info.plist").toPath(),
+                        LauncherUtil.MACOS_BUNDLE_PLIST_TEMPLATE
+                            .replace("{name}", this.buildOptions.getName())
+                            .replace("{id}", this.buildOptions.getId())
+                    );
+                } catch (IOException e) {
+                    LOGGER.fatal("create -> Unable to write Info.plist, aborting.\n%s", e);
+                    throw new BundlerAbortError(Bundler.EXIT_CODE_ERROR);
+                }
+            } else {
+                String executableName = this.buildOptions.getName() + LauncherUtil.fileExtension(this.buildOptions.getTargetOS());
 
-                case aix:
-                case gnulinux:
-                case musllinux:
-                case solaris:
-                    try (InputStream in = Main.class.getResourceAsStream("/unix-launcher")) {
-                        String content = StreamUtil.toString(in, StandardCharsets.UTF_8)
-                            .replace("\r\n", "\n"); // Just in case.
-                        Files.writeString(new File(resourcesFolder, this.buildOptions.getName()).toPath(), content);
-                    }
-                    break;
-
-                case windows:
-                    String resource = null;
-                    switch (this.buildOptions.getTargetArch()) {
-                        case x86:
-                            if (this.buildOptions.getSubsystem() == BuildExecutableSubsystem.console) {
-                                resource = "/windows-launcher-x86.exe";
-                            } else {
-                                resource = "/windows-launcherw-x86.exe";
-                            }
-                            break;
-
-                        case x86_64:
-                            if (this.buildOptions.getSubsystem() == BuildExecutableSubsystem.console) {
-                                resource = "/windows-launcher-x86_64.exe";
-                            } else {
-                                resource = "/windows-launcherw-x86_64.exe";
-                            }
-                            break;
-
-                        default:
-                            Bundler.LOGGER.fatal("create -> Unsupported target arch: %s", this.buildOptions.getTargetArch());
-                            throw new BundlerAbortError(Bundler.EXIT_CODE_OTHER);
-
+                try (InputStream in = LauncherUtil.get(this.buildOptions.getTargetArch(), this.buildOptions.getTargetOS());
+                    OutputStream out = new FileOutputStream(new File(resourcesFolder, executableName))) {
+                    if (in == null) {
+                        LOGGER.fatal("create -> Unable to find native executable suitable for target OS & Arch, aborting.");
+                        throw new BundlerAbortError(Bundler.EXIT_CODE_ERROR);
                     }
 
-                    try (InputStream in = Main.class.getResourceAsStream(resource);
-                        OutputStream out = new FileOutputStream(new File(resourcesFolder, this.buildOptions.getName() + ".exe"))) {
-                        in.transferTo(out);
-                    }
+                    in.transferTo(out);
+                }
             }
         } catch (IOException e) {
             LOGGER.fatal("create -> Unable to copy native executable, aborting.\n%s", e);
@@ -358,29 +277,15 @@ public class Bundler {
             case macos: {
                 Bundler.LOGGER.info("create -> Marking files as executable...");
                 final String[] NEED_TO_MARK_EXEC = {
-                        "Contents/MacOS/" + this.buildOptions.getName(),
-                        "Contents/Resources/runtime/bin/java",
-                        "../"
+                        this.buildOptions.getName(),  // Non-bundle mode
+                        "Contents/MacOS/" + this.buildOptions.getName(), // Bundle mode
+                        "../"  // Bundle mode
                 };
                 for (String path : NEED_TO_MARK_EXEC) {
                     File file = new File(this.buildFolder, path);
-                    FileUtil.setExecutable(file);
-                }
-                break;
-            }
-
-            case aix:
-            case gnulinux:
-            case musllinux:
-            case solaris: {
-                Bundler.LOGGER.info("create -> Marking files as executable...");
-                final String[] NEED_TO_MARK_EXEC = {
-                        this.buildOptions.getName(),
-                        "runtime/bin/java"
-                };
-                for (String path : NEED_TO_MARK_EXEC) {
-                    File file = new File(this.buildFolder, path);
-                    FileUtil.setExecutable(file);
+                    if (file.exists()) {
+                        FileUtil.setExecutable(file);
+                    }
                 }
                 break;
             }
@@ -388,6 +293,19 @@ public class Bundler {
             case windows:
                 // NOOP
                 break;
+
+            default: {
+                Bundler.LOGGER.info("create -> Marking files as executable...");
+                final String[] NEED_TO_MARK_EXEC = {
+                        this.buildOptions.getName()
+                };
+                for (String path : NEED_TO_MARK_EXEC) {
+                    File file = new File(this.buildFolder, path);
+                    FileUtil.setExecutable(file);
+                }
+                break;
+            }
+
         }
 
         if (this.buildOptions.getIcon() != null) {
@@ -402,10 +320,10 @@ public class Bundler {
                         );
                         break;
 
-                    case aix:
+//                    case aix:
                     case gnulinux:
-                    case musllinux:
-                    case solaris:
+//                    case musllinux:
+//                    case solaris:
                         Files.write(
                             new File(resourcesFolder, "icon.png").toPath(),
                             icon.toPng()
@@ -440,10 +358,11 @@ public class Bundler {
                 break;
             }
 
-            case aix:
+//            case aix:
             case gnulinux:
-            case musllinux:
-            case solaris: {
+//            case musllinux:
+//            case solaris:
+            {
                 try {
                     archiveFile = new File(Bundler.ARTIFACTS_FOLDER, String.format("%s-%s-%s.tar.gz", this.buildOptions.getName(), this.buildOptions.getTargetOS(), this.buildOptions.getTargetArch()));
                     ArchiveCreator.create(Format.TAR_GZ, this.buildFolder, archiveFile);

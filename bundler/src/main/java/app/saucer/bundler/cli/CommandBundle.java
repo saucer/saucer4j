@@ -1,6 +1,8 @@
 package app.saucer.bundler.cli;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.List;
 
 import app.saucer.bundler.Bundler;
 import app.saucer.bundler.BundlerAbortError;
@@ -50,19 +52,19 @@ public class CommandBundle implements Runnable {
         + "or\n"
         + "'https://repo.maven.apache.org/maven2|com.example:example:1.0.0:.jar'\n"
         + "Note the suffix on Maven dependencies. That can be used to target different types, such as .war. You can also use it to download shaded artifacts by using '-shaded.jar'.")
-    private String[] dependencies = {};
+    private List<String> dependencies = Collections.emptyList();
 
     @Option(names = {
             "-r",
             "--arg"
     }, description = "Additional VM arguments.")
-    private String additionalVmArgs = "";
+    private List<String> additionalVmArgs = Collections.emptyList();
 
     @Option(names = {
             "-f",
             "--file"
     }, description = "A list of additional files to add to the resulting bundle.")
-    private File[] additionalFiles = {};
+    private List<File> additionalFiles = Collections.emptyList();
 
     @Option(names = {
             "-n",

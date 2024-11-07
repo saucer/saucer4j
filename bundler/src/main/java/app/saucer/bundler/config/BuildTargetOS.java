@@ -6,7 +6,7 @@ public enum BuildTargetOS {
     // Unix-y
     macos,
     gnulinux,
-    musllinux,
-    solaris,
-    aix
+//    musllinux,
+//    solaris,
+//    aix
 }
