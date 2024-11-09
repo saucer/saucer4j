@@ -147,12 +147,20 @@ void *call_java_main(void *tenv)
         return NULL;
     }
 
-    jobjectArray args = (*env)->NewObjectArray(env, argc, (*env)->FindClass(env, "java/lang/String"), NULL);
-    for (jint i = 0; i < argc; i++)
+    jobjectArray args;
+    if (argc > 1)
     {
-        jstring arg = (*env)->NewStringUTF(env, argv[i]);
-        (*env)->SetObjectArrayElement(env, args, i, arg);
+        // Start at IDX=1 so that Java doesn't receive the executable command.
+        int argcMinusExec = argc - 1;
+        args = (*env)->NewObjectArray(env, argcMinusExec, (*env)->FindClass(env, "java/lang/String"), NULL);
+        for (jint i = 0; i < argcMinusExec; i++)
+        {
+            jstring arg = (*env)->NewStringUTF(env, argv[i + 1]);
+            (*env)->SetObjectArrayElement(env, args, i, arg);
+        }
     }
+    else
+        args = (*env)->NewObjectArray(env, 0, (*env)->FindClass(env, "java/lang/String"), NULL);
 
     (*env)->CallStaticVoidMethod(env, main_class, main_method, args);
 
