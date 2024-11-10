@@ -1,57 +1,57 @@
 package app.saucer.bundler.util;
 
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.Map;
 
 import org.jetbrains.annotations.Nullable;
 
+import app.saucer.bundler.Bundler;
 import app.saucer.bundler.config.BuildTargetArch;
 import app.saucer.bundler.config.BuildTargetOS;
 
 public class LauncherUtil {
-    private static final Map<BuildTargetArch, String> ARCH_MAPPING = Map.of(
+    private static final Map<BuildTargetArch, Map<BuildTargetOS, String>> ARCH_OS_MAPPING = Map.of(
     // @formatter:off
-//        BuildTargetArch.x86,     "x86",
-        BuildTargetArch.x86_64,  "x86_64",
-//        BuildTargetArch.ppc64,   "ppc64",
-        BuildTargetArch.ppc64le, "powerpc64le",
-//        BuildTargetArch.s390x,   "s390x",
-        BuildTargetArch.aarch64, "aarch64",
-        BuildTargetArch.arm,     "arm"
-//        BuildTargetArch.sparcv9, "sparcv9",
-//        BuildTargetArch.riscv64, "riscv64"
-        // @formatter:on
-    );
-
-    private static final Map<BuildTargetOS, String> OS_MAPPING = Map.of(
-    // @formatter:off
-        BuildTargetOS.windows,   "windows-msvc",
-        BuildTargetOS.macos,     "macos-none",
-        BuildTargetOS.gnulinux,  "linux-gnu.2.36"
-//        BuildTargetOS.musllinux, "alpine-linux",
-//        BuildTargetOS.solaris,   "solaris",
-//        BuildTargetOS.aix,       "aix"
-        // @formatter:on
+        BuildTargetArch.aarch64,  Map.of(
+            BuildTargetOS.gnulinux,  "aarch64-linux-gnu.2.36",
+            BuildTargetOS.macos,     "aarch64-macos-none"
+        ),
+        BuildTargetArch.arm,      Map.of(
+            BuildTargetOS.gnulinux,  "arm-linux-gnueabihf.2.36"
+        ),
+        BuildTargetArch.ppc64le,  Map.of(
+            BuildTargetOS.gnulinux,  "powerpc64le-linux-gnu.2.36"
+        ),
+        BuildTargetArch.x86_64,   Map.of(
+            BuildTargetOS.gnulinux,  "x86_64-linux-gnu.2.36",
+            BuildTargetOS.macos,     "x86_64-macos-none",
+            BuildTargetOS.windows,   "x86_64-windows-msvc"
+        )
+		// @formatter:on
     );
 
     private static final Map<BuildTargetOS, String> OS_EXT_MAPPING = Map.of(
-    // @formatter:off
-        BuildTargetOS.windows,   ".exe",
-        BuildTargetOS.macos,     "",
-        BuildTargetOS.gnulinux,  ""
-//        BuildTargetOS.musllinux, "",
-//        BuildTargetOS.solaris,   "",
-//        BuildTargetOS.aix,       ""
-        // @formatter:on
+        BuildTargetOS.windows, ".exe"
     );
 
     public static @Nullable InputStream get(BuildTargetArch arch, BuildTargetOS os) {
-        String fileName = String.format("/%s-%s/launcher%s", ARCH_MAPPING.get(arch), OS_MAPPING.get(os), OS_EXT_MAPPING.get(os));
+        String fileName = String.format(
+            "/%s/launcher%s",
+            ARCH_OS_MAPPING
+                .getOrDefault(arch, Collections.emptyMap())
+                .getOrDefault(os, "_invalid"),
+            fileExtension(os)
+        );
+        Bundler.LOGGER.warn(
+            "Using launcher file: %s",
+            fileName
+        );
         return LauncherUtil.class.getResourceAsStream(fileName);
     }
 
     public static String fileExtension(BuildTargetOS os) {
-        return OS_EXT_MAPPING.get(os);
+        return OS_EXT_MAPPING.getOrDefault(os, "");
     }
 
     public static final String MACOS_BUNDLE_PLIST_TEMPLATE = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
