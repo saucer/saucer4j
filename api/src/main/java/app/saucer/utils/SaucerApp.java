@@ -42,7 +42,9 @@ public class SaucerApp {
         $instance = N.saucer_application_acquire(appId);
         mainThread = Thread.currentThread();
 
-        new Thread(() -> SaucerApp.dispatch(continueWith)).start(); // Start executing continueWith ASAP.
+        N.saucer_application_post($instance, () -> {
+            new Thread(() -> SaucerApp.dispatch(continueWith)).start(); // Start executing continueWith ASAP.
+        });
         N.saucer_application_run($instance);
 
         N.saucer_application_free($instance); // After run() returns, the app is done. So we free and set null.
