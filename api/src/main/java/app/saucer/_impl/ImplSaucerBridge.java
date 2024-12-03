@@ -8,6 +8,8 @@ import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.sun.jna.Callback;
 import com.sun.jna.Library;
@@ -32,6 +34,7 @@ import lombok.SneakyThrows;
 @SuppressWarnings("deprecation")
 class ImplSaucerBridge implements SaucerBridge {
     private static final _Native N = _SaucerNative.load(_Native.class);
+    private static final ExecutorService ASYNC_DISPATCH = Executors.newCachedThreadPool();
 
     private static final String init_fmt = Resources.loadResourceString("bridge/init_fmt.js");
     private static final String ipc_object_fmt = Resources.loadResourceString("bridge/ipc_object_fmt.js");
@@ -58,109 +61,111 @@ class ImplSaucerBridge implements SaucerBridge {
             return false;
         }
 
-        JsonElement returnValue = null;
-        boolean isError = false;
-        try {
-            switch (message.getString("type")) {
-                case "GET": {
-                    JavascriptObjectWrapper object = this.objects.get(message.getString("objectId"));
-                    assert object != null : "Unknown objectId: " + message;
+        ASYNC_DISPATCH.execute(() -> {
+            JsonElement returnValue = null;
+            boolean isError = false;
+            try {
+                switch (message.getString("type")) {
+                    case "GET": {
+                        JavascriptObjectWrapper object = this.objects.get(message.getString("objectId"));
+                        assert object != null : "Unknown objectId: " + message;
 
-                    // RPC.get("objectId", "propertyName");
-                    returnValue = object.handleGet(message.getString("propertyName"));
-                    break;
-                }
-
-                case "SET": {
-                    JavascriptObjectWrapper object = this.objects.get(message.getString("objectId"));
-                    assert object != null : "Unknown objectId: " + message;
-
-                    // RPC.set("objectId", "propertyName", newValue);
-                    object.handleSet(message.getString("propertyName"), message.get("newValue"));
-                    break;
-                }
-
-                case "INVOKE": {
-                    JavascriptObjectWrapper object = this.objects.get(message.getString("objectId"));
-                    assert object != null : "Unknown objectId: " + message;
-
-                    // RPC.invoke("objectId", "functionName", Array.from(arguments));
-                    returnValue = object.handleInvoke(message.getString("functionName"), message.getArray("arguments"));
-                    break;
-                }
-
-                case "MESSAGE": {
-                    JsonElement data = message.get("data");
-                    saucer.messages.handle(data);
-                    break;
-                }
-
-                case "CHECK_MUTATION": {
-                    JsonObject newValues = new JsonObject();
-                    for (JavascriptObjectWrapper object : this.objects.values()) {
-                        for (String name : object.whichFieldsHaveMutated()) {
-                            newValues.put(object.id + '|' + name, object.handleGet(name));
-                        }
+                        // RPC.get("objectId", "propertyName");
+                        returnValue = object.handleGet(message.getString("propertyName"));
+                        break;
                     }
-                    returnValue = newValues;
-                    break;
-                }
 
-                case "CLOSE": {
-                    saucer.close();
-                    break;
-                }
+                    case "SET": {
+                        JavascriptObjectWrapper object = this.objects.get(message.getString("objectId"));
+                        assert object != null : "Unknown objectId: " + message;
 
-                case "OPEN_LINK": {
-                    String link = message.getString("link");
-                    SaucerDesktop.open(link);
-                    break;
-                }
+                        // RPC.set("objectId", "propertyName", newValue);
+                        object.handleSet(message.getString("propertyName"), message.get("newValue"));
+                        break;
+                    }
 
-                default:
-                    throw new IllegalArgumentException("Unrecognized call: " + message);
+                    case "INVOKE": {
+                        JavascriptObjectWrapper object = this.objects.get(message.getString("objectId"));
+                        assert object != null : "Unknown objectId: " + message;
+
+                        // RPC.invoke("objectId", "functionName", Array.from(arguments));
+                        returnValue = object.handleInvoke(message.getString("functionName"), message.getArray("arguments"));
+                        break;
+                    }
+
+                    case "MESSAGE": {
+                        JsonElement data = message.get("data");
+                        saucer.messages.handle(data);
+                        break;
+                    }
+
+                    case "CHECK_MUTATION": {
+                        JsonObject newValues = new JsonObject();
+                        for (JavascriptObjectWrapper object : this.objects.values()) {
+                            for (String name : object.whichFieldsHaveMutated()) {
+                                newValues.put(object.id + '|' + name, object.handleGet(name));
+                            }
+                        }
+                        returnValue = newValues;
+                        break;
+                    }
+
+                    case "CLOSE": {
+                        saucer.close();
+                        break;
+                    }
+
+                    case "OPEN_LINK": {
+                        String link = message.getString("link");
+                        SaucerDesktop.open(link);
+                        break;
+                    }
+
+                    default:
+                        throw new IllegalArgumentException("Unrecognized call: " + message);
+                }
+            } catch (Throwable t) {
+                StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw);
+
+                t.printStackTrace(pw);
+
+                String out = sw.toString();
+
+                pw.flush();
+                pw.close();
+                sw.flush();
+
+                String full = out
+                    .substring(0, out.length() - 2)
+                    .replace("\r", "");
+
+                System.err.printf("An error occurred whilst processing function, bubbling to JavaScript.\n%s\n", full);
+                returnValue = new JsonString(full);
+                isError = true;
             }
-        } catch (Throwable t) {
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
 
-            t.printStackTrace(pw);
+            if (!message.containsKey("requestId")) {
+                return; // Drop the response.
+            }
 
-            String out = sw.toString();
-
-            pw.flush();
-            pw.close();
-            sw.flush();
-
-            String full = out
-                .substring(0, out.length() - 2)
-                .replace("\r", "");
-
-            System.err.printf("An error occurred whilst processing function, bubbling to JavaScript.\n%s\n", full);
-            returnValue = new JsonString(full);
-            isError = true;
-        }
-
-        if (!message.containsKey("requestId")) {
-            return true; // Drop the response.
-        }
-
-        JsonElement requestId = message.get("requestId");
-        if (isError) {
-            this.executeJavaScript(
-                String.format(
-                    "if (window.saucer.__rpc.waiting[%s]) window.saucer.__rpc.waiting[%s].reject(%s);",
-                    requestId, requestId, returnValue
-                )
-            );
-        } else {
-            this.executeJavaScript(
-                String.format(
-                    "if (window.saucer.__rpc.waiting[%s]) window.saucer.__rpc.waiting[%s].resolve(%s);",
-                    requestId, requestId, returnValue
-                )
-            );
-        }
+            JsonElement requestId = message.get("requestId");
+            if (isError) {
+                this.executeJavaScript(
+                    String.format(
+                        "if (window.saucer.__rpc.waiting[%s]) window.saucer.__rpc.waiting[%s].reject(%s);",
+                        requestId, requestId, returnValue
+                    )
+                );
+            } else {
+                this.executeJavaScript(
+                    String.format(
+                        "if (window.saucer.__rpc.waiting[%s]) window.saucer.__rpc.waiting[%s].resolve(%s);",
+                        requestId, requestId, returnValue
+                    )
+                );
+            }
+        });
 
         return true;
     };
