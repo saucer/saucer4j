@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
+import org.jetbrains.annotations.Nullable;
+
 import app.saucer.bundler.Bundler;
 import app.saucer.bundler.BundlerAbortError;
 import app.saucer.bundler.config.BuildExecutableSubsystem;
@@ -51,7 +53,8 @@ public class CommandBundle implements Runnable {
         + "'mydependency.jar'\n"
         + "or\n"
         + "'https://repo.maven.apache.org/maven2|com.example:example:1.0.0:.jar'\n"
-        + "Note the suffix on Maven dependencies. That can be used to target different types, such as .war. You can also use it to download shaded artifacts by using '-shaded.jar'.")
+        + "Note the suffix on Maven dependencies. That can be used to target different types, such as .war. "
+        + "You can also use it to download shaded artifacts by using '-shaded.jar'.")
     private List<String> dependencies = Collections.emptyList();
 
     @Option(names = {
@@ -69,7 +72,8 @@ public class CommandBundle implements Runnable {
     @Option(names = {
             "-n",
             "--name"
-    }, description = "The final name of the generated bundle. Some platforms have restrictions on what characters can be used, it is best to stick to standard ASCII.", required = true)
+    }, description = "The final name of the generated bundle. Some platforms have restrictions on what characters can be used, "
+        + "it is best to stick to standard ASCII.", required = true)
     private String name;
 
     @Option(names = {
@@ -82,13 +86,21 @@ public class CommandBundle implements Runnable {
             "-c",
             "--icon"
     }, description = "The icon of your app.")
-    private File icon;
+    private @Nullable File icon;
 
     @Option(names = {
             "-m",
             "--main"
     }, description = "The main class to invoke.", required = true)
     private String main;
+
+    @Option(names = {
+            "-S",
+            "--sign"
+    }, description = "The (optional) command to sign your bundle. This is platform specific. "
+        + "This runs after the bundle contents have been generated, but before the archive is created. "
+        + "The working directory of this command is set to the bundle folder.")
+    private @Nullable String signCommand;
 
     @Override
     public void run() {

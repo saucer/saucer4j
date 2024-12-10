@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Scanner;
 
 import app.saucer.bundler.cli.CommandBundle;
 import app.saucer.bundler.config.BuildExecutableSubsystem;
@@ -340,6 +341,43 @@ public class Bundler {
                 }
             } catch (IOException | InterruptedException e) {
                 LOGGER.fatal("create -> Unable to write image icon, aborting.\n%s", e);
+                throw new BundlerAbortError(Bundler.EXIT_CODE_ERROR);
+            }
+        }
+
+        if (this.buildOptions.getSignCommand() != null) {
+            LOGGER.info("create -> Signing executable... (%s)", this.buildOptions.getSignCommand());
+            try {
+                FastLogger commandLogger = new FastLogger("Sign command");
+                File workingDir = this.buildOptions.getTargetOS() == BuildTargetOS.macos ? this.buildFolder.getParentFile() : this.buildFolder;
+                Process proc = Runtime.getRuntime().exec(this.buildOptions.getSignCommand(), null, workingDir);
+
+                Thread stdoutThread = new Thread(() -> {
+                    try (Scanner sc = new Scanner(proc.getInputStream())) {
+                        while (sc.hasNextLine()) {
+                            commandLogger.info(sc.nextLine());
+                        }
+                    } catch (Exception ignored) {}
+                });
+                Thread stderrThread = new Thread(() -> {
+                    try (Scanner sc = new Scanner(proc.getErrorStream())) {
+                        while (sc.hasNextLine()) {
+                            commandLogger.severe(sc.nextLine());
+                        }
+                    } catch (Exception ignored) {}
+                });
+
+                stdoutThread.start();
+                stderrThread.start();
+
+                stdoutThread.join();
+                stderrThread.join();
+                int exitValue = proc.waitFor();
+                if (exitValue != 0) {
+                    throw new Exception("Process exited with code " + exitValue);
+                }
+            } catch (Exception e) {
+                LOGGER.fatal("create -> Unable to sign executable, aborting.\n%s", e);
                 throw new BundlerAbortError(Bundler.EXIT_CODE_ERROR);
             }
         }
