@@ -1,7 +1,5 @@
 package app.saucer._impl;
 
-import java.util.Collections;
-
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 
@@ -19,8 +17,8 @@ public class _SaucerNative {
         Resources.loadNatives();
         return Native.load(
             "saucer-bindings",
-            clazz,
-            Collections.singletonMap(Library.OPTION_STRING_ENCODING, "UTF-8")
+            clazz
+//            Collections.singletonMap(Library.OPTION_STRING_ENCODING, "UTF-8")
         );
     }
 
