@@ -17,12 +17,12 @@ public class BackendWebview2 extends _SaucerBackend {
             return false;
         }
 
-        if (!checkForLibraries(
-            "MSVCP140",
-            "VCRUNTIME140"
-        )) {
-            return false;
-        }
+//        if (!checkForLibraries(
+//            "MSVCP140",
+//            "VCRUNTIME140"
+//        )) {
+//            return false;
+//        }
 
         // https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution?tabs=dotnetcsharp#detect-if-a-webview2-runtime-is-already-installed
         if (regKeyPresent("HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Microsoft\\EdgeUpdate\\Clients\\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}")) {
