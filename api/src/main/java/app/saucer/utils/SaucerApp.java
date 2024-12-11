@@ -33,18 +33,26 @@ public class SaucerApp {
     }
 
     /**
-     * Initializes the app. Note that this method blocks until
-     * {@link SaucerApp#quit()} is called.
+     * Initializes the app.
      */
-    public static void initialize(@NonNull String appId, @NonNull Runnable continueWith) {
+    public static void initialize(@NonNull String appId) {
         if ($instance != null) return; // Silently fail if the app has already been initialized.
 
         $instance = N.saucer_application_acquire(appId);
         mainThread = Thread.currentThread();
+    }
 
-        N.saucer_application_post($instance, () -> {
-            new Thread(() -> SaucerApp.dispatch(continueWith)).start(); // Start executing continueWith ASAP.
-        });
+    /**
+     * @implNote Note that this method blocks until {@link SaucerApp#quit()} is
+     *           called.
+     */
+    public static void run() {
+        if ($instance == null) return;
+
+        if (!isInMainThread()) {
+            throw new IllegalStateException("You must call this method from the thread you initialized the app on!");
+        }
+
         N.saucer_application_run($instance);
 
         N.saucer_application_free($instance); // After run() returns, the app is done. So we free and set null.

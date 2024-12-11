@@ -9,19 +9,21 @@ import app.saucer.utils.SaucerPreferences;
 public class URLExample {
 
     public static void main(String[] args) throws IOException {
-        SaucerApp.initialize("com.example.saucer4j", () -> {
-            Saucer saucer = Saucer.create(
-                SaucerPreferences.create()
-                    .hardwareAcceleration(true) // May not work on all computers. You should do some testing to discover if you
-                                                // need this feature and if your environments support it.
-            );
+        SaucerApp.initialize("com.example.saucer4j");
 
-            saucer.webview().setContextMenuAllowed(true); // Allow the right-click menu.
+        Saucer saucer = Saucer.create(
+            SaucerPreferences.create()
+                .hardwareAcceleration(true) // May not work on all computers. You should do some testing to discover if you
+                                            // need this feature and if your environments support it.
+        );
 
-            saucer.webview().setUrl("https://duckduckgo.com");
+        saucer.webview().setContextMenuAllowed(true); // Allow the right-click menu.
 
-            saucer.window().show();
-        });
+        saucer.webview().setUrl("https://duckduckgo.com");
+
+        saucer.window().show();
+
+        SaucerApp.run();
     }
 
 }
