@@ -151,14 +151,14 @@ class ImplSaucerBridge implements SaucerBridge {
 
             JsonElement requestId = message.get("requestId");
             if (isError) {
-                this.executeJavaScript(
+                this.executeJSSilently(
                     String.format(
                         "if (window.saucer.__rpc.waiting[%s]) window.saucer.__rpc.waiting[%s].reject(%s);",
                         requestId, requestId, returnValue
                     )
                 );
             } else {
-                this.executeJavaScript(
+                this.executeJSSilently(
                     String.format(
                         "if (window.saucer.__rpc.waiting[%s]) window.saucer.__rpc.waiting[%s].resolve(%s);",
                         requestId, requestId, returnValue
@@ -190,6 +190,11 @@ class ImplSaucerBridge implements SaucerBridge {
         );
 
         this.clear();
+    }
+
+    private void executeJSSilently(@NonNull String scriptToExecute) {
+        if (this.saucer.isClosed) return;
+        N.saucer_webview_execute(this.saucer, '{' + scriptToExecute + '}');
     }
 
     @JavascriptFunction
