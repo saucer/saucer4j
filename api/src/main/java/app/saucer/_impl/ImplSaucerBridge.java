@@ -8,8 +8,6 @@ import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import com.sun.jna.Callback;
 import com.sun.jna.Library;
@@ -34,7 +32,6 @@ import lombok.SneakyThrows;
 @SuppressWarnings("deprecation")
 class ImplSaucerBridge implements SaucerBridge {
     private static final _Native N = _SaucerNative.load(_Native.class);
-    private static final ExecutorService ASYNC_DISPATCH = Executors.newCachedThreadPool();
 
     private static final String init_fmt = Resources.loadResourceString("bridge/init_fmt.js");
     private static final String ipc_object_fmt = Resources.loadResourceString("bridge/ipc_object_fmt.js");
@@ -61,7 +58,11 @@ class ImplSaucerBridge implements SaucerBridge {
             return false;
         }
 
-        ASYNC_DISPATCH.execute(() -> {
+        if (this.saucer.asyncDispatch.isShutdown()) {
+            return false;
+        }
+
+        this.saucer.asyncDispatch.execute(() -> {
             JsonElement returnValue = null;
             boolean isError = false;
             try {

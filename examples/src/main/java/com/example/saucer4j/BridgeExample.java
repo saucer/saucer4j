@@ -3,6 +3,7 @@ package com.example.saucer4j;
 import java.io.IOException;
 
 import app.saucer.Saucer;
+import app.saucer.SaucerWindow.SaucerWindowListener;
 import app.saucer.bridge.JavascriptFunction;
 import app.saucer.bridge.JavascriptGetter;
 import app.saucer.bridge.JavascriptObject;
@@ -32,6 +33,13 @@ public class BridgeExample {
         saucer.webview().setUrl("app://authority/BridgeExample.html");
 
         saucer.window().show();
+
+        saucer.window().setListener(new SaucerWindowListener() {
+            @Override
+            public void onClosed() {
+                SaucerApp.quit(); // Causes run() to exit, and the JVM will follow suit.
+            }
+        });
 
         SaucerApp.run();
     }

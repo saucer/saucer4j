@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.sun.jna.Callback;
 import com.sun.jna.Library;
@@ -31,6 +33,8 @@ public class _ImplSaucer extends SaucerPointerType<_ImplSaucer> implements Sauce
     private static boolean alreadyLoaded = false;
 
     private static Set<_ImplSaucer> windows = new HashSet<>();
+
+    final ExecutorService asyncDispatch = Executors.newCachedThreadPool();
 
     /* ------------------------------------ */
     /* ------------------------------------ */
@@ -68,7 +72,9 @@ public class _ImplSaucer extends SaucerPointerType<_ImplSaucer> implements Sauce
     volatile boolean isClosed = false;
 
     private WindowVoidCallback windowEventClosedCallback = (Pointer $saucer) -> {
-        this.close();
+        this.isClosed = true;
+        _ImplSaucer.windows.remove(_ImplSaucer.this);
+        this.asyncDispatch.shutdown();
     };
 
     public static synchronized _ImplSaucer create(@NonNull SaucerPreferences preferences) {
@@ -129,9 +135,7 @@ public class _ImplSaucer extends SaucerPointerType<_ImplSaucer> implements Sauce
     @Override
     public void close() {
         if (!this.isClosed) {
-            this.isClosed = true;
             N.saucer_window_close(this);
-            _ImplSaucer.windows.remove(_ImplSaucer.this);
         }
     }
 
