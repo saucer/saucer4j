@@ -3,7 +3,6 @@ package com.example.saucer4j;
 import java.io.IOException;
 
 import app.saucer.Saucer;
-import app.saucer.SaucerWindow.SaucerWindowListener;
 import app.saucer.scheme.SaucerSchemeHandler;
 import app.saucer.utils.SaucerApp;
 import app.saucer.utils.SaucerPreferences;
@@ -32,14 +31,7 @@ public class MessageEchoExample {
 
         saucer.window().show();
 
-        saucer.window().setListener(new SaucerWindowListener() {
-            @Override
-            public void onClosed() {
-                SaucerApp.quit(); // Causes run() to exit, and the JVM will follow suit.
-            }
-        });
-
-        SaucerApp.run();
+        SaucerApp.run(); // This blocks until the last window is closed.
     }
 
 }
