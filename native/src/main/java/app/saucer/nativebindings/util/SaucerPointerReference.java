@@ -1,5 +1,6 @@
 package app.saucer.nativebindings.util;
 
+import com.sun.jna.NativeMapped;
 import com.sun.jna.Pointer;
 
 import app.saucer.nativebindings._memory;
@@ -37,9 +38,31 @@ public class SaucerPointerReference<T> extends SaucerPointerType {
         return $ref.getString(0);
     }
 
+    public String[] asStringArray() {
+        return $ref.getStringArray(0);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <A> @RequiresFree SaucerPointerReference<A>[] asArray(int size) {
+        Pointer[] pointers = $ref.getPointerArray(0, size);
+        SaucerPointerReference<A>[] asRefs = new SaucerPointerReference[pointers.length];
+
+        for (int idx = 0; idx < pointers.length; idx++) {
+            asRefs[idx] = of(pointers[idx]);
+        }
+
+        return asRefs;
+    }
+
     /* ------------------------------------ */
     /* ------------------------------------ */
     /* ------------------------------------ */
+
+    public static <A> SaucerPointerReference<A> of(Pointer $ref) {
+        SaucerPointerReference<A> result = new SaucerPointerReference<A>();
+        result.$ref = $ref;
+        return result;
+    }
 
     @Override
     protected SaucerPointerType newInstance() {
@@ -51,7 +74,7 @@ public class SaucerPointerReference<T> extends SaucerPointerType {
             "deprecation"
     })
     @SneakyThrows
-    public <A extends SaucerPointerType> A asType(Class<A> clazz) {
+    public <A extends NativeMapped> A as(Class<A> clazz) {
         return (A) clazz.newInstance().fromNative($ref, null);
     }
 
