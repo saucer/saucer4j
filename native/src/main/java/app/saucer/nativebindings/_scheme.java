@@ -1,7 +1,11 @@
 package app.saucer.nativebindings;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.sun.jna.Callback;
 import com.sun.jna.Library;
+import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
 import app.saucer.nativebindings._stash.saucer_stash;
@@ -72,14 +76,53 @@ public interface _scheme extends Library {
     public @RequiresFree saucer_stash saucer_scheme_request_content(saucer_scheme_request _instance);
 
     /**
-     * @note The arrays pointed to by @param headers and @param values will be
-     *       populated with strings which are themselves dynamically allocated. Both
-     *       arrays will then hold @param count elements.
+     * @note       The arrays pointed to by @param headers and @param values will be
+     *             populated with strings which are themselves dynamically
+     *             allocated. Both arrays will then hold @param count elements.
      *
-     *       To properly free the returned arrays you should: - Free all strings
-     *       within the headers and values array - Free the array itself
+     *             To properly free the returned arrays you should: - Free all
+     *             strings within the headers and values array - Free the array
+     *             itself
+     * 
+     * @deprecated This is pretty unsafe, use
+     *             {@link #saucer_scheme_request_headers(saucer_scheme_request)}
+     *             instead which returns a Java map.
      */
-    public void saucer_scheme_request_headers(saucer_scheme_request _instance, @RequiresFree Pointer headers, @RequiresFree Pointer values, size_t count);
+    @Deprecated
+    public void saucer_scheme_request_headers(saucer_scheme_request _instance, @RequiresFree Pointer headers, @RequiresFree Pointer values, @RequiresFree Pointer count);
+
+    public static Map<String, String> saucer_scheme_request_headers(saucer_scheme_request _instance) {
+        // Setup the pointers for receiving the value.
+        try (
+            SaucerPointerReference<Pointer> $$keys = _memory.N.saucer_memory_alloc(new size_t(Native.POINTER_SIZE));
+            SaucerPointerReference<Pointer> $$values = _memory.N.saucer_memory_alloc(new size_t(Native.POINTER_SIZE));
+            SaucerPointerReference<Pointer> $count = _memory.N.saucer_memory_alloc(new size_t(Native.SIZE_T_SIZE))) {
+            N.saucer_scheme_request_headers(_instance, $$keys.self(), $$values.self(), $count.self());
+
+            // Get their values.
+            try (
+                SaucerPointerReference<Pointer> $keys = $$keys.referenced();
+                SaucerPointerReference<Pointer> $values = $$values.referenced()) {
+
+                size_t count = $count.as(size_t.class);
+
+                // Convert the key/values pointers to arrays.
+                SaucerPointerReference<Pointer>[] keys = $keys.asArray(count.intValue());
+                SaucerPointerReference<Pointer>[] values = $values.asArray(count.intValue());
+
+                // Convert to map.
+                Map<String, String> map = new HashMap<>();
+                for (int idx = 0; idx < keys.length; idx++) {
+                    try (
+                        SaucerPointerReference<Pointer> $key = keys[idx];
+                        SaucerPointerReference<Pointer> $value = values[idx]) {
+                        map.put($key.asString(), $value.asString());
+                    }
+                }
+                return map;
+            }
+        }
+    }
 
     @RequiresFree
     public static class saucer_scheme_executor extends SaucerPointerType {
