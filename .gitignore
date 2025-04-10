@@ -15,9 +15,16 @@
 *.versionsBackup
 *.saucer/
 
+# Test Libs
+saucer-bindings.dll
+saucer.dll
+libsaucer-bindings.so
+libsaucer.so
+libsaucer-bindings.dylib
+libsaucer.dylib
+
 # Misc
 .DS_Store
 __MACOSX
 examples/src/main/java/com/example/saucer4j/Test.java
 examples/src/main/resources/Test.html
-saucer-bindings.dll
