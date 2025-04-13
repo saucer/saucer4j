@@ -1,10 +1,10 @@
-package app.saucer._impl;
+package app.saucer.ntv.backends;
 
 import java.io.IOException;
 
-import app.saucer.ntv.backend.SaucerBackend;
-import app.saucer.ntv.backend.SaucerBackend.FindThisSaucerBackend;
-import app.saucer.ntv.backend.SaucerBackendType;
+import app.saucer.ntv.backends.SaucerBackend;
+import app.saucer.ntv.backends.SaucerBackendType;
+import app.saucer.ntv.backends.SaucerBackend.FindThisSaucerBackend;
 
 @FindThisSaucerBackend(0)
 public class BackendWebview2 extends SaucerBackend {

@@ -1,22 +1,20 @@
-package app.saucer._impl;
+package app.saucer.ntv.backends;
 
 import java.io.IOException;
 
-import app.saucer.ntv.backend.SaucerBackend;
-import app.saucer.ntv.backend.SaucerBackend.FindThisSaucerBackend;
-import app.saucer.ntv.backend.SaucerBackendType;
+import app.saucer.ntv.backends.SaucerBackend;
+import app.saucer.ntv.backends.SaucerBackendType;
+import app.saucer.ntv.backends.SaucerBackend.FindThisSaucerBackend;
 
-@FindThisSaucerBackend(1) // Should be higher priority than Qt5
-public class BackendQt6 extends SaucerBackend {
+@FindThisSaucerBackend(2) // Should be higher than Qt6
+public class BackendWebKitGtk extends SaucerBackend {
 
     @Override
     protected boolean checkDependencies() throws IOException {
         return checkForLibraries(
-            "Qt6WebEngineCore",
-            "Qt6WebEngineWidgets",
-            "Qt6WebChannel",
-            "Qt6Widgets",
-            "Qt6Core"
+            "libgtk-4",
+            "libwebkitgtk-6.0",
+            "libadwaita-1"
         );
     }
 
@@ -30,13 +28,16 @@ public class BackendQt6 extends SaucerBackend {
     @Override
     protected String[] supportedArchTargets() {
         return new String[] {
-                "x86_64"
+                "x86_64",
+                "aarch64",
+                "arm",
+                "ppc64le"
         };
     }
 
     @Override
     public SaucerBackendType getType() {
-        return SaucerBackendType.QT6;
+        return SaucerBackendType.WEBKITGTK;
     }
 
     @Override

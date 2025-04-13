@@ -1,4 +1,4 @@
-package app.saucer.ntv.backend;
+package app.saucer.ntv.backends;
 
 import lombok.AllArgsConstructor;
 

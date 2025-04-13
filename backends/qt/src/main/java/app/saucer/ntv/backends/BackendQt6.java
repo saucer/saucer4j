@@ -1,22 +1,22 @@
-package app.saucer._impl;
+package app.saucer.ntv.backends;
 
 import java.io.IOException;
 
-import app.saucer.ntv.backend.SaucerBackend;
-import app.saucer.ntv.backend.SaucerBackend.FindThisSaucerBackend;
-import app.saucer.ntv.backend.SaucerBackendType;
+import app.saucer.ntv.backends.SaucerBackend;
+import app.saucer.ntv.backends.SaucerBackendType;
+import app.saucer.ntv.backends.SaucerBackend.FindThisSaucerBackend;
 
-@FindThisSaucerBackend(0)
-public class BackendQt5 extends SaucerBackend {
+@FindThisSaucerBackend(1) // Should be higher priority than Qt5
+public class BackendQt6 extends SaucerBackend {
 
     @Override
     protected boolean checkDependencies() throws IOException {
         return checkForLibraries(
-            "Qt5WebEngineCore",
-            "Qt5WebEngineWidgets",
-            "Qt5WebChannel",
-            "Qt5Widgets",
-            "Qt5Core"
+            "Qt6WebEngineCore",
+            "Qt6WebEngineWidgets",
+            "Qt6WebChannel",
+            "Qt6Widgets",
+            "Qt6Core"
         );
     }
 
@@ -36,7 +36,7 @@ public class BackendQt5 extends SaucerBackend {
 
     @Override
     public SaucerBackendType getType() {
-        return SaucerBackendType.QT5;
+        return SaucerBackendType.QT6;
     }
 
     @Override

@@ -8,6 +8,7 @@ import app.saucer.Saucer;
 import app.saucer.SaucerApp;
 import app.saucer.bridge.JavascriptFunction;
 import app.saucer.bridge.JavascriptGetter;
+import app.saucer.bridge.JavascriptObject;
 import app.saucer.bridge.JavascriptSetter;
 import app.saucer.ntv._memory;
 import app.saucer.ntv._window;
@@ -34,6 +35,7 @@ import lombok.Setter;
  *          {@link SaucerApp#dispatch(Supplier)}.
  */
 @SuppressWarnings("deprecation")
+@JavascriptObject
 public class SaucerWindow {
     private final Saucer saucer;
 
