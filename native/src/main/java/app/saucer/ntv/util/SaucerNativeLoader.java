@@ -15,8 +15,8 @@ import org.reflections.Reflections;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 
-import app.saucer.ntv.backend.SaucerBackend;
-import app.saucer.ntv.backend.SaucerBackend.FindThisSaucerBackend;
+import app.saucer.ntv.backends.SaucerBackend;
+import app.saucer.ntv.backends.SaucerBackend.FindThisSaucerBackend;
 import lombok.Getter;
 import lombok.NonNull;
 
@@ -74,7 +74,7 @@ public class SaucerNativeLoader {
 
         try {
             @SuppressWarnings("deprecation")
-            List<SaucerBackend> backends = new Reflections(SaucerResourceUtil.class.getPackageName())
+            List<SaucerBackend> backends = new Reflections(SaucerBackend.class.getPackageName())
                 .getTypesAnnotatedWith(FindThisSaucerBackend.class)
                 .stream()
                 .map((clazz) -> {
@@ -95,18 +95,18 @@ public class SaucerNativeLoader {
 
             SaucerBackend chosenBackend = null;
             if (ep.containsKey(PROPERTY_FORCE_BACKEND)) {
-                for (SaucerBackend backend : backends) {
-                    if (backend.canLoad()) {
-                        chosenBackend = backend;
-                        break;
-                    }
-                }
-            } else {
                 // We don't even check if it's compatible. We trust that the user knows what
                 // they're doing in this case.
                 String forced = ep.get(PROPERTY_FORCE_BACKEND);
                 for (SaucerBackend backend : backends) {
                     if (backend.getType().name().equalsIgnoreCase(forced) || backend.getType().toString().equalsIgnoreCase(forced)) {
+                        chosenBackend = backend;
+                        break;
+                    }
+                }
+            } else {
+                for (SaucerBackend backend : backends) {
+                    if (backend.canLoad()) {
                         chosenBackend = backend;
                         break;
                     }
