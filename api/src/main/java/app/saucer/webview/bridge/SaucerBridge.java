@@ -35,8 +35,8 @@ import lombok.SneakyThrows;
  */
 @SuppressWarnings("deprecation")
 public class SaucerBridge {
-    private static final String init_fmt = SaucerResourceUtil.loadResourceString("bridge/init_fmt.js");
-    private static final String ipc_object_fmt = SaucerResourceUtil.loadResourceString("bridge/ipc_object_fmt.js");
+    private static final String init_fmt = SaucerResourceUtil.loadResourceString("webview/bridge/init_fmt.js");
+    private static final String ipc_object_fmt = SaucerResourceUtil.loadResourceString("webview/bridge/ipc_object_fmt.js");
 
     private final Saucer saucer;
     private final saucer_on_message messageCallback = this::onMessage;

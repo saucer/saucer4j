@@ -15,7 +15,7 @@ public class SaucerResourceUtil {
 
     @SneakyThrows
     public static InputStream loadResource(String name) {
-        String fullPath = "app/saucer/_impl/" + name;
+        String fullPath = "app/saucer/" + name;
 
         InputStream in = SaucerResourceUtil.class.getResourceAsStream(fullPath);
         if (in == null) {
