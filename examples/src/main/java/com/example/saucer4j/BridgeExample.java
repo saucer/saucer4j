@@ -3,13 +3,13 @@ package com.example.saucer4j;
 import java.io.IOException;
 
 import app.saucer.Saucer;
+import app.saucer.SaucerApp;
+import app.saucer.SaucerPreferences;
 import app.saucer.bridge.JavascriptFunction;
 import app.saucer.bridge.JavascriptGetter;
 import app.saucer.bridge.JavascriptObject;
 import app.saucer.bridge.JavascriptValue;
-import app.saucer.scheme.SaucerSchemeHandler;
-import app.saucer.utils.SaucerApp;
-import app.saucer.utils.SaucerPreferences;
+import app.saucer.webview.scheme.SaucerSchemeHandler;
 
 public class BridgeExample {
 
@@ -28,7 +28,7 @@ public class BridgeExample {
 
         saucer.webview().setContextMenuAllowed(true); // Allow the right-click menu.
 
-        saucer.webview().setSchemeHandler(SaucerSchemeHandler.fromResources(BridgeExample.class)); // Read the contents from our resources.
+        saucer.webview().addSchemeHandler("app", SaucerSchemeHandler.fromResources(BridgeExample.class)); // Read the contents from our resources.
         saucer.webview().setUrl("app://authority/BridgeExample.html");
 
         saucer.window().show();
@@ -40,6 +40,7 @@ public class BridgeExample {
     public static class BridgeObjectExample {
         private Saucer saucer;
 
+        @SuppressWarnings("unused")
         private final NestedBridgeObjectExample nested = new NestedBridgeObjectExample();
 
         /**

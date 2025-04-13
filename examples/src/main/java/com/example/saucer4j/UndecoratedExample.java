@@ -3,9 +3,9 @@ package com.example.saucer4j;
 import java.io.IOException;
 
 import app.saucer.Saucer;
-import app.saucer.scheme.SaucerSchemeHandler;
-import app.saucer.utils.SaucerApp;
-import app.saucer.utils.SaucerPreferences;
+import app.saucer.SaucerApp;
+import app.saucer.SaucerPreferences;
+import app.saucer.webview.scheme.SaucerSchemeHandler;
 
 public class UndecoratedExample {
 
@@ -23,7 +23,7 @@ public class UndecoratedExample {
         saucer.window().showDecorations(false);
         saucer.webview().setContextMenuAllowed(true); // Allow the right-click menu.
 
-        saucer.webview().setSchemeHandler(SaucerSchemeHandler.fromResources(UndecoratedExample.class)); // Read the contents from our resources.
+        saucer.webview().addSchemeHandler("app", SaucerSchemeHandler.fromResources(UndecoratedExample.class)); // Read the contents from our resources.
         saucer.webview().setUrl("app://authority/UndecoratedExample.html");
 
         saucer.window().show();

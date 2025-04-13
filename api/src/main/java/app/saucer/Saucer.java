@@ -1,85 +1,152 @@
 package app.saucer;
 
 import java.io.Closeable;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Supplier;
 
-import app.saucer._impl._ImplSaucer;
-import app.saucer._impl._SaucerNative;
-import app.saucer.documentation.AvailableFromJS;
-import app.saucer.documentation.NotThreadSafe;
-import app.saucer.utils.SaucerPreferences;
-import co.casterlabs.commons.platform.LinuxLibC;
-import co.casterlabs.commons.platform.Platform;
+import app.saucer.documentation.InternalUseOnly;
+import app.saucer.ntv._webview;
+import app.saucer.ntv._window;
+import app.saucer.ntv._window.SAUCER_WINDOW_EVENT;
+import app.saucer.ntv._window.SAUCER_WINDOW_EVENT.WindowClosedCallback;
+import app.saucer.ntv._window.saucer_handle;
+import app.saucer.ntv.backend.SaucerBackend;
+import app.saucer.ntv.backend.SaucerBackendType;
+import app.saucer.ntv.documentation.BeforeInit;
+import app.saucer.ntv.documentation.NotThreadSafe;
+import app.saucer.ntv.util.SaucerBoxedType;
+import app.saucer.ntv.util.SaucerNativeLoader;
+import app.saucer.webview.SaucerWebview;
+import app.saucer.webview.bridge.SaucerBridge;
+import app.saucer.webview.bridge.SaucerMessages;
+import app.saucer.webview.window.SaucerWindow;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 
-@SuppressWarnings("deprecation")
-public interface Saucer extends Closeable {
+/**
+ * @apiNote This class is not thread-safe. You must call it from the main thread
+ *          or use {@link SaucerApp#dispatch(Runnable)} or
+ *          {@link SaucerApp#dispatch(Supplier)}.
+ */
+@NotThreadSafe
+public class Saucer extends SaucerBoxedType<saucer_handle> implements Closeable {
+    private static final Set<String> customSchemes = new HashSet<>();
+    public static final Set<String> registeredSchemes = Collections.unmodifiableSet(customSchemes);
 
-    @AvailableFromJS
-    public SaucerWebview webview();
+    private static Set<Saucer> instances = new HashSet<>();
+    private static boolean alreadyLoaded = false;
 
-    @AvailableFromJS
-    public SaucerWindow window();
+    private volatile @Getter boolean isClosed = false;
 
-    @AvailableFromJS
-    public SaucerBridge bridge();
+    private final SaucerWebview webview;
+    private final SaucerWindow window;
+    private final SaucerBridge bridge;
+    private final SaucerMessages messages;
 
-    @AvailableFromJS
-    public SaucerMessages messages();
+    private WindowClosedCallback shutdownCallback = (_unused) -> {
+        this.isClosed = true;
+        instances.remove(this);
+    };
 
     /**
-     * Closes the webview, causing {@link #run()} to return. This also frees any
-     * resources associated with Saucer.
+     * @deprecated Native interop only.
      */
-    @AvailableFromJS
-    @Override
-    public void close();
+    @Deprecated
+    @InternalUseOnly
+    public Saucer(saucer_handle $ref) {
+        super($ref);
 
-    @NotThreadSafe
+        // Keep this object in memory so that it doesn't get free()'d while Saucer is
+        // trying to work on it.
+        instances.add(this);
+
+        _window.N.saucer_window_on($ref, SAUCER_WINDOW_EVENT.CLOSED, this.shutdownCallback);
+
+        this.webview = new SaucerWebview(this);
+        this.window = new SaucerWindow(this);
+        this.bridge = new SaucerBridge(this);
+        this.messages = new SaucerMessages(this);
+    }
+
+    /**
+     * @deprecated Native interop only.
+     */
+    @Deprecated
+    @InternalUseOnly
+    public saucer_handle ntv() {
+        assert !this.isClosed : "This instance has been closed.";
+        return $ref;
+    }
+
+    /* ------------------------------------ */
+    /* ------------------------------------ */
+    /* ------------------------------------ */
+
+    @BeforeInit
+    public static void registerCustomScheme(@NonNull String scheme) {
+        assert !alreadyLoaded : "You must register all of your custom schemes before calling Saucer.create()";
+        assert !customSchemes.contains(scheme) : "Scheme '" + scheme + "' is already registered!";
+
+        _webview.N.saucer_register_scheme(scheme);
+        customSchemes.add(scheme);
+    }
+
     public static Saucer create() {
         return create(SaucerPreferences.create());
     }
 
     @SneakyThrows
-    @NotThreadSafe
     public static Saucer create(@NonNull SaucerPreferences preferences) {
-        return _ImplSaucer.create(preferences);
+        saucer_handle handle = _webview.N.saucer_new(SaucerBoxedType.ntv(preferences));
+        return new Saucer(handle);
     }
 
-    public static void registerCustomScheme(@NonNull String scheme) {
-        _ImplSaucer.registerCustomScheme(scheme);
+    /* ------------------------------------ */
+    /* ------------------------------------ */
+    /* ------------------------------------ */
+
+    public SaucerWebview webview() {
+        return this.webview;
     }
 
-    @AvailableFromJS
+    public SaucerWindow window() {
+        return this.window;
+    }
+
+    public SaucerBridge bridge() {
+        return this.bridge;
+    }
+
+    public SaucerMessages messages() {
+        return this.messages;
+    }
+
+    @Override
+    public void close() {
+        if (this.isClosed) return;
+        this.isClosed = true;
+        instances.remove(this);
+        _window.N.saucer_window_close($ref);
+    }
+
+    /* ------------------------------------ */
+    /* ------------------------------------ */
+    /* ------------------------------------ */
+
     public static String getArchTarget() {
-        return Platform.archTarget;
+        return SaucerBackend.getArchTarget();
     }
 
-    @AvailableFromJS
     @SneakyThrows
     public static String getSystemTarget() {
-        switch (Platform.osDistribution) {
-            case LINUX:
-                if (LinuxLibC.isGNU()) {
-                    return "GNU_Linux";
-                } else {
-                    return null;
-                }
-
-            case WINDOWS_NT:
-                return "Windows";
-
-            case MACOS:
-                return "macOS";
-
-            default:
-                return null;
-        }
+        return SaucerBackend.getSystemTarget();
     }
 
-    @AvailableFromJS
-    public static SaucerBackendType getBackend() {
-        return _SaucerNative.backend;
+    public static SaucerBackendType getBackendType() {
+        return SaucerNativeLoader.getBackend().getType();
     }
 
 }

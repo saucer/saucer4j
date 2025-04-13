@@ -2,29 +2,27 @@ package app.saucer._impl;
 
 import java.io.IOException;
 
-import app.saucer.SaucerBackendType;
-import app.saucer._impl._SaucerBackend.FindThisSaucerBackend;
-import co.casterlabs.commons.platform.OSDistribution;
-import co.casterlabs.commons.platform.Platform;
+import app.saucer.ntv.backend.SaucerBackend;
+import app.saucer.ntv.backend.SaucerBackend.FindThisSaucerBackend;
+import app.saucer.ntv.backend.SaucerBackendType;
 
-@SuppressWarnings("deprecation")
 @FindThisSaucerBackend(0)
-public class BackendWebkit extends _SaucerBackend {
+public class BackendWebkit extends SaucerBackend {
 
     @Override
-    public boolean checkDependencies() throws IOException {
-        return Platform.osDistribution == OSDistribution.MACOS;
+    protected boolean checkDependencies() throws IOException {
+        return true; // TODO check the macOS version.
     }
 
     @Override
-    public String[] supportedSystemTargets() {
+    protected String[] supportedSystemTargets() {
         return new String[] {
                 "macOS"
         };
     }
 
     @Override
-    public String[] supportedArchTargets() {
+    protected String[] supportedArchTargets() {
         return new String[] {
                 "aarch64",
                 "x86_64"

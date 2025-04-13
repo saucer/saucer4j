@@ -2,15 +2,15 @@ package app.saucer._impl;
 
 import java.io.IOException;
 
-import app.saucer.SaucerBackendType;
-import app.saucer._impl._SaucerBackend.FindThisSaucerBackend;
+import app.saucer.ntv.backend.SaucerBackend;
+import app.saucer.ntv.backend.SaucerBackend.FindThisSaucerBackend;
+import app.saucer.ntv.backend.SaucerBackendType;
 
-@SuppressWarnings("deprecation")
 @FindThisSaucerBackend(-101)
-public class ExperimentalBackendQt5 extends _SaucerBackend {
+public class ExperimentalBackendQt5 extends SaucerBackend {
 
     @Override
-    public boolean checkDependencies() throws IOException {
+    protected boolean checkDependencies() throws IOException {
         return checkForLibraries(
             "Qt5WebEngineCore",
             "Qt5WebEngineWidgets",
@@ -21,14 +21,14 @@ public class ExperimentalBackendQt5 extends _SaucerBackend {
     }
 
     @Override
-    public String[] supportedSystemTargets() {
+    protected String[] supportedSystemTargets() {
         return new String[] {
                 "GNU_Linux"
         };
     }
 
     @Override
-    public String[] supportedArchTargets() {
+    protected String[] supportedArchTargets() {
         return new String[] {
                 "aarch64"
         };

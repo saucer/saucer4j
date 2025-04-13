@@ -2,21 +2,15 @@ package app.saucer._impl;
 
 import java.io.IOException;
 
-import app.saucer.SaucerBackendType;
-import app.saucer._impl._SaucerBackend.FindThisSaucerBackend;
-import co.casterlabs.commons.platform.OSDistribution;
-import co.casterlabs.commons.platform.Platform;
+import app.saucer.ntv.backend.SaucerBackend;
+import app.saucer.ntv.backend.SaucerBackend.FindThisSaucerBackend;
+import app.saucer.ntv.backend.SaucerBackendType;
 
-@SuppressWarnings("deprecation")
 @FindThisSaucerBackend(0)
-public class BackendWebview2 extends _SaucerBackend {
+public class BackendWebview2 extends SaucerBackend {
 
     @Override
-    public boolean checkDependencies() throws IOException {
-        if (Platform.osDistribution != OSDistribution.WINDOWS_NT) {
-            return false;
-        }
-
+    protected boolean checkDependencies() throws IOException {
 //        if (!checkForLibraries(
 //            "MSVCP140",
 //            "VCRUNTIME140"
@@ -36,14 +30,14 @@ public class BackendWebview2 extends _SaucerBackend {
     }
 
     @Override
-    public String[] supportedSystemTargets() {
+    protected String[] supportedSystemTargets() {
         return new String[] {
                 "Windows"
         };
     }
 
     @Override
-    public String[] supportedArchTargets() {
+    protected String[] supportedArchTargets() {
         return new String[] {
                 "x86_64"
         };

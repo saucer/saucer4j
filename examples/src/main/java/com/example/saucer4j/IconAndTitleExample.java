@@ -3,10 +3,10 @@ package com.example.saucer4j;
 import java.io.IOException;
 
 import app.saucer.Saucer;
-import app.saucer.SaucerWebview.SaucerWebviewListener;
-import app.saucer.utils.SaucerApp;
-import app.saucer.utils.SaucerIcon;
-import app.saucer.utils.SaucerPreferences;
+import app.saucer.SaucerApp;
+import app.saucer.SaucerPreferences;
+import app.saucer.webview.SaucerWebviewListener;
+import app.saucer.webview.window.SaucerIcon;
 
 public class IconAndTitleExample {
 

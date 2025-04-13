@@ -3,9 +3,9 @@ package com.example.saucer4j;
 import java.io.IOException;
 
 import app.saucer.Saucer;
-import app.saucer.scheme.SaucerSchemeHandler;
-import app.saucer.utils.SaucerApp;
-import app.saucer.utils.SaucerPreferences;
+import app.saucer.SaucerApp;
+import app.saucer.SaucerPreferences;
+import app.saucer.webview.scheme.SaucerSchemeHandler;
 
 public class FullEmbeddedSiteExample {
 
@@ -23,7 +23,7 @@ public class FullEmbeddedSiteExample {
         saucer.webview().setDevtoolsVisible(true);
         saucer.webview().setContextMenuAllowed(true); // Allow the right-click menu.
 
-        saucer.webview().setSchemeHandler(SaucerSchemeHandler.fromResources(FullEmbeddedSiteExample.class, "/full"));  // Scan for files under the name `/full` in the current jar.
+        saucer.webview().addSchemeHandler("app", SaucerSchemeHandler.fromResources(FullEmbeddedSiteExample.class, "/full"));  // Scan for files under the name `/full` in the current jar.
         saucer.webview().setUrl("app://authority/index.html"); // Tell Saucer to serve the index file.
 
         saucer.window().show();

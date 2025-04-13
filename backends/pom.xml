@@ -22,12 +22,6 @@
 	<dependencies>
 		<dependency>
 			<groupId>app.saucer.saucer4j</groupId>
-			<artifactId>api</artifactId>
-			<version>${project.parent.version}</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>app.saucer.saucer4j</groupId>
 			<artifactId>native</artifactId>
 			<version>${project.parent.version}</version>
 			<scope>compile</scope>

@@ -2,15 +2,15 @@ package app.saucer._impl;
 
 import java.io.IOException;
 
-import app.saucer.SaucerBackendType;
-import app.saucer._impl._SaucerBackend.FindThisSaucerBackend;
+import app.saucer.ntv.backend.SaucerBackend;
+import app.saucer.ntv.backend.SaucerBackend.FindThisSaucerBackend;
+import app.saucer.ntv.backend.SaucerBackendType;
 
-@SuppressWarnings("deprecation")
 @FindThisSaucerBackend(1) // Should be higher priority than Qt5
-public class BackendQt6 extends _SaucerBackend {
+public class BackendQt6 extends SaucerBackend {
 
     @Override
-    public boolean checkDependencies() throws IOException {
+    protected boolean checkDependencies() throws IOException {
         return checkForLibraries(
             "Qt6WebEngineCore",
             "Qt6WebEngineWidgets",
@@ -21,14 +21,14 @@ public class BackendQt6 extends _SaucerBackend {
     }
 
     @Override
-    public String[] supportedSystemTargets() {
+    protected String[] supportedSystemTargets() {
         return new String[] {
                 "GNU_Linux"
         };
     }
 
     @Override
-    public String[] supportedArchTargets() {
+    protected String[] supportedArchTargets() {
         return new String[] {
                 "x86_64"
         };
