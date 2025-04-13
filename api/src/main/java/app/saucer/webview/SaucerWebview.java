@@ -96,11 +96,9 @@ public class SaucerWebview {
     };
 
     private final WebviewLoadCallback loadCallback = (_unused, $state) -> {
-        try ($state) {
-            if (this.listener != null) {
-                SaucerWebviewLoadState state = SaucerWebviewLoadState.values()[$state.asInt()];
-                this.listener.onLoad(state);
-            }
+        if (this.listener != null) {
+            SaucerWebviewLoadState state = SaucerWebviewLoadState.values()[$state.asInt()];
+            this.listener.onLoad(state);
         }
     };
 
