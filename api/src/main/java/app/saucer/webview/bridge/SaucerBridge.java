@@ -66,7 +66,7 @@ public class SaucerBridge {
                     new JsonObject()
                         .put("archTarget", Saucer.getArchTarget())
                         .put("systemTarget", Saucer.getSystemTarget())
-                        .put("backend", Saucer.getBackendType().name())
+                        .put("backend", Saucer.getBackendType().toString())
                 ),
                 SaucerLoadTime.DOM_CREATION
             )
