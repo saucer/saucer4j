@@ -4,6 +4,8 @@ import java.io.Closeable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 
 import app.saucer.documentation.InternalUseOnly;
@@ -11,9 +13,9 @@ import app.saucer.ntv._webview;
 import app.saucer.ntv._window;
 import app.saucer.ntv._window.SAUCER_WINDOW_EVENT;
 import app.saucer.ntv._window.SAUCER_WINDOW_EVENT.WindowClosedCallback;
+import app.saucer.ntv._window.saucer_handle;
 import app.saucer.ntv.backends.SaucerBackend;
 import app.saucer.ntv.backends.SaucerBackendType;
-import app.saucer.ntv._window.saucer_handle;
 import app.saucer.ntv.documentation.BeforeInit;
 import app.saucer.ntv.documentation.NotThreadSafe;
 import app.saucer.ntv.util.SaucerBoxedType;
@@ -39,6 +41,8 @@ public class Saucer extends SaucerBoxedType<saucer_handle> implements Closeable 
     private static Set<Saucer> instances = new HashSet<>();
     private static boolean alreadyLoaded = false;
 
+    private ExecutorService asyncExecutor = Executors.newSingleThreadExecutor();
+
     private volatile @Getter boolean isClosed = false;
 
     private final SaucerWebview webview;
@@ -49,6 +53,7 @@ public class Saucer extends SaucerBoxedType<saucer_handle> implements Closeable 
     private WindowClosedCallback shutdownCallback = (_unused) -> {
         this.isClosed = true;
         instances.remove(this);
+        this.asyncExecutor.shutdown();
     };
 
     /**
@@ -67,7 +72,7 @@ public class Saucer extends SaucerBoxedType<saucer_handle> implements Closeable 
 
         this.webview = new SaucerWebview(this);
         this.window = new SaucerWindow(this);
-        this.bridge = new SaucerBridge(this);
+        this.bridge = new SaucerBridge(this, this.asyncExecutor);
         this.messages = new SaucerMessages(this);
     }
 
@@ -129,6 +134,7 @@ public class Saucer extends SaucerBoxedType<saucer_handle> implements Closeable 
         if (this.isClosed) return;
         this.isClosed = true;
         instances.remove(this);
+        this.asyncExecutor.shutdown();
         _window.N.saucer_window_close($ref);
     }
 
