@@ -25,4 +25,9 @@ public class size_t extends IntegerType {
         return new size_t(value);
     }
 
+    @Override
+    public String toString() {
+        return String.valueOf(this.longValue());
+    }
+
 }
