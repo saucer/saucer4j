@@ -15,7 +15,9 @@ import app.saucer.ntv.util.SaucerBoxedType;
 import app.saucer.ntv.util.SaucerPointerReference;
 import app.saucer.ntv.util.size_t;
 import lombok.NonNull;
+import lombok.ToString;
 
+@ToString
 public final class SaucerIcon extends SaucerBoxedType<saucer_icon> {
 
     /**
@@ -51,6 +53,17 @@ public final class SaucerIcon extends SaucerBoxedType<saucer_icon> {
     /* ------------------------------------ */
     /* ------------------------------------ */
     /* ------------------------------------ */
+
+    @ToString.Include
+    private size_t size() {
+        @RequiresFree
+        saucer_stash stash = _icon.N.saucer_icon_data($ref);
+        try {
+            return _stash.N.saucer_stash_size(stash);
+        } finally {
+            _stash.N.saucer_stash_free(stash);
+        }
+    }
 
     /**
      * @return PNG
