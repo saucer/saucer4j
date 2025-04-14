@@ -69,13 +69,11 @@ public class SaucerFilePicker extends SaucerBoxedType<saucer_picker_options> {
     public @Nullable File pickSingle() {
         SaucerPointerReference<String> pathRef = null;
         try {
-            pathRef = SaucerApp.dispatch(() -> {
-                if (this.mode == PickerMode.FILES_ONLY) {
-                    return _desktop.N.saucer_desktop_pick_file(SaucerApp.ntv_desktop(), $ref);
-                } else {
-                    return _desktop.N.saucer_desktop_pick_folder(SaucerApp.ntv_desktop(), $ref);
-                }
-            });
+            if (this.mode == PickerMode.FILES_ONLY) {
+                pathRef = _desktop.N.saucer_desktop_pick_file(SaucerApp.ntv_desktop(), $ref);
+            } else {
+                pathRef = _desktop.N.saucer_desktop_pick_folder(SaucerApp.ntv_desktop(), $ref);
+            }
 
             if (pathRef == null || pathRef.isNull()) {
                 return null;
