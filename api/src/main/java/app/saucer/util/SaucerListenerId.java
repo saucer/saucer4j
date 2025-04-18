@@ -5,7 +5,7 @@ import java.util.UUID;
 /**
  * This is an opaque type.
  */
-public class SaucerListenerId {
+public final class SaucerListenerId {
     private int hash = UUID.randomUUID().toString().hashCode();
 
     @Override

@@ -52,7 +52,7 @@ import lombok.Setter;
  */
 @SuppressWarnings("deprecation")
 @JavascriptObject
-public class SaucerWebview {
+public final class SaucerWebview {
     private final Saucer saucer;
 
     private @Setter @Nullable SaucerWebviewListener listener;

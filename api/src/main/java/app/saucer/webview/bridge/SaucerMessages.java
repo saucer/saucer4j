@@ -22,7 +22,7 @@ import lombok.NonNull;
  *          or use {@link SaucerApp#dispatch(Runnable)} or
  *          {@link SaucerApp#dispatch(Supplier)}.
  */
-public class SaucerMessages {
+public final class SaucerMessages {
     private Map<SaucerListenerId, Consumer<JsonElement>> listeners = new HashMap<>();
     private final Saucer saucer;
 

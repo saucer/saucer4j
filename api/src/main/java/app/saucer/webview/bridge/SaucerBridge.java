@@ -35,7 +35,7 @@ import lombok.SneakyThrows;
  *          {@link SaucerApp#dispatch(Supplier)}.
  */
 @SuppressWarnings("deprecation")
-public class SaucerBridge {
+public final class SaucerBridge {
     private static final String init_fmt = SaucerResourceUtil.loadResourceString("webview/bridge/init_fmt.js");
     private static final String ipc_object_fmt = SaucerResourceUtil.loadResourceString("webview/bridge/ipc_object_fmt.js");
 

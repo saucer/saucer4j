@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import lombok.NonNull;
 
-public class MimeTypes {
+public final class MimeTypes {
     private static Map<String, String> mimeTypes = new HashMap<>();
     static {
         mimeTypes.put("3dm", "x-world/x-3dmf");

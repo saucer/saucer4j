@@ -13,7 +13,7 @@ import app.saucer.ntv.util.SaucerPointerReference;
 import lombok.NonNull;
 
 @SuppressWarnings("deprecation")
-public class SaucerFilePicker extends SaucerBoxedType<saucer_picker_options> {
+public final class SaucerFilePicker extends SaucerBoxedType<saucer_picker_options> {
     private PickerMode mode = PickerMode.FILES_ONLY;
 
     /**

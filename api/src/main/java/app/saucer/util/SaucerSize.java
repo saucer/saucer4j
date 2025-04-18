@@ -18,7 +18,7 @@ import lombok.ToString;
 @EqualsAndHashCode
 @AllArgsConstructor
 @JsonClass(serializer = SaucerSizeSerializer.class)
-public class SaucerSize {
+public final class SaucerSize {
     public final int width;
     public final int height;
 

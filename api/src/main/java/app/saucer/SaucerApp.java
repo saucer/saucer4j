@@ -15,7 +15,7 @@ import app.saucer.ntv._options.saucer_options;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 
-public class SaucerApp {
+public final class SaucerApp {
     private static saucer_application $app;
     private static saucer_desktop $desktop;
 

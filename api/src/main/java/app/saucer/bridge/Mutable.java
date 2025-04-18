@@ -35,7 +35,7 @@ import lombok.NonNull;
  * @implSpec This contains an internal counter for determining set()s, and the
  *           hashCode returned is just the current iteration.
  */
-public class Mutable<T> {
+public final class Mutable<T> {
     public final TypeToken<T> type;
 
     private volatile T value = null;

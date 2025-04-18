@@ -36,7 +36,7 @@ import lombok.Setter;
  */
 @SuppressWarnings("deprecation")
 @JavascriptObject
-public class SaucerWindow {
+public final class SaucerWindow {
     private final Saucer saucer;
 
     private @Setter @Nullable SaucerWindowListener listener;

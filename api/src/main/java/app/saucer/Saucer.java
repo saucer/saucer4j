@@ -34,7 +34,7 @@ import lombok.SneakyThrows;
  *          {@link SaucerApp#dispatch(Supplier)}.
  */
 @NotThreadSafe
-public class Saucer extends SaucerBoxedType<saucer_handle> implements Closeable {
+public final class Saucer extends SaucerBoxedType<saucer_handle> implements Closeable {
     private static final Set<String> customSchemes = new HashSet<>();
     public static final Set<String> registeredSchemes = Collections.unmodifiableSet(customSchemes);
 
