@@ -238,14 +238,13 @@ public class SaucerBridge {
 
         // Look for sub-objects and register them.
         // Note that this recurses until there are no more sub-objects.
-        for (Field f : _JavascriptObjectWrapper.getAllFields(obj, obj.getClass())) {
-            f.setAccessible(true);
-
+        for (Field f : _Reflection.getAllFields(obj.getClass())) {
             if (Modifier.isStatic(f.getModifiers())) {
                 continue;
             }
 
             if (f.getType().isAnnotationPresent(JavascriptObject.class)) {
+                f.setAccessible(true);
                 this.defineObject(name + "." + f.getName(), f.get(obj));
             }
         }
