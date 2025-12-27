@@ -2,17 +2,14 @@ package app.saucer.webview.window;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.sun.jna.Native;
+import com.sun.jna.ptr.IntByReference;
 
-import app.saucer.documentation.InternalUseOnly;
-import app.saucer.ntv._icon;
-import app.saucer.ntv._icon.saucer_icon;
-import app.saucer.ntv._memory;
-import app.saucer.ntv._stash;
-import app.saucer.ntv._stash.saucer_stash;
-import app.saucer.ntv.documentation.RequiresFree;
+import app.saucer.ntv.ntv_icon;
+import app.saucer.ntv.ntv_icon.saucer_icon;
+import app.saucer.ntv.ntv_stash;
+import app.saucer.ntv.ntv_stash.saucer_stash;
+import app.saucer.ntv.documentation.InternalUseOnly;
 import app.saucer.ntv.util.SaucerBoxedType;
-import app.saucer.ntv.util.SaucerPointerReference;
 import app.saucer.ntv.util.size_t;
 import lombok.NonNull;
 import lombok.ToString;
@@ -29,24 +26,29 @@ public final class SaucerIcon extends SaucerBoxedType<saucer_icon> {
         super($ref);
     }
 
+    @Override
+    public SaucerIcon clone() {
+        saucer_icon cpy = ntv_icon.N.saucer_icon_copy($ref);
+        return new SaucerIcon(cpy);
+    }
+
     /**
-     * @param  data PNG
-     * 
-     * @return      null if failed
+     * @param data PNG
      */
     public static @Nullable SaucerIcon from(@NonNull byte[] data) {
-        @RequiresFree
-        saucer_stash stash = _stash.N.saucer_stash_from(data, new size_t(data.length));
-        try (SaucerPointerReference<saucer_icon> $result = _memory.N.saucer_memory_alloc(new size_t(Native.POINTER_SIZE))) {
-            _icon.N.saucer_icon_from_data($result, stash);
+        saucer_stash stash = ntv_stash.N.saucer_stash_new_from(data, new size_t(data.length));
+        IntByReference error = new IntByReference(0);
 
-            if ($result.referenced().isNull()) {
-                return null;
+        try {
+            saucer_icon icon = ntv_icon.N.saucer_icon_new_from_stash(stash, error);
+
+            if (error.getValue() != 0) {
+                throw new IllegalArgumentException("Failed to create SaucerUrl from string, error code: " + error.getValue());
             }
 
-            return new SaucerIcon($result.referenced().as(saucer_icon.class));
+            return new SaucerIcon(icon); // do not free the stash, it's used by the icon
         } finally {
-            _stash.N.saucer_stash_free(stash);
+            stash.close();
         }
     }
 
@@ -56,12 +58,8 @@ public final class SaucerIcon extends SaucerBoxedType<saucer_icon> {
 
     @ToString.Include
     private size_t size() {
-        @RequiresFree
-        saucer_stash stash = _icon.N.saucer_icon_data($ref);
-        try {
-            return _stash.N.saucer_stash_size(stash);
-        } finally {
-            _stash.N.saucer_stash_free(stash);
+        try (saucer_stash stash = ntv_icon.N.saucer_icon_data($ref)) {
+            return ntv_stash.N.saucer_stash_size(stash);
         }
     }
 
@@ -69,17 +67,13 @@ public final class SaucerIcon extends SaucerBoxedType<saucer_icon> {
      * @return PNG
      */
     public byte[] data() {
-        @RequiresFree
-        saucer_stash stash = _icon.N.saucer_icon_data($ref);
-        try {
-            return _stash.N.saucer_stash_data(stash);
-        } finally {
-            _stash.N.saucer_stash_free(stash);
+        try (saucer_stash stash = ntv_icon.N.saucer_icon_data($ref)) {
+            return ntv_stash.N.saucer_stash_data(stash);
         }
     }
 
     public boolean isEmpty() {
-        return _icon.N.saucer_icon_empty($ref);
+        return ntv_icon.N.saucer_icon_empty($ref);
     }
 
 }

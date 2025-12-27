@@ -4,20 +4,26 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.function.Supplier;
 
-import app.saucer.documentation.InternalUseOnly;
-import app.saucer.ntv._app;
-import app.saucer.ntv._app.saucer_application;
-import app.saucer.ntv._app.saucer_post_callback;
-import app.saucer.ntv._desktop;
-import app.saucer.ntv._desktop.saucer_desktop;
-import app.saucer.ntv._options;
-import app.saucer.ntv._options.saucer_options;
+import com.sun.jna.ptr.IntByReference;
+
+import app.saucer.ntv.ntv_app;
+import app.saucer.ntv.ntv_app.saucer_application;
+import app.saucer.ntv.ntv_app.saucer_application_options;
+import app.saucer.ntv.ntv_app.saucer_post_callback;
+import app.saucer.ntv.ntv_desktop.saucer_desktop;
+import app.saucer.ntv.ntv_loop;
+import app.saucer.ntv.ntv_loop.saucer_loop;
+import app.saucer.ntv.backends.SaucerBackend;
+import app.saucer.ntv.backends.SaucerBackendType;
+import app.saucer.ntv.documentation.InternalUseOnly;
+import app.saucer.ntv.util.SaucerNativeLoader;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 
 public final class SaucerApp {
     private static saucer_application $app;
     private static saucer_desktop $desktop;
+    private static saucer_loop $loop;
 
     private static Thread mainThread;
 
@@ -33,6 +39,21 @@ public final class SaucerApp {
     public static saucer_desktop ntv_desktop() {
         checkState();
         return $desktop;
+    }
+
+    private static void cleanup() {
+        if ($desktop != null) {
+            $desktop.close();
+            $desktop = null;
+        }
+        if ($app != null) {
+            $app.close();
+            $app = null;
+        }
+        if ($loop != null) {
+            $loop.close();
+            $loop = null;
+        }
     }
 
     private static void checkState() {
@@ -52,20 +73,24 @@ public final class SaucerApp {
      * 
      * @apiNote The thread you call this from becomes the main thread.
      */
-    public static void initialize(@NonNull String appId) {
+    public static void initialize(@NonNull String appId, boolean quitOnLastWindowClose) {
         if ($app != null) return; // Silently fail if the app has already been initialized.
 
-        saucer_options $options = _options.N.saucer_options_new(appId);
-        try {
-//            _options.N.saucer_options_set_argc($options, 0);
-//            _options.N.saucer_options_set_argv($options, null);
+        try (saucer_application_options $options = ntv_app.N.saucer_application_options_new(appId)) {
+//            ntv_app.N.saucer_application_options_set_argc($options, 0);
+//            ntv_app.N.saucer_application_options_set_argv($options, null);
+            ntv_app.N.saucer_application_options_set_quit_on_last_window_closed($options, quitOnLastWindowClose);
 
-            $app = _app.N.saucer_application_init($options);
+            IntByReference error = new IntByReference(0);
+
+            $app = ntv_app.N.saucer_application_new($options, error);
+
+            if (error.getValue() != 0) {
+                throw new IllegalStateException("Failed to initialize SaucerApp, error code: " + error.getValue());
+            }
+
+            $loop = ntv_loop.N.saucer_loop_new($app);
             mainThread = Thread.currentThread();
-
-            $desktop = _desktop.N.saucer_desktop_new($app);
-        } finally {
-            _options.N.saucer_options_free($options);
         }
     }
 
@@ -77,14 +102,10 @@ public final class SaucerApp {
         checkState();
         checkMainThread();
 
-        _app.N.saucer_application_run($app);
+        ntv_loop.N.saucer_loop_run($loop);
 
         // After run() returns, the app is done. So we free and set null.
-        $desktop.close();
-        $app.close();
-
-        $app = null;
-        mainThread = null;
+        cleanup();
     }
 
     /**
@@ -95,17 +116,15 @@ public final class SaucerApp {
         if ($app == null) return; // Silently fail if the app has not been initialized.
         checkMainThread();
 
-        _app.N.saucer_application_run_once($app);
+        ntv_loop.N.saucer_loop_iteration($loop);
     }
 
     public static void quit() {
         if ($app == null) return;
 
-        saucer_application old_$instance = $app;
         dispatch(() -> {
-            _app.N.saucer_application_quit(old_$instance);
-            $desktop.close();
-            $app.close();
+            ntv_loop.N.saucer_loop_quit($loop);
+            cleanup();
         });
         $app = null;
         mainThread = null;
@@ -138,7 +157,7 @@ public final class SaucerApp {
         }
 
         CompletableFuture<T> future = new CompletableFuture<>();
-        saucer_post_callback callback = () -> {
+        saucer_post_callback callback = (_unused) -> { // will not be gc'd because future is referenced
             try {
                 future.complete(task.get());
             } catch (Throwable t) {
@@ -146,13 +165,34 @@ public final class SaucerApp {
             }
         };
 
-        _app.N.saucer_application_post($app, callback);
+        ntv_app.N.saucer_application_post($app, callback, null);
 
         try {
             return future.join();
         } catch (CompletionException e) {
             throw e.getCause();
         }
+    }
+
+    /* ------------------------------------ */
+    /* ------------------------------------ */
+    /* ------------------------------------ */
+
+    public static String getArchTarget() {
+        return SaucerBackend.getArchTarget();
+    }
+
+    @SneakyThrows
+    public static String getSystemTarget() {
+        return SaucerBackend.getSystemTarget();
+    }
+
+    public static SaucerBackendType getBackendType() {
+        return SaucerNativeLoader.getBackend().getType();
+    }
+
+    public static String getVersion() {
+        return ntv_app.N.saucer_version();
     }
 
 }

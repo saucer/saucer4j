@@ -6,8 +6,6 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import app.saucer.ntv._memory;
-
 /**
  * Requires that {@link _memory#saucer_memory_free()} be called.
  */

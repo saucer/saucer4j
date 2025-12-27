@@ -7,9 +7,10 @@ import java.util.function.Supplier;
 
 import org.jetbrains.annotations.Nullable;
 
-import app.saucer.Saucer;
 import app.saucer.SaucerApp;
+import app.saucer.ntv.documentation.InternalUseOnly;
 import app.saucer.util.SaucerListenerId;
+import app.saucer.webview.SaucerWebview;
 import co.casterlabs.rakurai.json.Rson;
 import co.casterlabs.rakurai.json.TypeToken;
 import co.casterlabs.rakurai.json.element.JsonElement;
@@ -24,17 +25,15 @@ import lombok.NonNull;
  */
 public final class SaucerMessages {
     private Map<SaucerListenerId, Consumer<JsonElement>> listeners = new HashMap<>();
-    private final Saucer saucer;
+    private final SaucerWebview webview;
 
     /**
      * @deprecated Native interop only.
-     * 
-     * @implNote   This class does not free() itself automatically, which differs
-     *             from most BoxedTypes.
      */
     @Deprecated
-    public SaucerMessages(Saucer saucer) {
-        this.saucer = saucer;
+    @InternalUseOnly
+    public SaucerMessages(SaucerWebview webview) {
+        this.webview = webview;
     }
 
     /* ------------------------------------ */
@@ -75,7 +74,7 @@ public final class SaucerMessages {
      *               add @JsonClass or @JsonExpose to your code for this to work.
      */
     public void emit(@NonNull Object data) {
-        this.saucer.bridge().executeJavaScript(
+        this.webview.bridge.executeJavaScript(
             String.format(
                 "window.saucer.messages.__internal(%s);",
                 Rson.DEFAULT.toJson(data).toString()

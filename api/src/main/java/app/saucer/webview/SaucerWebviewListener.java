@@ -1,12 +1,13 @@
 package app.saucer.webview;
 
+import app.saucer.util.SaucerUrl;
 import app.saucer.webview.window.SaucerIcon;
 
 public interface SaucerWebviewListener {
 
     default void onDomReady() {}
 
-    default void onNavigated(String newUrl) {}
+    default void onNavigated(SaucerUrl newUrl) {}
 
     /**
      * @return true, if the navigation should be completed normally.
@@ -20,10 +21,5 @@ public interface SaucerWebviewListener {
     default void onTitle(String newTitle) {}
 
     default void onLoad(SaucerWebviewLoadState state) {}
-
-    public static enum SaucerWebviewLoadState {
-        STARTED,
-        FINISHED
-    }
 
 }

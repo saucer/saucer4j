@@ -2,8 +2,6 @@ package app.saucer.ntv.backends;
 
 import java.io.IOException;
 
-import app.saucer.ntv.backends.SaucerBackend;
-import app.saucer.ntv.backends.SaucerBackendType;
 import app.saucer.ntv.backends.SaucerBackend.FindThisSaucerBackend;
 
 @FindThisSaucerBackend(1) // Should be higher priority than Qt5
@@ -30,7 +28,9 @@ public class BackendQt6 extends SaucerBackend {
     @Override
     protected String[] supportedArchTargets() {
         return new String[] {
-                "x86_64"
+                "x86",
+                "x86_64",
+                "aarch64"
         };
     }
 

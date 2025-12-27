@@ -12,9 +12,6 @@ public abstract class SaucerBoxedType<T extends SaucerPointerType> {
 
     /**
      * @deprecated Prevents this type from being free()'d. Very dangerous.
-     * 
-     * @apiNote    Must be accessed via reflection, this is not something that users
-     *             should be able to call willy-nilly.
      */
     @Deprecated
     protected void noFree() {
@@ -31,6 +28,14 @@ public abstract class SaucerBoxedType<T extends SaucerPointerType> {
 
     public static <R extends SaucerPointerType> R ntv(SaucerBoxedType<R> boxedType) {
         return boxedType.$ref;
+    }
+
+    /**
+     * @deprecated Prevents this type from being free()'d. Very dangerous.
+     */
+    @Deprecated
+    public static void noFree(SaucerBoxedType<?> boxedType) {
+        boxedType.noFree();
     }
 
 }

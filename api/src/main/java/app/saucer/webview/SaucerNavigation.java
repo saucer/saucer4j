@@ -1,12 +1,14 @@
 package app.saucer.webview;
 
-import app.saucer.ntv._navigation;
-import app.saucer.ntv._navigation.saucer_navigation;
+import app.saucer.ntv.ntv_navigation;
+import app.saucer.ntv.ntv_navigation.saucer_navigation;
+import app.saucer.ntv.ntv_url.saucer_url;
 import app.saucer.ntv.util.SaucerBoxedType;
-import app.saucer.ntv.util.SaucerPointerReference;
+import app.saucer.util.SaucerUrl;
 import lombok.ToString;
 
 @ToString
+@SuppressWarnings("deprecation")
 public final class SaucerNavigation extends SaucerBoxedType<saucer_navigation> {
 
     /**
@@ -22,15 +24,14 @@ public final class SaucerNavigation extends SaucerBoxedType<saucer_navigation> {
     /* ------------------------------------ */
 
     @ToString.Include
-    public String targetUrl() {
-        try (SaucerPointerReference<String> result = _navigation.N.saucer_navigation_url($ref)) {
-            return result.asString();
-        }
+    public SaucerUrl targetUrl() {
+        saucer_url $url = ntv_navigation.N.saucer_navigation_url($ref);
+        return new SaucerUrl($url);
     }
 
     @ToString.Include
     public NavigationType type() {
-        if (_navigation.N.saucer_navigation_new_window($ref)) {
+        if (ntv_navigation.N.saucer_navigation_new_window($ref)) {
             return NavigationType.NEW_WINDOW;
         } else {
             return NavigationType.REDIRECTION;
@@ -39,7 +40,7 @@ public final class SaucerNavigation extends SaucerBoxedType<saucer_navigation> {
 
     @ToString.Include
     public boolean wasUserInitiated() {
-        return _navigation.N.saucer_navigation_user_initiated($ref);
+        return ntv_navigation.N.saucer_navigation_user_initiated($ref);
     }
 
     public static enum NavigationType {

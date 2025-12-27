@@ -1,7 +1,6 @@
 package app.saucer.webview.scheme;
 
 import java.io.InputStream;
-import java.net.URI;
 
 import co.casterlabs.commons.io.streams.StreamUtil;
 import lombok.NonNull;
@@ -17,7 +16,7 @@ public interface SaucerSchemeHandler {
 
     public static SaucerSchemeHandler fromResources(@NonNull Class<?> clazz, @NonNull String basePath) {
         return (SaucerSchemeRequest request) -> {
-            String fullPath = basePath + URI.create(request.url()).getPath(); // /path/whatever.html
+            String fullPath = basePath + request.url().path(); // /path/whatever.html
 
             InputStream in = clazz.getResourceAsStream(fullPath);
             if (in == null) {

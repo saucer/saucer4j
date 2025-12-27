@@ -2,7 +2,7 @@ package app.saucer.webview.window;
 
 public interface SaucerWindowListener {
 
-    default void onDecorated(boolean isDecorated) {}
+    default void onDecorated(SaucerWindowDecoration decoration) {}
 
     default void onResize(int width, int height) {}
 

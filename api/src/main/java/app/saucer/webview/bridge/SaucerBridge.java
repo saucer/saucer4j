@@ -6,22 +6,24 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.function.Supplier;
 
-import app.saucer.Saucer;
+import com.sun.jna.Callback;
+
 import app.saucer.SaucerApp;
+import app.saucer.SaucerDesktop;
 import app.saucer.bridge.JavascriptFunction;
 import app.saucer.bridge.JavascriptObject;
-import app.saucer.ntv._script.saucer_script;
-import app.saucer.ntv._webview;
-import app.saucer.ntv._webview.saucer_on_message;
+import app.saucer.ntv.ntv_webview;
+import app.saucer.ntv.ntv_webview.saucer_webview;
+import app.saucer.ntv.ntv_webview.saucer_webview_event;
+import app.saucer.ntv.ntv_webview.saucer_webview_event_message;
+import app.saucer.ntv.documentation.InternalUseOnly;
 import app.saucer.ntv.util.SaucerBoxedType;
 import app.saucer.ntv.util.SaucerResourceUtil;
-import app.saucer.util.desktop.SaucerDesktop;
-import app.saucer.webview.SaucerScript;
-import app.saucer.webview.SaucerScript.SaucerFramePolicy;
-import app.saucer.webview.SaucerScript.SaucerLoadTime;
+import app.saucer.ntv.util.size_t;
+import app.saucer.webview.SaucerWebview;
 import co.casterlabs.rakurai.json.Rson;
 import co.casterlabs.rakurai.json.element.JsonElement;
 import co.casterlabs.rakurai.json.element.JsonObject;
@@ -34,167 +36,165 @@ import lombok.SneakyThrows;
  *          or use {@link SaucerApp#dispatch(Runnable)} or
  *          {@link SaucerApp#dispatch(Supplier)}.
  */
-@SuppressWarnings("deprecation")
 public final class SaucerBridge {
     private static final String init_fmt = SaucerResourceUtil.loadResourceString("webview/bridge/init_fmt.js");
     private static final String ipc_object_fmt = SaucerResourceUtil.loadResourceString("webview/bridge/ipc_object_fmt.js");
 
-    private final Saucer saucer;
-    private final ExecutorService asyncExecutor;
+    private final SaucerWebview webview;
 
-    private final saucer_on_message messageCallback = this::onMessage;
+    private final saucer_webview_event_message messageCallback = this::onMessage;
 
     private Map<String, _JavascriptObjectWrapper> objects = new LinkedHashMap<>();
 
     /**
      * @deprecated Native interop only.
-     * 
-     * @implNote   This class does not free() itself automatically, which differs
-     *             from most BoxedTypes.
      */
     @Deprecated
-    public SaucerBridge(Saucer saucer, ExecutorService asyncExecutor) {
-        this.saucer = saucer;
-        this.asyncExecutor = asyncExecutor;
+    @InternalUseOnly
+    public SaucerBridge(SaucerWebview webview) {
+        this.webview = webview;
 
-        _webview.N.saucer_webview_on_message(this.saucer.ntv(), this.messageCallback);
+        ntv_webview.N.saucer_webview_on(SaucerBoxedType.ntv(this.webview), saucer_webview_event.MESSAGE, messageCallback, false, null);
 
         this.injectScript(
-            SaucerScript.create(
-                String.format(
-                    init_fmt,
-                    new JsonObject()
-                        .put("archTarget", Saucer.getArchTarget())
-                        .put("systemTarget", Saucer.getSystemTarget())
-                        .put("backend", Saucer.getBackendType().toString())
-                ),
-                SaucerLoadTime.DOM_CREATION
-            )
-                .permanent(true)
-                .framePolicy(SaucerFramePolicy.TOP)
+            String.format(
+                init_fmt,
+                new JsonObject()
+                    .put("archTarget", SaucerApp.getArchTarget())
+                    .put("systemTarget", SaucerApp.getSystemTarget())
+                    .put("backend", SaucerApp.getBackendType().toString())
+            ),
+            SaucerLoadTime.DOM_CREATION,
+            false,
+            false
         );
 
-        this.clear();
+        this.clearAll();
     }
 
-    private boolean onMessage(String raw) {
-        if (this.saucer.isClosed()) {
+    private boolean onMessage(saucer_webview _unused, String raw, size_t _unused2, Callback _unused3) {
+        if (this.webview.isClosed()) {
             return true;
         }
 
         JsonObject message;
         try {
-            message = Rson.DEFAULT.fromJson(raw, JsonObject.class);
+            message = Rson.DEFAULT.fromJson(raw, JsonObject.class).getObject("message");
         } catch (Throwable t) {
             t.printStackTrace();
             return false;
         }
 
-        this.asyncExecutor.execute(() -> {
-            JsonElement returnValue = null;
-            boolean isError = false;
-            try {
-                switch (message.getString("type")) {
-                    case "GET": {
-                        _JavascriptObjectWrapper object = this.objects.get(message.getString("objectId"));
-                        assert object != null : "Unknown objectId: " + message;
+        try {
+            this.webview.window.dispatchAsync(() -> {
+                JsonElement returnValue = null;
+                boolean isError = false;
+                try {
+                    switch (message.getString("type")) {
+                        case "GET": {
+                            _JavascriptObjectWrapper object = this.objects.get(message.getString("objectId"));
+                            assert object != null : "Unknown objectId: " + message;
 
-                        // RPC.get("objectId", "propertyName");
-                        returnValue = object.handleGet(message.getString("propertyName"));
-                        break;
-                    }
-
-                    case "SET": {
-                        _JavascriptObjectWrapper object = this.objects.get(message.getString("objectId"));
-                        assert object != null : "Unknown objectId: " + message;
-
-                        // RPC.set("objectId", "propertyName", newValue);
-                        object.handleSet(message.getString("propertyName"), message.get("newValue"));
-                        break;
-                    }
-
-                    case "INVOKE": {
-                        _JavascriptObjectWrapper object = this.objects.get(message.getString("objectId"));
-                        assert object != null : "Unknown objectId: " + message;
-
-                        // RPC.invoke("objectId", "functionName", Array.from(arguments));
-                        returnValue = object.handleInvoke(message.getString("functionName"), message.getArray("arguments"));
-                        break;
-                    }
-
-                    case "MESSAGE": {
-                        JsonElement data = message.get("data");
-                        this.saucer.messages().handle(data);
-                        break;
-                    }
-
-                    case "CHECK_MUTATION": {
-                        JsonObject newValues = new JsonObject();
-                        for (_JavascriptObjectWrapper object : this.objects.values()) {
-                            for (String name : object.whichFieldsHaveMutated()) {
-                                newValues.put(object.id + '|' + name, object.handleGet(name));
-                            }
+                            // RPC.get("objectId", "propertyName");
+                            returnValue = object.handleGet(message.getString("propertyName"));
+                            break;
                         }
-                        returnValue = newValues;
-                        break;
-                    }
 
-                    case "CLOSE": {
-                        saucer.close();
-                        break;
-                    }
+                        case "SET": {
+                            _JavascriptObjectWrapper object = this.objects.get(message.getString("objectId"));
+                            assert object != null : "Unknown objectId: " + message;
 
-                    case "OPEN_LINK": {
-                        String link = message.getString("link");
-                        SaucerDesktop.open(link);
-                        break;
-                    }
+                            // RPC.set("objectId", "propertyName", newValue);
+                            object.handleSet(message.getString("propertyName"), message.get("newValue"));
+                            break;
+                        }
 
-                    default:
-                        throw new IllegalArgumentException("Unrecognized call: " + message);
+                        case "INVOKE": {
+                            _JavascriptObjectWrapper object = this.objects.get(message.getString("objectId"));
+                            assert object != null : "Unknown objectId: " + message;
+
+                            // RPC.invoke("objectId", "functionName", Array.from(arguments));
+                            returnValue = object.handleInvoke(message.getString("functionName"), message.getArray("arguments"));
+                            break;
+                        }
+
+                        case "MESSAGE": {
+                            JsonElement data = message.get("data");
+                            this.webview.messages.handle(data);
+                            break;
+                        }
+
+                        case "CHECK_MUTATION": {
+                            JsonObject newValues = new JsonObject();
+                            for (_JavascriptObjectWrapper object : this.objects.values()) {
+                                for (String name : object.whichFieldsHaveMutated()) {
+                                    newValues.put(object.id + '|' + name, object.handleGet(name));
+                                }
+                            }
+                            returnValue = newValues;
+                            break;
+                        }
+
+                        case "CLOSE": {
+                            // TODO
+//                        webview.close();
+                            break;
+                        }
+
+                        case "OPEN_LINK": {
+                            String link = message.getString("link");
+                            SaucerDesktop.open(link);
+                            break;
+                        }
+
+                        default:
+                            throw new IllegalArgumentException("Unrecognized call: " + message);
+                    }
+                } catch (Throwable t) {
+                    StringWriter sw = new StringWriter();
+                    PrintWriter pw = new PrintWriter(sw);
+
+                    t.printStackTrace(pw);
+
+                    String out = sw.toString();
+
+                    pw.flush();
+                    pw.close();
+                    sw.flush();
+
+                    String full = out
+                        .substring(0, out.length() - 2)
+                        .replace("\r", "");
+
+                    System.err.printf("An error occurred whilst processing function, bubbling to JavaScript.\n%s\n", full);
+                    returnValue = new JsonString(full);
+                    isError = true;
                 }
-            } catch (Throwable t) {
-                StringWriter sw = new StringWriter();
-                PrintWriter pw = new PrintWriter(sw);
 
-                t.printStackTrace(pw);
-
-                String out = sw.toString();
-
-                pw.flush();
-                pw.close();
-                sw.flush();
-
-                String full = out
-                    .substring(0, out.length() - 2)
-                    .replace("\r", "");
-
-                System.err.printf("An error occurred whilst processing function, bubbling to JavaScript.\n%s\n", full);
-                returnValue = new JsonString(full);
-                isError = true;
-            }
-
-            JsonElement requestId = message.get("requestId");
-            if (requestId == null || this.saucer.isClosed()) {
-                // Drop the response.
-            } else if (isError) {
-                String js = String.format(
-                    "if (window.saucer.__rpc.waiting[%s]) window.saucer.__rpc.waiting[%s].reject(%s);",
-                    requestId, requestId, returnValue
-                );
-                SaucerApp.dispatch(
-                    () -> this.executeJavaScript(js)
-                );
-            } else {
-                String js = String.format(
-                    "if (window.saucer.__rpc.waiting[%s]) window.saucer.__rpc.waiting[%s].resolve(%s);",
-                    requestId, requestId, returnValue
-                );
-                SaucerApp.dispatch(
-                    () -> this.executeJavaScript(js)
-                );
-            }
-        });
+                JsonElement requestId = message.get("requestId");
+                if (requestId == null || this.webview.isClosed()) {
+                    // Drop the response.
+                } else if (isError) {
+                    String js = String.format(
+                        "if (window.saucer.__rpc.waiting[%s]) window.saucer.__rpc.waiting[%s].reject(%s);",
+                        requestId, requestId, returnValue
+                    );
+                    SaucerApp.dispatch(
+                        () -> this.executeJavaScript(js)
+                    );
+                } else {
+                    String js = String.format(
+                        "if (window.saucer.__rpc.waiting[%s]) window.saucer.__rpc.waiting[%s].resolve(%s);",
+                        requestId, requestId, returnValue
+                    );
+                    SaucerApp.dispatch(
+                        () -> this.executeJavaScript(js)
+                    );
+                }
+            });
+        } catch (RejectedExecutionException e) {
+            // Executor has been shut down, ignore
+        }
 
         return true;
     }
@@ -208,7 +208,7 @@ public final class SaucerBridge {
      */
     @JavascriptFunction
     public void executeJavaScript(@NonNull String scriptToExecute) {
-        _webview.N.saucer_webview_execute(this.saucer.ntv(), scriptToExecute);
+        ntv_webview.N.saucer_webview_execute(SaucerBoxedType.ntv(this.webview), scriptToExecute);
     }
 
     /**
@@ -222,18 +222,16 @@ public final class SaucerBridge {
         this.objects.put(wrapper.id, wrapper);
 
         this.injectScript(
-            SaucerScript.create(
-                String.format(
-                    "{\n" + ipc_object_fmt + "\n}",
-                    new JsonString(wrapper.id),
-                    new JsonString(wrapper.path),
-                    Rson.DEFAULT.toJson(wrapper.functions()),
-                    Rson.DEFAULT.toJson(wrapper.properties())
-                ),
-                SaucerLoadTime.DOM_CREATION
-            )
-                .permanent(true)
-                .framePolicy(SaucerFramePolicy.TOP)
+            String.format(
+                "{\n" + ipc_object_fmt + "\n}",
+                new JsonString(wrapper.id),
+                new JsonString(wrapper.path),
+                Rson.DEFAULT.toJson(wrapper.functions()),
+                Rson.DEFAULT.toJson(wrapper.properties())
+            ),
+            SaucerLoadTime.DOM_CREATION,
+            false,
+            false
         );
 
         // Look for sub-objects and register them.
@@ -250,9 +248,16 @@ public final class SaucerBridge {
         }
     }
 
-    public void injectScript(@NonNull SaucerScript script) {
-        saucer_script scriptNtv = SaucerBoxedType.ntv(script);
-        _webview.N.saucer_webview_inject(this.saucer.ntv(), scriptNtv);
+    /**
+     * @return a script id that can be used to remove the script later.
+     */
+    public long injectScript(@NonNull String code, SaucerLoadTime runAt, boolean disallowFrames, boolean clearable) {
+        size_t id = ntv_webview.N.saucer_webview_inject(SaucerBoxedType.ntv(this.webview), code, runAt.nativeValue, disallowFrames, clearable);
+        return id.longValue();
+    }
+
+    public void clear(long scriptId) {
+        ntv_webview.N.saucer_webview_uninject(SaucerBoxedType.ntv(this.webview), new size_t(scriptId));
     }
 
     /**
@@ -260,11 +265,11 @@ public final class SaucerBridge {
      * 
      * Note that permanent scripts will never be removed by this.
      */
-    public void clear() {
-        _webview.N.saucer_webview_clear_scripts(this.saucer.ntv());
+    public void clearAll() {
+        ntv_webview.N.saucer_webview_uninject_all(SaucerBoxedType.ntv(this.webview));
         this.objects.clear();
-        this.defineObject("saucer.webview", this.saucer.webview());
-        this.defineObject("saucer.window", this.saucer.window());
+        this.defineObject("saucer.webview", this.webview);
+        this.defineObject("saucer.window", this.webview.window);
     }
 
 }

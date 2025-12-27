@@ -2,31 +2,48 @@ package com.example.saucer4j;
 
 import java.io.IOException;
 
-import app.saucer.Saucer;
 import app.saucer.SaucerApp;
-import app.saucer.SaucerPreferences;
+import app.saucer.util.SaucerUrl;
+import app.saucer.webview.SaucerWebview;
+import app.saucer.webview.SaucerWebviewListener;
 import app.saucer.webview.scheme.SaucerSchemeHandler;
+import app.saucer.webview.window.SaucerIcon;
+import app.saucer.webview.window.SaucerWindow;
 
 public class FullEmbeddedSiteExample {
 
     public static void main(String[] args) throws IOException {
-        SaucerApp.initialize("com.example.saucer4j");
+        SaucerApp.initialize("com.example.saucer4j", true);
 
-        Saucer.registerCustomScheme("app");
+        SaucerWebview.registerCustomScheme("app");
 
-        Saucer saucer = Saucer.create(
-            SaucerPreferences.create()
-                .hardwareAcceleration(true) // May not work on all computers. You should do some testing to discover if you
-                                            // need this feature and if your environments support it.
+        SaucerWindow window = SaucerWindow.create();
+        SaucerWebview webview = window.createWebview(
+            (opts) -> opts.hardwareAcceleration(true) // May not work on all computers. You should do some testing to discover if you
+                                                      // need this feature and if your environments support it.
         );
 
-        saucer.webview().setDevtoolsVisible(true);
-        saucer.webview().setContextMenuAllowed(true); // Allow the right-click menu.
+        webview.setListener(new SaucerWebviewListener() {
+            @Override
+            public void onTitle(String newTitle) {
+                window.setTitle("FullEmbeddedSiteExample - " + newTitle);
+            }
 
-        saucer.webview().addSchemeHandler("app", SaucerSchemeHandler.fromResources(FullEmbeddedSiteExample.class, "/full"));  // Scan for files under the name `/full` in the current jar.
-        saucer.webview().setUrl("app://authority/index.html"); // Tell Saucer to serve the index file.
+            @Override
+            public void onFavicon(SaucerIcon newIcon) {
+                if (!newIcon.isEmpty()) {
+                    window.setIcon(newIcon);
+                }
+            }
+        });
 
-        saucer.window().show();
+        webview.setContextMenuAllowed(false);
+
+        webview.addSchemeHandler("app", SaucerSchemeHandler.fromResources(FullEmbeddedSiteExample.class, "/full"));  // Scan for files under the name `/full` in the current jar.
+        webview.setUrl(SaucerUrl.parse("app://authority/index.html")); // Tell Saucer to serve the index file.
+
+        window.show();
+        window.focus();
 
         SaucerApp.run(); // This blocks until the last window is closed.
     }

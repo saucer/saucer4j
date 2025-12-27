@@ -2,33 +2,36 @@ package com.example.saucer4j;
 
 import java.io.IOException;
 
-import app.saucer.Saucer;
 import app.saucer.SaucerApp;
-import app.saucer.SaucerPreferences;
+import app.saucer.util.SaucerUrl;
 import app.saucer.webview.SaucerNavigation;
+import app.saucer.webview.SaucerWebview;
 import app.saucer.webview.SaucerWebviewListener;
+import app.saucer.webview.SaucerWebviewLoadState;
 import app.saucer.webview.window.SaucerIcon;
+import app.saucer.webview.window.SaucerWindow;
+import app.saucer.webview.window.SaucerWindowDecoration;
 import app.saucer.webview.window.SaucerWindowListener;
 
 public class ListenerExample {
 
     public static void main(String[] args) throws IOException {
-        SaucerApp.initialize("com.example.saucer4j");
+        SaucerApp.initialize("com.example.saucer4j", true);
 
-        Saucer saucer = Saucer.create(
-            SaucerPreferences.create()
-                .hardwareAcceleration(true) // May not work on all computers. You should do some testing to discover if you
-                                            // need this feature and if your environments support it.
+        SaucerWindow window = SaucerWindow.create();
+        SaucerWebview webview = window.createWebview(
+            (opts) -> opts.hardwareAcceleration(true) // May not work on all computers. You should do some testing to discover if you
+                                                      // need this feature and if your environments support it.
         );
 
-        saucer.webview().setListener(new SaucerWebviewListener() {
+        webview.setListener(new SaucerWebviewListener() {
             @Override
             public void onDomReady() {
                 System.out.println("[Webview] Dom ready!");
             }
 
             @Override
-            public void onNavigated(String newUrl) {
+            public void onNavigated(SaucerUrl newUrl) {
                 System.out.println("[Webview] Navigated: " + newUrl);
             }
 
@@ -57,10 +60,10 @@ public class ListenerExample {
             }
         });
 
-        saucer.window().setListener(new SaucerWindowListener() {
+        window.setListener(new SaucerWindowListener() {
             @Override
-            public void onDecorated(boolean isDecorated) {
-                System.out.println("[Window] Decorated: " + isDecorated);
+            public void onDecorated(SaucerWindowDecoration decoration) {
+                System.out.println("[Window] Decoration: " + decoration);
             }
 
             @Override
@@ -98,11 +101,11 @@ public class ListenerExample {
             }
         });
 
-        saucer.webview().setContextMenuAllowed(true); // Allow the right-click menu.
+        webview.setContextMenuAllowed(true); // Allow the right-click menu.
+        webview.setUrl(SaucerUrl.parse("https://duckduckgo.com"));
 
-        saucer.webview().setUrl("https://duckduckgo.com");
-
-        saucer.window().show();
+        window.show();
+        window.focus();
 
         SaucerApp.run(); // This blocks until the last window is closed.
     }

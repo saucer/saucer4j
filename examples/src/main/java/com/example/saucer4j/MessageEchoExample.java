@@ -2,34 +2,36 @@ package com.example.saucer4j;
 
 import java.io.IOException;
 
-import app.saucer.Saucer;
 import app.saucer.SaucerApp;
-import app.saucer.SaucerPreferences;
+import app.saucer.util.SaucerUrl;
+import app.saucer.webview.SaucerWebview;
 import app.saucer.webview.scheme.SaucerSchemeHandler;
+import app.saucer.webview.window.SaucerWindow;
 
 public class MessageEchoExample {
 
     public static void main(String[] args) throws IOException {
-        SaucerApp.initialize("com.example.saucer4j");
+        SaucerApp.initialize("com.example.saucer4j", true);
 
-        Saucer.registerCustomScheme("app");
+        SaucerWebview.registerCustomScheme("app");
 
-        Saucer saucer = Saucer.create(
-            SaucerPreferences.create()
-                .hardwareAcceleration(true) // May not work on all computers. You should do some testing to discover if you
-                                            // need this feature and if your environments support it.
+        SaucerWindow window = SaucerWindow.create();
+        SaucerWebview webview = window.createWebview(
+            (opts) -> opts.hardwareAcceleration(true) // May not work on all computers. You should do some testing to discover if you
+                                                      // need this feature and if your environments support it.
         );
 
-        saucer.messages().onMessage((data) -> {
-            saucer.messages().emit(data); // Echo it back.
+        webview.messages.onMessage((data) -> {
+            webview.messages.emit(data); // Echo it back.
         });
 
-        saucer.webview().setContextMenuAllowed(true); // Allow the right-click menu.
+        webview.setContextMenuAllowed(true); // Allow the right-click menu.
 
-        saucer.webview().addSchemeHandler("app", SaucerSchemeHandler.fromResources(MessageEchoExample.class)); // Read the contents from our resources.
-        saucer.webview().setUrl("app://authority/MessageEchoExample.html");
+        webview.addSchemeHandler("app", SaucerSchemeHandler.fromResources(MessageEchoExample.class)); // Read the contents from our resources.
+        webview.setUrl(SaucerUrl.parse("app://authority/MessageEchoExample.html"));
 
-        saucer.window().show();
+        window.show();
+        window.focus();
 
         SaucerApp.run(); // This blocks until the last window is closed.
     }

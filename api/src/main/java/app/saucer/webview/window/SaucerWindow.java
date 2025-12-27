@@ -1,31 +1,43 @@
 package app.saucer.webview.window;
 
+import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.jetbrains.annotations.Nullable;
 
-import app.saucer.Saucer;
+import com.sun.jna.Callback;
+import com.sun.jna.ptr.IntByReference;
+
 import app.saucer.SaucerApp;
 import app.saucer.bridge.JavascriptFunction;
 import app.saucer.bridge.JavascriptGetter;
 import app.saucer.bridge.JavascriptObject;
 import app.saucer.bridge.JavascriptSetter;
-import app.saucer.ntv._memory;
-import app.saucer.ntv._window;
-import app.saucer.ntv._window.SAUCER_POLICY;
-import app.saucer.ntv._window.SAUCER_WINDOW_EVENT;
-import app.saucer.ntv._window.SAUCER_WINDOW_EVENT.WindowCloseRequestCallback;
-import app.saucer.ntv._window.SAUCER_WINDOW_EVENT.WindowClosedCallback;
-import app.saucer.ntv._window.SAUCER_WINDOW_EVENT.WindowDecoratedCallback;
-import app.saucer.ntv._window.SAUCER_WINDOW_EVENT.WindowFocusCallback;
-import app.saucer.ntv._window.SAUCER_WINDOW_EVENT.WindowMaxmizeCallback;
-import app.saucer.ntv._window.SAUCER_WINDOW_EVENT.WindowMinimizeCallback;
-import app.saucer.ntv._window.SAUCER_WINDOW_EVENT.WindowResizeEventCallback;
+import app.saucer.ntv.ntv_app.saucer_policy;
+import app.saucer.ntv.ntv_webview;
+import app.saucer.ntv.ntv_webview.saucer_webview;
+import app.saucer.ntv.ntv_webview.saucer_webview_options;
+import app.saucer.ntv.ntv_window;
+import app.saucer.ntv.ntv_window.saucer_window;
+import app.saucer.ntv.ntv_window.saucer_window_event;
+import app.saucer.ntv.ntv_window.saucer_window_event_close;
+import app.saucer.ntv.ntv_window.saucer_window_event_closed;
+import app.saucer.ntv.ntv_window.saucer_window_event_decorated;
+import app.saucer.ntv.ntv_window.saucer_window_event_focus;
+import app.saucer.ntv.ntv_window.saucer_window_event_maximize;
+import app.saucer.ntv.ntv_window.saucer_window_event_minimize;
+import app.saucer.ntv.ntv_window.saucer_window_event_resize;
 import app.saucer.ntv.util.SaucerBoxedType;
-import app.saucer.ntv.util.SaucerPointerReference;
 import app.saucer.ntv.util.size_t;
 import app.saucer.util.SaucerSize;
 import app.saucer.webview.SaucerWebview;
+import app.saucer.webview.SaucerWebviewOptions;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 
@@ -34,56 +46,62 @@ import lombok.Setter;
  *          or use {@link SaucerApp#dispatch(Runnable)} or
  *          {@link SaucerApp#dispatch(Supplier)}.
  */
-@SuppressWarnings("deprecation")
 @JavascriptObject
-public final class SaucerWindow {
-    private final Saucer saucer;
+@SuppressWarnings("deprecation")
+public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
+    private static final Set<SaucerWindow> instances = new HashSet<>();
+
+    private final ExecutorService asyncExecutor = Executors.newSingleThreadExecutor();
+    private final Set<SaucerWebview> webviews = new HashSet<>();
 
     private @Setter @Nullable SaucerWindowListener listener;
+    private @Getter boolean isClosed = false;
 
-    private final WindowDecoratedCallback decoratedCallback = (_unused, b) -> {
+    private final saucer_window_event_decorated decoratedCallback = (saucer_window _unused, /*saucer_window_decoration*/int val, Callback _unused2) -> {
         if (this.listener != null) {
-            this.listener.onDecorated(b);
+            SaucerWindowDecoration decoration = SaucerWindowDecoration.LUT[val];
+            this.listener.onDecorated(decoration);
         }
     };
 
-    private final WindowMaxmizeCallback maximizeCallback = (_unused, b) -> {
+    private final saucer_window_event_maximize maximizeCallback = (saucer_window _unused, boolean b, Callback _unused2) -> {
         if (this.listener != null) {
             this.listener.onMaximize(b);
         }
     };
 
-    private final WindowMinimizeCallback minimizeCallback = (_unused, b) -> {
+    private final saucer_window_event_minimize minimizeCallback = (saucer_window _unused, boolean b, Callback _unused2) -> {
         if (this.listener != null) {
             this.listener.onMinimize(b);
         }
     };
 
-    private final WindowClosedCallback closedCallback = (_unused) -> {
+    private final saucer_window_event_closed closedCallback = (saucer_window _unused, Callback _unused2) -> {
+        this.destroy();
         if (this.listener != null) {
             this.listener.onClosed();
         }
     };
 
-    private final WindowResizeEventCallback resizeCallback = (_unused, w, h) -> {
+    private final saucer_window_event_resize resizeCallback = (saucer_window _unused, int w, int h, Callback _unused2) -> {
         if (this.listener != null) {
             this.listener.onResize(w, h);
         }
     };
 
-    private final WindowFocusCallback focusCallback = (_unused, b) -> {
+    private final saucer_window_event_focus focusCallback = (saucer_window _unused, boolean b, Callback _unused2) -> {
         if (this.listener != null) {
             this.listener.onFocus(b);
         }
     };
 
-    private final WindowCloseRequestCallback closeRequestCallback = (_unused) -> {
+    private final saucer_window_event_close closeRequestCallback = (saucer_window _unused, Callback _unused2) -> {
         if (this.listener != null) {
             if (this.listener.shouldAvoidClosing()) {
-                return SAUCER_POLICY.BLOCK;
+                return saucer_policy.BLOCK;
             }
         }
-        return SAUCER_POLICY.ALLOW;
+        return saucer_policy.ALLOW;
     };
 
     /**
@@ -93,21 +111,84 @@ public final class SaucerWindow {
      *             from most BoxedTypes.
      */
     @Deprecated
-    public SaucerWindow(Saucer saucer) {
-        this.saucer = saucer;
+    public SaucerWindow(saucer_window window) {
+        super(window);
 
-        _window.N.saucer_window_on(saucer.ntv(), SAUCER_WINDOW_EVENT.DECORATED, this.decoratedCallback);
-        _window.N.saucer_window_on(saucer.ntv(), SAUCER_WINDOW_EVENT.MAXIMIZE, this.maximizeCallback);
-        _window.N.saucer_window_on(saucer.ntv(), SAUCER_WINDOW_EVENT.MINIMIZE, this.minimizeCallback);
-        _window.N.saucer_window_on(saucer.ntv(), SAUCER_WINDOW_EVENT.CLOSED, this.closedCallback);
-        _window.N.saucer_window_on(saucer.ntv(), SAUCER_WINDOW_EVENT.RESIZE, this.resizeCallback);
-        _window.N.saucer_window_on(saucer.ntv(), SAUCER_WINDOW_EVENT.FOCUS, this.focusCallback);
-        _window.N.saucer_window_on(saucer.ntv(), SAUCER_WINDOW_EVENT.CLOSE, this.closeRequestCallback);
+        ntv_window.N.saucer_window_on($ref, saucer_window_event.DECORATED, this.decoratedCallback, false, null);
+        ntv_window.N.saucer_window_on($ref, saucer_window_event.MAXIMIZE, this.maximizeCallback, false, null);
+        ntv_window.N.saucer_window_on($ref, saucer_window_event.MINIMIZE, this.minimizeCallback, false, null);
+        ntv_window.N.saucer_window_on($ref, saucer_window_event.CLOSED, this.closedCallback, false, null);
+        ntv_window.N.saucer_window_on($ref, saucer_window_event.RESIZE, this.resizeCallback, false, null);
+        ntv_window.N.saucer_window_on($ref, saucer_window_event.FOCUS, this.focusCallback, false, null);
+        ntv_window.N.saucer_window_on($ref, saucer_window_event.CLOSE, this.closeRequestCallback, false, null);
+
+        instances.add(this);
+    }
+
+    public static SaucerWindow create() {
+        IntByReference error = new IntByReference();
+        saucer_window nativeWindow = ntv_window.N.saucer_window_new(SaucerApp.ntv_app(), error);
+
+        if (error.getValue() != 0) {
+            throw new IllegalStateException("Failed to create SaucerWindow, error code: " + error.getValue());
+        }
+
+        return new SaucerWindow(nativeWindow);
+    }
+
+    public SaucerWebview createWebview() {
+        return this.createWebview(null);
+    }
+
+    public SaucerWebview createWebview(Consumer<SaucerWebviewOptions> optionsEditor) {
+        SaucerWebviewOptions options = new SaucerWebviewOptions($ref);
+        if (optionsEditor != null) {
+            optionsEditor.accept(options);
+        }
+
+        saucer_webview_options $options = SaucerBoxedType.ntv(options);
+
+        IntByReference error = new IntByReference(0);
+        saucer_webview webviewNtv = ntv_webview.N.saucer_webview_new($options, error);
+
+        if (error.getValue() != 0) {
+            throw new IllegalStateException("Failed to create SaucerWebview (error code " + error.getValue() + ")");
+        }
+
+        SaucerWebview[] $wv = new SaucerWebview[1]; // pointer hack
+        $wv[0] = new SaucerWebview(webviewNtv, this, () -> {
+            this.webviews.remove($wv[0]);
+        });
+
+        this.webviews.add($wv[0]);
+        return $wv[0];
+    }
+
+    /**
+     * Frees the window and its resources. Additionally, all child webviews will be
+     * destroyed as well.
+     */
+    public void destroy() {
+        if (this.isClosed) return;
+        this.isClosed = true;
+
+        instances.remove(this);
+        this.asyncExecutor.shutdownNow();
+
+        for (SaucerWebview wv : this.webviews) {
+            wv.destroy();
+        }
+
+        $ref.close();
     }
 
     /* ------------------------------------ */
     /* ------------------------------------ */
     /* ------------------------------------ */
+
+    public void dispatchAsync(@NonNull Runnable runnable) {
+        this.asyncExecutor.submit(runnable);
+    }
 
     /**
      * @return   whether or not Saucer is visible.
@@ -121,7 +202,7 @@ public final class SaucerWindow {
      */
     @JavascriptGetter("isVisible")
     public boolean isVisible() {
-        return _window.N.saucer_window_visible(this.saucer.ntv());
+        return ntv_window.N.saucer_window_visible($ref);
     }
 
     /**
@@ -129,7 +210,7 @@ public final class SaucerWindow {
      */
     @JavascriptGetter("isFocused")
     public boolean isFocused() {
-        return _window.N.saucer_window_focused(this.saucer.ntv());
+        return ntv_window.N.saucer_window_focused($ref);
     }
 
     /**
@@ -137,7 +218,7 @@ public final class SaucerWindow {
      */
     @JavascriptFunction
     public void focus() {
-        _window.N.saucer_window_focus(this.saucer.ntv());
+        ntv_window.N.saucer_window_focus($ref);
     }
 
     /**
@@ -145,7 +226,7 @@ public final class SaucerWindow {
      */
     @JavascriptGetter("minimized")
     public boolean isMinimized() {
-        return _window.N.saucer_window_minimized(this.saucer.ntv());
+        return ntv_window.N.saucer_window_minimized($ref);
     }
 
     /**
@@ -153,7 +234,7 @@ public final class SaucerWindow {
      */
     @JavascriptSetter("minimized")
     public void setMinimized(boolean b) {
-        _window.N.saucer_window_set_minimized(this.saucer.ntv(), b);
+        ntv_window.N.saucer_window_set_minimized($ref, b);
     }
 
     /**
@@ -161,7 +242,7 @@ public final class SaucerWindow {
      */
     @JavascriptGetter("maximized")
     public boolean isMaximized() {
-        return _window.N.saucer_window_maximized(this.saucer.ntv());
+        return ntv_window.N.saucer_window_maximized($ref);
     }
 
     /**
@@ -169,7 +250,7 @@ public final class SaucerWindow {
      */
     @JavascriptSetter("maximized")
     public void setMaximized(boolean b) {
-        _window.N.saucer_window_set_maximized(this.saucer.ntv(), b);
+        ntv_window.N.saucer_window_set_maximized($ref, b);
     }
 
     /**
@@ -177,7 +258,7 @@ public final class SaucerWindow {
      */
     @JavascriptGetter("resizable")
     public boolean isResizable() {
-        return _window.N.saucer_window_resizable(this.saucer.ntv());
+        return ntv_window.N.saucer_window_resizable($ref);
     }
 
     /**
@@ -185,24 +266,23 @@ public final class SaucerWindow {
      */
     @JavascriptSetter("resizable")
     public void setResizable(boolean b) {
-        _window.N.saucer_window_set_resizable(this.saucer.ntv(), b);
+        ntv_window.N.saucer_window_set_resizable($ref, b);
     }
 
     /**
-     * @return whether or not Saucer has decorations (i.e the title bar).
+     * @return whether or not Saucer is fullscreen.
      */
-    @JavascriptGetter("decorations")
-    public boolean hasDecorations() {
-        return _window.N.saucer_window_decorations(this.saucer.ntv());
+    @JavascriptGetter("fullscreen")
+    public boolean isFullscreen() {
+        return ntv_window.N.saucer_window_fullscreen($ref);
     }
 
     /**
-     * Enables (true) or disables (false) Saucer's window decorations (i.e the title
-     * bar).
+     * Sets whether or not Saucer is in fullscreen mode.
      */
-    @JavascriptSetter("decorations")
-    public void showDecorations(boolean b) {
-        _window.N.saucer_window_set_decorations(this.saucer.ntv(), b);
+    @JavascriptSetter("fullscreen")
+    public void setFullscreen(boolean b) {
+        ntv_window.N.saucer_window_set_fullscreen($ref, b);
     }
 
     /**
@@ -210,7 +290,7 @@ public final class SaucerWindow {
      */
     @JavascriptGetter("alwaysOnTop")
     public boolean isAlwaysOnTop() {
-        return _window.N.saucer_window_always_on_top(this.saucer.ntv());
+        return ntv_window.N.saucer_window_always_on_top($ref);
     }
 
     /**
@@ -218,7 +298,25 @@ public final class SaucerWindow {
      */
     @JavascriptSetter("alwaysOnTop")
     public void setAlwaysOnTop(boolean b) {
-        _window.N.saucer_window_set_always_on_top(this.saucer.ntv(), b);
+        ntv_window.N.saucer_window_set_always_on_top($ref, b);
+    }
+
+    /**
+     * @return whether or not Saucer can be clicked through (i.e mouse events pass
+     *         through it).
+     */
+    @JavascriptGetter("clickThrough")
+    public boolean isClickThrough() {
+        return ntv_window.N.saucer_window_click_through($ref);
+    }
+
+    /**
+     * Enables (true) or disables (false) click-through for Saucer (i.e mouse events
+     * pass through it).
+     */
+    @JavascriptSetter("clickThrough")
+    public void setClickThrough(boolean b) {
+        ntv_window.N.saucer_window_set_always_on_top($ref, b);
     }
 
     /**
@@ -226,9 +324,16 @@ public final class SaucerWindow {
      */
     @JavascriptGetter("title")
     public String getTitle() {
-        try (SaucerPointerReference<String> titleRef = _window.N.saucer_window_title(this.saucer.ntv())) {
-            return titleRef.asString();
-        }
+        size_t.ByReference sizeRef = new size_t.ByReference();
+
+        // First call to get the size
+        ntv_window.N.saucer_window_title($ref, null, sizeRef);
+
+        // Second call to get the actual string
+        byte[] buffer = new byte[sizeRef.getValue().intValue()];
+        ntv_window.N.saucer_window_title($ref, buffer, sizeRef);
+
+        return new String(buffer, StandardCharsets.UTF_8);
     }
 
     /**
@@ -236,7 +341,27 @@ public final class SaucerWindow {
      */
     @JavascriptSetter("title")
     public void setTitle(@NonNull String title) {
-        _window.N.saucer_window_set_title(this.saucer.ntv(), title);
+        ntv_window.N.saucer_window_set_title($ref, title);
+    }
+
+    // TODO background.
+
+    /**
+     * @return whether or not Saucer has decorations (i.e the title bar).
+     */
+    @JavascriptGetter("decorations")
+    public SaucerWindowDecoration getDecorations() {
+        int val = ntv_window.N.saucer_window_decorations($ref);
+        return SaucerWindowDecoration.LUT[val];
+    }
+
+    /**
+     * Enables (true) or disables (false) Saucer's window decorations (i.e the title
+     * bar).
+     */
+    @JavascriptSetter("decorations")
+    public void setDecorations(SaucerWindowDecoration value) {
+        ntv_window.N.saucer_window_set_decorations($ref, value.nativeValue);
     }
 
     /**
@@ -244,12 +369,11 @@ public final class SaucerWindow {
      */
     @JavascriptGetter("size")
     public SaucerSize getSize() {
-        try (
-            SaucerPointerReference<Integer> widthRef = _memory.N.saucer_memory_alloc(new size_t(Integer.BYTES));
-            SaucerPointerReference<Integer> heightRef = _memory.N.saucer_memory_alloc(new size_t(Integer.BYTES))) {
-            _window.N.saucer_window_size(this.saucer.ntv(), widthRef, heightRef);
-            return new SaucerSize(widthRef.asInt(), heightRef.asInt());
-        }
+        IntByReference widthRef = new IntByReference();
+        IntByReference heightRef = new IntByReference();
+
+        ntv_window.N.saucer_window_size($ref, widthRef, heightRef);
+        return new SaucerSize(widthRef.getValue(), heightRef.getValue());
     }
 
     /**
@@ -257,7 +381,7 @@ public final class SaucerWindow {
      */
     @JavascriptSetter("size")
     public void setSize(@NonNull SaucerSize size) {
-        _window.N.saucer_window_set_size(this.saucer.ntv(), size.width, size.height);
+        ntv_window.N.saucer_window_set_size($ref, size.width, size.height);
     }
 
     /**
@@ -265,12 +389,11 @@ public final class SaucerWindow {
      */
     @JavascriptGetter("minSize")
     public SaucerSize getMinSize() {
-        try (
-            SaucerPointerReference<Integer> widthRef = _memory.N.saucer_memory_alloc(new size_t(Integer.BYTES));
-            SaucerPointerReference<Integer> heightRef = _memory.N.saucer_memory_alloc(new size_t(Integer.BYTES))) {
-            _window.N.saucer_window_min_size(this.saucer.ntv(), widthRef, heightRef);
-            return new SaucerSize(widthRef.asInt(), heightRef.asInt());
-        }
+        IntByReference widthRef = new IntByReference();
+        IntByReference heightRef = new IntByReference();
+
+        ntv_window.N.saucer_window_min_size($ref, widthRef, heightRef);
+        return new SaucerSize(widthRef.getValue(), heightRef.getValue());
     }
 
     /**
@@ -278,7 +401,7 @@ public final class SaucerWindow {
      */
     @JavascriptSetter("minSize")
     public void setMinSize(@NonNull SaucerSize size) {
-        _window.N.saucer_window_set_min_size(this.saucer.ntv(), size.width, size.height);
+        ntv_window.N.saucer_window_set_min_size($ref, size.width, size.height);
     }
 
     /**
@@ -286,12 +409,11 @@ public final class SaucerWindow {
      */
     @JavascriptGetter("maxSize")
     public SaucerSize getMaxSize() {
-        try (
-            SaucerPointerReference<Integer> widthRef = _memory.N.saucer_memory_alloc(new size_t(Integer.BYTES));
-            SaucerPointerReference<Integer> heightRef = _memory.N.saucer_memory_alloc(new size_t(Integer.BYTES))) {
-            _window.N.saucer_window_max_size(this.saucer.ntv(), widthRef, heightRef);
-            return new SaucerSize(widthRef.asInt(), heightRef.asInt());
-        }
+        IntByReference widthRef = new IntByReference();
+        IntByReference heightRef = new IntByReference();
+
+        ntv_window.N.saucer_window_max_size($ref, widthRef, heightRef);
+        return new SaucerSize(widthRef.getValue(), heightRef.getValue());
     }
 
     /**
@@ -299,8 +421,11 @@ public final class SaucerWindow {
      */
     @JavascriptSetter("maxSize")
     public void setMaxSize(@NonNull SaucerSize size) {
-        _window.N.saucer_window_set_max_size(this.saucer.ntv(), size.width, size.height);
+        ntv_window.N.saucer_window_set_max_size($ref, size.width, size.height);
     }
+
+    // TODO position
+    // TODO screen
 
     /**
      * Hides Saucer, this causes the window to disappear from the taskbar and the
@@ -310,7 +435,7 @@ public final class SaucerWindow {
      */
     @JavascriptFunction
     public void hide() {
-        _window.N.saucer_window_hide(this.saucer.ntv());
+        ntv_window.N.saucer_window_hide($ref);
     }
 
     /**
@@ -320,7 +445,7 @@ public final class SaucerWindow {
      */
     @JavascriptFunction
     public void show() {
-        _window.N.saucer_window_show(this.saucer.ntv());
+        ntv_window.N.saucer_window_show($ref);
     }
 
     /**
@@ -329,7 +454,7 @@ public final class SaucerWindow {
      * @see {@link SaucerWebview#getFavicon()}
      */
     public void setIcon(@NonNull SaucerIcon icon) {
-        _window.N.saucer_window_set_icon(this.saucer.ntv(), SaucerBoxedType.ntv(icon));
+        ntv_window.N.saucer_window_set_icon($ref, SaucerBoxedType.ntv(icon));
     }
 
 }
