@@ -77,7 +77,7 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
     };
 
     private final saucer_window_event_closed closedCallback = (saucer_window _unused, Callback _unused2) -> {
-        this.destroy();
+        this.cleanup();
         if (this.listener != null) {
             this.listener.onClosed();
         }
@@ -164,21 +164,18 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
         return $wv[0];
     }
 
+    private void cleanup() {
+        this.isClosed = true;
+        instances.remove(this);
+        this.asyncExecutor.shutdownNow();
+    }
+
     /**
      * Frees the window and its resources. Additionally, all child webviews will be
      * destroyed as well.
      */
     public void destroy() {
-        if (this.isClosed) return;
-        this.isClosed = true;
-
-        instances.remove(this);
-        this.asyncExecutor.shutdownNow();
-
-        for (SaucerWebview wv : this.webviews) {
-            wv.destroy();
-        }
-
+        cleanup();
         $ref.close();
     }
 
