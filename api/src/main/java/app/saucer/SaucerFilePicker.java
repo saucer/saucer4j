@@ -2,9 +2,8 @@ package app.saucer;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import app.saucer.ntv.ntv_desktop;
 import app.saucer.ntv.ntv_desktop.saucer_picker_options;
@@ -61,16 +60,15 @@ public final class SaucerFilePicker extends SaucerBoxedType<saucer_picker_option
 
         // First call to get the size
         ntv_desktop.N.saucer_picker_save(SaucerApp.ntv_desktop(), $ref, null, sizeRef, null);
+        if (sizeRef.getValue().intValue() == 0) {
+            return null; // No file picked
+        }
 
         // Second call to get the actual string
         byte[] buffer = new byte[sizeRef.getValue().intValue()];
         ntv_desktop.N.saucer_picker_save(SaucerApp.ntv_desktop(), $ref, buffer, sizeRef, null);
 
         String path = new String(buffer, StandardCharsets.UTF_8);
-        if (path.isEmpty()) {
-            return null;
-        }
-
         return new File(path);
     }
 
@@ -79,16 +77,15 @@ public final class SaucerFilePicker extends SaucerBoxedType<saucer_picker_option
 
         // First call to get the size
         ntv_desktop.N.saucer_picker_pick_file(SaucerApp.ntv_desktop(), $ref, null, sizeRef, null);
+        if (sizeRef.getValue().intValue() == 0) {
+            return null; // No file picked
+        }
 
         // Second call to get the actual string
         byte[] buffer = new byte[sizeRef.getValue().intValue()];
         ntv_desktop.N.saucer_picker_pick_file(SaucerApp.ntv_desktop(), $ref, buffer, sizeRef, null);
 
         String path = new String(buffer, StandardCharsets.UTF_8);
-        if (path.isEmpty()) {
-            return null;
-        }
-
         return new File(path);
     }
 
@@ -97,19 +94,26 @@ public final class SaucerFilePicker extends SaucerBoxedType<saucer_picker_option
 
         // First call to get the size
         ntv_desktop.N.saucer_picker_pick_files(SaucerApp.ntv_desktop(), $ref, null, sizeRef, null);
+        if (sizeRef.getValue().intValue() == 0) {
+            return null; // No files picked
+        }
 
         // Second call to get the actual string
         byte[] buffer = new byte[sizeRef.getValue().intValue()];
         ntv_desktop.N.saucer_picker_pick_files(SaucerApp.ntv_desktop(), $ref, buffer, sizeRef, null);
 
-        String path = new String(buffer, StandardCharsets.UTF_8);
-        if (path.isEmpty()) {
-            return null;
+        List<File> result = new ArrayList<>();
+        StringBuilder pathBuilder = new StringBuilder();
+        for (byte b : buffer) {
+            if (b == 0) {
+                result.add(new File(pathBuilder.toString()));
+                pathBuilder.setLength(0);
+            } else {
+                pathBuilder.append((char) b);
+            }
         }
 
-        return Arrays.stream(path.split("\0"))
-            .map(File::new)
-            .collect(Collectors.toList());
+        return result;
     }
 
     public File pickFolder() {
@@ -117,16 +121,15 @@ public final class SaucerFilePicker extends SaucerBoxedType<saucer_picker_option
 
         // First call to get the size
         ntv_desktop.N.saucer_picker_pick_folder(SaucerApp.ntv_desktop(), $ref, null, sizeRef, null);
+        if (sizeRef.getValue().intValue() == 0) {
+            return null; // No folder picked
+        }
 
         // Second call to get the actual string
         byte[] buffer = new byte[sizeRef.getValue().intValue()];
         ntv_desktop.N.saucer_picker_pick_folder(SaucerApp.ntv_desktop(), $ref, buffer, sizeRef, null);
 
         String path = new String(buffer, StandardCharsets.UTF_8);
-        if (path.isEmpty()) {
-            return null;
-        }
-
         return new File(path);
     }
 
