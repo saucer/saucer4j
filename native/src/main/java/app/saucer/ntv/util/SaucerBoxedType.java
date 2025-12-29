@@ -4,23 +4,23 @@ import lombok.NonNull;
 
 public abstract class SaucerBoxedType<T extends SaucerPointerType> {
     protected final T $ref;
+    private final boolean autofree;
     private boolean freeable = true;
 
-    public SaucerBoxedType(@NonNull T $ref) {
+    public SaucerBoxedType(@NonNull T $ref, boolean autofree) {
         this.$ref = $ref;
-    }
-
-    /**
-     * @deprecated Prevents this type from being free()'d. Very dangerous.
-     */
-    @Deprecated
-    protected void noFree() {
-        this.freeable = false;
+        this.autofree = autofree;
     }
 
     @Override
     protected void finalize() {
         // TODO look at the Cleaner API. It might be a good replacement for this.
+        if (this.autofree) {
+            this.close();
+        }
+    }
+
+    protected void close() {
         if (this.freeable) {
             $ref.free();
         }
@@ -35,7 +35,7 @@ public abstract class SaucerBoxedType<T extends SaucerPointerType> {
      */
     @Deprecated
     public static void noFree(SaucerBoxedType<?> boxedType) {
-        boxedType.noFree();
+        boxedType.freeable = false;
     }
 
 }

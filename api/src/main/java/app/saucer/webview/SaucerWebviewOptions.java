@@ -18,8 +18,8 @@ public final class SaucerWebviewOptions extends SaucerBoxedType<saucer_webview_o
      */
     @Deprecated
     @InternalUseOnly
-    public SaucerWebviewOptions(saucer_webview_options $ref) {
-        super($ref);
+    public SaucerWebviewOptions(saucer_webview_options $ref, boolean autoFree) {
+        super($ref, autoFree);
     }
 
     /**
@@ -28,7 +28,7 @@ public final class SaucerWebviewOptions extends SaucerBoxedType<saucer_webview_o
     @Deprecated
     @InternalUseOnly
     public SaucerWebviewOptions(@NonNull saucer_window $window) {
-        super(ntv_webview.N.saucer_webview_options_new($window));
+        super(ntv_webview.N.saucer_webview_options_new($window), true);
 
         try {
             File codeSource = new File(SaucerWebviewOptions.class.getProtectionDomain().getCodeSource().getLocation().toURI());

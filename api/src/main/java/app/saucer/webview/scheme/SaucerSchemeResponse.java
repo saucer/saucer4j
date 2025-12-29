@@ -5,7 +5,6 @@ import app.saucer.ntv.ntv_scheme.saucer_scheme_response;
 import app.saucer.ntv.ntv_stash;
 import app.saucer.ntv.ntv_stash.saucer_stash;
 import app.saucer.ntv.documentation.InternalUseOnly;
-import app.saucer.ntv.documentation.RequiresFree;
 import app.saucer.ntv.util.SaucerBoxedType;
 import app.saucer.ntv.util.size_t;
 import lombok.NonNull;
@@ -17,19 +16,19 @@ public final class SaucerSchemeResponse extends SaucerBoxedType<saucer_scheme_re
      */
     @Deprecated
     @InternalUseOnly
-    public SaucerSchemeResponse(saucer_scheme_response $ref) {
-        super($ref);
+    public SaucerSchemeResponse(saucer_scheme_response $ref, boolean autoFree) {
+        super($ref, autoFree);
     }
 
     public static SaucerSchemeResponse create(@NonNull byte[] data, @NonNull String mimeType) {
-        @RequiresFree
         saucer_stash stash = ntv_stash.N.saucer_stash_new_from(data, new size_t(data.length));
-        try {
-            saucer_scheme_response response = ntv_scheme.N.saucer_scheme_response_new(stash, mimeType);
-            return new SaucerSchemeResponse(response); // do not free the stash, it's used by the response
-        } finally {
-            ntv_stash.N.saucer_stash_free(stash);
-        }
+//        try {
+        saucer_scheme_response response = ntv_scheme.N.saucer_scheme_response_new(stash, mimeType);
+        return new SaucerSchemeResponse(response, true);
+        // do not free the stash, it's used by the response
+//        } finally {
+//            ntv_stash.N.saucer_stash_free(stash);
+//        }
     }
 
     /* ------------------------------------ */

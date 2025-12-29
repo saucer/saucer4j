@@ -28,14 +28,14 @@ public final class SaucerUrl extends SaucerBoxedType<saucer_url> {
      */
     @Deprecated
     @InternalUseOnly
-    public SaucerUrl(@NonNull saucer_url $ref) {
-        super($ref);
+    public SaucerUrl(@NonNull saucer_url $ref, boolean autoFree) {
+        super($ref, autoFree);
     }
 
     @Override
     public SaucerUrl clone() {
         saucer_url cpy = ntv_url.N.saucer_url_copy($ref);
-        return new SaucerUrl(cpy);
+        return new SaucerUrl(cpy, true);
     }
 
     public static SaucerUrl from(@NonNull File file) {
@@ -46,7 +46,7 @@ public final class SaucerUrl extends SaucerBoxedType<saucer_url> {
             throw new IllegalArgumentException("Failed to create SaucerUrl from file, error code: " + error.getValue());
         }
 
-        return new SaucerUrl($ref);
+        return new SaucerUrl($ref, true);
     }
 
     public static SaucerUrl parse(@NonNull String url) {
@@ -57,7 +57,7 @@ public final class SaucerUrl extends SaucerBoxedType<saucer_url> {
             throw new IllegalArgumentException("Failed to create SaucerUrl from string, error code: " + error.getValue());
         }
 
-        return new SaucerUrl($ref);
+        return new SaucerUrl($ref, true);
     }
 
     /* ------------------------------------ */

@@ -112,7 +112,7 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
      */
     @Deprecated
     public SaucerWindow(saucer_window window) {
-        super(window);
+        super(window, false);
 
         ntv_window.N.saucer_window_on($ref, saucer_window_event.DECORATED, this.decoratedCallback, false, null);
         ntv_window.N.saucer_window_on($ref, saucer_window_event.MAXIMIZE, this.maximizeCallback, false, null);

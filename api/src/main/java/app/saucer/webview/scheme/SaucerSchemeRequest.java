@@ -23,14 +23,14 @@ public final class SaucerSchemeRequest extends SaucerBoxedType<saucer_scheme_req
      */
     @Deprecated
     @InternalUseOnly
-    public SaucerSchemeRequest(saucer_scheme_request $ref) {
-        super($ref);
+    public SaucerSchemeRequest(saucer_scheme_request $ref, boolean autoFree) {
+        super($ref, autoFree);
     }
 
     @Override
     public SaucerSchemeRequest clone() {
         saucer_scheme_request cpy = ntv_scheme.N.saucer_scheme_request_copy($ref);
-        return new SaucerSchemeRequest(cpy);
+        return new SaucerSchemeRequest(cpy, true);
     }
 
     /* ------------------------------------ */
@@ -52,7 +52,7 @@ public final class SaucerSchemeRequest extends SaucerBoxedType<saucer_scheme_req
 
     public SaucerUrl url() {
         saucer_url $url = ntv_scheme.N.saucer_scheme_request_url($ref);
-        return new SaucerUrl($url);
+        return new SaucerUrl($url, false);
     }
 
     public byte[] content() {

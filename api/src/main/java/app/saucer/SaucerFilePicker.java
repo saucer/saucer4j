@@ -3,8 +3,8 @@ package app.saucer;
 import java.io.File;
 
 import app.saucer.ntv.ntv_desktop;
-import app.saucer.ntv.documentation.InternalUseOnly;
 import app.saucer.ntv.ntv_desktop.saucer_picker_options;
+import app.saucer.ntv.documentation.InternalUseOnly;
 import app.saucer.ntv.util.SaucerBoxedType;
 import app.saucer.ntv.util.size_t;
 import lombok.NonNull;
@@ -16,12 +16,12 @@ public final class SaucerFilePicker extends SaucerBoxedType<saucer_picker_option
      */
     @Deprecated
     @InternalUseOnly
-    public SaucerFilePicker(saucer_picker_options $ref) {
-        super($ref);
+    public SaucerFilePicker(saucer_picker_options $ref, boolean autoFree) {
+        super($ref, autoFree);
     }
 
     public static SaucerFilePicker create() {
-        return new SaucerFilePicker(ntv_desktop.N.saucer_picker_options_new());
+        return new SaucerFilePicker(ntv_desktop.N.saucer_picker_options_new(), true);
     }
 
     /* ------------------------------------ */

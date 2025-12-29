@@ -22,14 +22,14 @@ public final class SaucerIcon extends SaucerBoxedType<saucer_icon> {
      */
     @Deprecated
     @InternalUseOnly
-    public SaucerIcon(saucer_icon $ref) {
-        super($ref);
+    public SaucerIcon(saucer_icon $ref, boolean autoFree) {
+        super($ref, autoFree);
     }
 
     @Override
     public SaucerIcon clone() {
         saucer_icon cpy = ntv_icon.N.saucer_icon_copy($ref);
-        return new SaucerIcon(cpy);
+        return new SaucerIcon(cpy, true);
     }
 
     /**
@@ -46,7 +46,7 @@ public final class SaucerIcon extends SaucerBoxedType<saucer_icon> {
                 throw new IllegalArgumentException("Failed to create SaucerUrl from string, error code: " + error.getValue());
             }
 
-            return new SaucerIcon(icon); // do not free the stash, it's used by the icon
+            return new SaucerIcon(icon, true); // do not free the stash, it's used by the icon
         } finally {
             stash.close();
         }

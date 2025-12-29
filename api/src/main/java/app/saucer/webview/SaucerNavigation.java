@@ -15,8 +15,8 @@ public final class SaucerNavigation extends SaucerBoxedType<saucer_navigation> {
      * @deprecated Native interop only.
      */
     @Deprecated
-    public SaucerNavigation(saucer_navigation $ref) {
-        super($ref);
+    public SaucerNavigation(saucer_navigation $ref, boolean autoFree) {
+        super($ref, autoFree);
     }
 
     /* ------------------------------------ */
@@ -26,7 +26,7 @@ public final class SaucerNavigation extends SaucerBoxedType<saucer_navigation> {
     @ToString.Include
     public SaucerUrl targetUrl() {
         saucer_url $url = ntv_navigation.N.saucer_navigation_url($ref);
-        return new SaucerUrl($url);
+        return new SaucerUrl($url, false);
     }
 
     @ToString.Include

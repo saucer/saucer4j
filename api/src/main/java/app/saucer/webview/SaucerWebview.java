@@ -90,7 +90,7 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
 
     private final saucer_webview_event_navigated navigatedCallback = (saucer_webview _unused, saucer_url url, Callback _unused2) -> {
         if (this.listener != null) {
-            SaucerUrl boxed = new SaucerUrl(url);
+            SaucerUrl boxed = new SaucerUrl(url, false);
             SaucerBoxedType.noFree(boxed); // Prevent double-free.
             this.listener.onNavigated(boxed);
         }
@@ -98,8 +98,7 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
 
     private final saucer_webview_event_navigate navigateCallback = (saucer_webview _unused, saucer_navigation nav, Callback _unused2) -> {
         if (this.listener != null) {
-            SaucerNavigation boxed = new SaucerNavigation(nav);
-            SaucerBoxedType.noFree(boxed); // Prevent double-free.
+            SaucerNavigation boxed = new SaucerNavigation(nav, false);
             if (!this.listener.onNavigate(boxed)) {
                 return saucer_policy.BLOCK;
             }
@@ -113,8 +112,7 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
 
     private final saucer_webview_event_favicon faviconCallback = (saucer_webview _unused, saucer_icon icon, Callback _unused2) -> {
         if (this.listener != null) {
-            SaucerIcon boxed = new SaucerIcon(icon);
-            SaucerBoxedType.noFree(boxed); // Prevent double-free.
+            SaucerIcon boxed = new SaucerIcon(icon, false);
             this.listener.onFavicon(boxed);
         }
     };
@@ -140,7 +138,7 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
      */
     @Deprecated
     public SaucerWebview(saucer_webview webview, SaucerWindow window, Runnable onClose) {
-        super(webview);
+        super(webview, false);
         alreadyLoaded = true;
 
         this.window = window;
@@ -198,7 +196,7 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
             throw new IllegalStateException("Failed to get current URL (error code " + error.getValue() + ")");
         }
 
-        return new SaucerUrl($url);
+        return new SaucerUrl($url, true);
     }
 
     /**
@@ -211,7 +209,7 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
 
     public SaucerIcon favicon() {
         saucer_icon $icon = ntv_webview.N.saucer_webview_favicon($ref);
-        return new SaucerIcon($icon);
+        return new SaucerIcon($icon, true);
     }
 
     @JavascriptGetter("title")
@@ -371,9 +369,7 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
         @Override
         public void callback(saucer_scheme_request req, saucer_scheme_executor exec) {
             try {
-                SaucerSchemeRequest boxedReq = new SaucerSchemeRequest(req);
-                SaucerBoxedType.noFree(boxedReq); // Prevent double-free.
-
+                SaucerSchemeRequest boxedReq = new SaucerSchemeRequest(req, false);
                 SaucerSchemeResponse boxedRes = this.handler.handle(boxedReq); // Saucer copies the data internally, so we let the GC clean this up.
 
                 if (boxedRes == null) {
