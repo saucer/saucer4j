@@ -6,6 +6,8 @@ import java.util.function.Supplier;
 
 import com.sun.jna.ptr.IntByReference;
 
+import app.saucer.bridge.JavascriptGetter;
+import app.saucer.bridge.JavascriptObject;
 import app.saucer.ntv.ntv_app;
 import app.saucer.ntv.ntv_app.saucer_application;
 import app.saucer.ntv.ntv_app.saucer_application_options;
@@ -22,6 +24,7 @@ import app.saucer.ntv.util.size_t;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 
+@JavascriptObject
 @SuppressWarnings("deprecation")
 public final class SaucerApp {
     private static saucer_application $app;
@@ -181,6 +184,7 @@ public final class SaucerApp {
     /* ------------------------------------ */
     /* ------------------------------------ */
 
+    @JavascriptGetter("screens")
     public static SaucerScreen[] screens() {
         size_t.ByReference sizeRef = new size_t.ByReference();
 
@@ -198,11 +202,13 @@ public final class SaucerApp {
         return boxed;
     }
 
+    @JavascriptGetter("archTarget")
     public static String getArchTarget() {
         return SaucerBackend.getArchTarget();
     }
 
     @SneakyThrows
+    @JavascriptGetter("systemTarget")
     public static String getSystemTarget() {
         return SaucerBackend.getSystemTarget();
     }

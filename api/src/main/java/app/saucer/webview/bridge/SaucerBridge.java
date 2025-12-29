@@ -75,6 +75,7 @@ public final class SaucerBridge {
     private void injectBase() {
         this.defineObject("saucer.webview", this.webview);
         this.defineObject("saucer.window", this.webview.window);
+        this.defineObject("saucer.app", SaucerApp.class);
     }
 
     private boolean onMessage(saucer_webview _unused, String raw, size_t _unused2, Callback _unused3) {
@@ -215,9 +216,17 @@ public final class SaucerBridge {
      */
     @SneakyThrows
     public void defineObject(@NonNull String name, @NonNull Object obj) {
-        assert obj.getClass().isAnnotationPresent(JavascriptObject.class) : "Class MUST be annotated with @JavascriptObject";
+        Class<?> clazz;
+        if (obj instanceof Class<?>) {
+            clazz = (Class<?>) obj;
+            obj = null; // Static class
+        } else {
+            clazz = obj.getClass();
+        }
 
-        _JavascriptObjectWrapper wrapper = new _JavascriptObjectWrapper(name, obj);
+        assert clazz.isAnnotationPresent(JavascriptObject.class) : "Class MUST be annotated with @JavascriptObject";
+
+        _JavascriptObjectWrapper wrapper = new _JavascriptObjectWrapper(name, clazz, obj);
         this.objects.put(wrapper.id, wrapper);
 
         this.injectScript(
@@ -235,7 +244,7 @@ public final class SaucerBridge {
 
         // Look for sub-objects and register them.
         // Note that this recurses until there are no more sub-objects.
-        for (Field f : _Reflection.getAllFields(obj.getClass())) {
+        for (Field f : _Reflection.getAllFields(clazz)) {
             if (Modifier.isStatic(f.getModifiers())) {
                 continue;
             }

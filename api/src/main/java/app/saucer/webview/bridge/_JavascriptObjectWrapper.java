@@ -37,15 +37,13 @@ class _JavascriptObjectWrapper {
     private final Map<String, Consumer<JsonElement>> setters;
     private final Map<String, MethodWrapper> functions;
 
-    _JavascriptObjectWrapper(String path, Object obj) {
+    _JavascriptObjectWrapper(String path, Class<?> objClass, Object obj) {
         this.path = path;
 
         List<MutableField> mutableFields = new ArrayList<>();
         Map<String, Supplier<?>> getters = new HashMap<>();
         Map<String, Consumer<JsonElement>> setters = new HashMap<>();
         Map<String, MethodWrapper> functions = new HashMap<>();
-
-        Class<?> objClass = obj.getClass();
 
         // Register field getters/setters first. This is so method-based getters/setters
         // can override field-based ones.
@@ -151,7 +149,7 @@ class _JavascriptObjectWrapper {
     @RequiredArgsConstructor
     private static class MutableField {
         private final String name;
-        private final Object obj;
+        private final @Nullable Object obj;
         private final Field f;
 
         private int lastHashCode = 0;
@@ -171,7 +169,7 @@ class _JavascriptObjectWrapper {
     }
 
     private static class MethodWrapper {
-        private final Object obj;
+        private final @Nullable Object obj;
         private final Method m;
 
         private final TypeToken<?>[] parameterTypes;
@@ -225,7 +223,7 @@ class _JavascriptObjectWrapper {
     /* -------------------------------- */
 
     private static class FieldGetter<T> implements Supplier<T> {
-        private final Object obj;
+        private final @Nullable Object obj;
         private final Field f;
 
         private FieldGetter(Object obj, Field f) {
@@ -250,7 +248,7 @@ class _JavascriptObjectWrapper {
     }
 
     private static class MethodGetter implements Supplier<Object> {
-        private final Object obj;
+        private final @Nullable Object obj;
         private final Method m;
 
         private MethodGetter(Object obj, Method m) {
@@ -273,7 +271,7 @@ class _JavascriptObjectWrapper {
 
     @SuppressWarnings("unchecked")
     private static class FieldSetter<T> implements Consumer<JsonElement> {
-        private final Object obj;
+        private final @Nullable Object obj;
         private final Field f;
 
         private final TypeToken<T> deserializationType;
@@ -305,7 +303,7 @@ class _JavascriptObjectWrapper {
     }
 
     private static class MethodSetter implements Consumer<JsonElement> {
-        private final Object obj;
+        private final @Nullable Object obj;
         private final Method m;
 
         private final TypeToken<?> deserializationType;
