@@ -1,7 +1,6 @@
 package app.saucer.webview;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -66,7 +65,6 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
     private static boolean alreadyLoaded = false;
 
     private static final Set<String> customSchemes = new HashSet<>();
-    public static final Set<String> registeredSchemes = Collections.unmodifiableSet(customSchemes);
 
     public final SaucerWindow window;
     public final SaucerBridge bridge;
@@ -350,7 +348,7 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
      */
     public void addSchemeHandler(@NonNull String name, @NonNull SaucerSchemeHandler handler) {
         assert !this.schemeHandlers.containsKey(name) : "You can only add one handler per scheme. Did you mean to call removeSchemeHandler() first?";
-        assert registeredSchemes.contains(name) : "You must register your scheme via Saucer.registerCustomScheme()";
+        assert customSchemes.contains(name) : "You must register your scheme via Saucer.registerCustomScheme()";
         saucer_scheme_handler handlerNtv = new SaucerSchemeWrapper(handler);
         ntv_webview.N.saucer_webview_handle_scheme($ref, name, handlerNtv);
         this.schemeHandlers.put(name, handlerNtv);
