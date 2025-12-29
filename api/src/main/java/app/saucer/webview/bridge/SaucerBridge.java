@@ -140,12 +140,6 @@ public final class SaucerBridge {
                             break;
                         }
 
-                        case "CLOSE": {
-                            // TODO
-//                        webview.close();
-                            break;
-                        }
-
                         case "OPEN_LINK": {
                             String link = message.getString("link");
                             SaucerDesktop.open(link);

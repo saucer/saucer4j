@@ -164,6 +164,7 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
      * Frees the webview and its resources. Additionally, the webview will be
      * removed from it's parent window.
      */
+    @JavascriptFunction
     public void destroy() {
         if (this.isClosed) return;
         this.isClosed = true;

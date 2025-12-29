@@ -174,6 +174,7 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
      * Frees the window and its resources. Additionally, all child webviews will be
      * destroyed as well.
      */
+    @JavascriptFunction
     public void destroy() {
         cleanup();
         $ref.close();

@@ -91,14 +91,6 @@ Object.defineProperty(SAUCER, "messages", {
 	configurable: true,
 });
 
-Object.defineProperty(SAUCER, "close", {
-	value: function () {
-		RPC.send({ type: "CLOSE" });
-	},
-	writable: false,
-	configurable: true,
-});
-
 Object.defineProperty(SAUCER, "openLinkInSystemBrowser", {
 	value: function (link) {
 		RPC.send({ type: "OPEN_LINK", link });
