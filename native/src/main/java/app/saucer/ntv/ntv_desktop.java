@@ -3,6 +3,7 @@ package app.saucer.ntv;
 import com.sun.jna.Library;
 import com.sun.jna.ptr.IntByReference;
 
+import app.saucer.ntv.ntv_app.saucer_application;
 import app.saucer.ntv.util.SaucerNativeLoader;
 import app.saucer.ntv.util.SaucerPointerType;
 import app.saucer.ntv.util.size_t;
@@ -37,6 +38,8 @@ public interface ntv_desktop extends Library {
     public saucer_picker_options saucer_picker_options_new();
 
     public int saucer_picker_options_free(saucer_picker_options arg0);
+
+    public saucer_desktop saucer_desktop_new(saucer_application arg0);
 
     public int saucer_picker_options_set_initial(saucer_picker_options arg0, String arg1);
 

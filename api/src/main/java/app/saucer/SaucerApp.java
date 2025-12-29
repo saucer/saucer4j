@@ -19,6 +19,7 @@ import app.saucer.ntv.ntv_app.saucer_application_options;
 import app.saucer.ntv.ntv_app.saucer_policy;
 import app.saucer.ntv.ntv_app.saucer_post_callback;
 import app.saucer.ntv.ntv_app.saucer_screen;
+import app.saucer.ntv.ntv_desktop;
 import app.saucer.ntv.ntv_desktop.saucer_desktop;
 import app.saucer.ntv.ntv_loop;
 import app.saucer.ntv.ntv_loop.saucer_loop;
@@ -118,6 +119,7 @@ public final class SaucerApp {
             }
 
             $loop = ntv_loop.N.saucer_loop_new($app);
+            $desktop = ntv_desktop.N.saucer_desktop_new($app);
             mainThread = Thread.currentThread();
 
             ntv_app.N.saucer_application_on($app, saucer_application_event.QUIT, quitCallback, false, null);
