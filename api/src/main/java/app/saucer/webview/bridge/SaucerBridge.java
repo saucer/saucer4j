@@ -65,11 +65,16 @@ public final class SaucerBridge {
                     .put("backend", SaucerApp.getBackendType().toString())
             ),
             SaucerLoadTime.DOM_CREATION,
-            false,
+            true,
             false
         );
 
-        this.clearAll();
+        this.injectBase();
+    }
+
+    private void injectBase() {
+        this.defineObject("saucer.webview", this.webview);
+        this.defineObject("saucer.window", this.webview.window);
     }
 
     private boolean onMessage(saucer_webview _unused, String raw, size_t _unused2, Callback _unused3) {
@@ -230,8 +235,8 @@ public final class SaucerBridge {
                 Rson.DEFAULT.toJson(wrapper.properties())
             ),
             SaucerLoadTime.DOM_CREATION,
-            false,
-            false
+            true,
+            true
         );
 
         // Look for sub-objects and register them.
@@ -268,8 +273,7 @@ public final class SaucerBridge {
     public void clearAll() {
         ntv_webview.N.saucer_webview_uninject_all(SaucerBoxedType.ntv(this.webview));
         this.objects.clear();
-        this.defineObject("saucer.webview", this.webview);
-        this.defineObject("saucer.window", this.webview.window);
+        this.injectBase();
     }
 
 }
