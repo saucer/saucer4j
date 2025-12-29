@@ -20,6 +20,11 @@ public final class SaucerSchemeResponse extends SaucerBoxedType<saucer_scheme_re
         super($ref, autoFree);
     }
 
+    /**
+     * Creates a new scheme response from raw data and a MIME type.
+     * 
+     * @see {@link MimeTypes} for looking up MIME types.
+     */
     public static SaucerSchemeResponse create(@NonNull byte[] data, @NonNull String mimeType) {
         saucer_stash stash = ntv_stash.N.saucer_stash_new_from(data, new size_t(data.length));
 //        try {
@@ -36,6 +41,8 @@ public final class SaucerSchemeResponse extends SaucerBoxedType<saucer_scheme_re
     /* ------------------------------------ */
 
     /**
+     * Sets the HTTP status code for this response.
+     * 
      * @return this instance, for chaining.
      */
     public SaucerSchemeResponse status(int statusCode) {
@@ -44,6 +51,8 @@ public final class SaucerSchemeResponse extends SaucerBoxedType<saucer_scheme_re
     }
 
     /**
+     * Appends a header to this response.
+     * 
      * @return this instance, for chaining.
      */
     public SaucerSchemeResponse appendHeader(@NonNull String key, @NonNull String value) {

@@ -36,6 +36,9 @@ public final class SaucerSchemeRequest extends SaucerBoxedType<saucer_scheme_req
     /* ------------------------------------ */
     /* ------------------------------------ */
 
+    /**
+     * @return The HTTP method of the request (e.g., "GET", "POST").
+     */
     public String method() {
         size_t.ByReference sizeRef = new size_t.ByReference();
 
@@ -49,17 +52,26 @@ public final class SaucerSchemeRequest extends SaucerBoxedType<saucer_scheme_req
         return new String(buffer, StandardCharsets.UTF_8);
     }
 
+    /**
+     * @return The URL of the request.
+     */
     public SaucerUrl url() {
         saucer_url $url = ntv_scheme.N.saucer_scheme_request_url($ref);
         return new SaucerUrl($url, false);
     }
 
+    /**
+     * @return The content/body of the request if any.
+     */
     public byte[] content() {
         try (saucer_stash stash = ntv_scheme.N.saucer_scheme_request_content($ref)) {
             return ntv_stash.N.saucer_stash_data(stash);
         }
     }
 
+    /**
+     * @return A map of all headers in the request.
+     */
     public Map<String, String> headers() {
         // Headers are returned null delimited,
         // e.g. as "Header: Value\0Another Header: Value"

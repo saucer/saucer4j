@@ -205,17 +205,23 @@ public final class SaucerBridge {
 
     /**
      * Executes the given JavaScript code in the webview.
+     * 
+     * @return this instance, for chaining.
      */
     @JavascriptFunction
-    public void executeJavaScript(@NonNull String scriptToExecute) {
+    public SaucerBridge executeJavaScript(@NonNull String scriptToExecute) {
         ntv_webview.N.saucer_webview_execute(SaucerBoxedType.ntv(this.webview), scriptToExecute);
+        return this;
     }
 
     /**
-     * @param obj your class annotated with {@link JavascriptObject}.
+     * @param  obj your class annotated with {@link JavascriptObject}. Can also be
+     *             an instance of a class (i.e an object).
+     * 
+     * @return     this instance, for chaining.
      */
     @SneakyThrows
-    public void defineObject(@NonNull String name, @NonNull Object obj) {
+    public SaucerBridge defineObject(@NonNull String name, @NonNull Object obj) {
         Class<?> clazz;
         if (obj instanceof Class<?>) {
             clazz = (Class<?>) obj;
@@ -254,29 +260,48 @@ public final class SaucerBridge {
                 this.defineObject(name + "." + f.getName(), f.get(obj));
             }
         }
+
+        return this;
     }
 
     /**
-     * @return a script id that can be used to remove the script later.
+     * @param  code           the JavaScript code to inject.
+     * @param  runAt          when to run the script.
+     * @param  disallowFrames whether to disallow the script from running in
+     *                        iframes.
+     * @param  clearable      whether the script can be removed when
+     *                        {@link #clearAll()} or {@link #clear(long)} is called.
+     * 
+     * @return                a script id that can be used to remove the script
+     *                        later.
      */
     public long injectScript(@NonNull String code, SaucerLoadTime runAt, boolean disallowFrames, boolean clearable) {
         size_t id = ntv_webview.N.saucer_webview_inject(SaucerBoxedType.ntv(this.webview), code, runAt.nativeValue, disallowFrames, clearable);
         return id.longValue();
     }
 
-    public void clear(long scriptId) {
+    /**
+     * Removes an injected script.
+     * 
+     * @return this instance, for chaining.
+     */
+    public SaucerBridge clear(long scriptId) {
         ntv_webview.N.saucer_webview_uninject(SaucerBoxedType.ntv(this.webview), new size_t(scriptId));
+        return this;
     }
 
     /**
      * Clears all injected scripts and removes defined objects.
      * 
-     * Note that permanent scripts will never be removed by this.
+     * Note that non-clearable scripts will never be removed by this.
+     * 
+     * @return this instance, for chaining.
      */
-    public void clearAll() {
+    public SaucerBridge clearAll() {
         ntv_webview.N.saucer_webview_uninject_all(SaucerBoxedType.ntv(this.webview));
         this.objects.clear();
         this.injectBase();
+        return this;
     }
 
 }

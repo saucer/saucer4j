@@ -56,9 +56,12 @@ public final class SaucerMessages {
 
     /**
      * Deregisters a listener that you previously registered.
+     * 
+     * @return this instance, for chaining.
      */
-    public synchronized void off(@NonNull SaucerListenerId registrationId) {
+    public synchronized SaucerMessages off(@NonNull SaucerListenerId registrationId) {
         this.listeners.remove(registrationId);
+        return this;
     }
 
     /**
@@ -66,20 +69,22 @@ public final class SaucerMessages {
      * 
      * @param   data the data to send
      * 
-     * 
+     * @return       this instance, for chaining.
      * 
      * @apiNote      {@link JsonNull#INSTANCE} in Java is `null` in JS. Any non-JSON
      *               type will be automatically marshalled to JSON for you. Rson
      *               will be used to serialize the object, and you will need to
      *               add @JsonClass or @JsonExpose to your code for this to work.
+     * 
      */
-    public void emit(@NonNull Object data) {
+    public SaucerMessages emit(@NonNull Object data) {
         this.webview.bridge.executeJavaScript(
             String.format(
                 "window.saucer.messages.__internal(%s);",
                 Rson.DEFAULT.toJson(data).toString()
             )
         );
+        return this;
     }
 
     /**

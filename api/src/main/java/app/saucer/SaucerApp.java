@@ -126,6 +126,11 @@ public final class SaucerApp {
         ntv_loop.N.saucer_loop_iteration($loop);
     }
 
+    /**
+     * Quits the app, stopping the run loop. Note that this *may* leave
+     * windows/webviews unresponsive. It is recommended to close all windows before
+     * calling this.
+     */
     public static void quit() {
         if ($app == null) return;
 
@@ -185,6 +190,11 @@ public final class SaucerApp {
     /* ------------------------------------ */
     /* ------------------------------------ */
 
+    /**
+     * @return An array of all available screens.
+     * 
+     * @see    {@link SaucerScreen}
+     */
     @JavascriptGetter("screens")
     public static SaucerScreen[] screens() {
         size_t.ByReference sizeRef = new size_t.ByReference();
@@ -203,22 +213,34 @@ public final class SaucerApp {
         return boxed;
     }
 
+    /**
+     * @return The CPU architecture target of the running Saucer backend.
+     */
     @JavascriptGetter("archTarget")
     public static String archTarget() {
         return SaucerBackend.getArchTarget();
     }
 
+    /**
+     * @return The OS platform target of the running Saucer backend.
+     */
     @SneakyThrows
     @JavascriptGetter("systemTarget")
     public static String systemTarget() {
         return SaucerBackend.getSystemTarget();
     }
 
+    /**
+     * @return The type of the running Saucer backend.
+     */
     @JavascriptGetter("backendType")
     public static SaucerBackendType backendType() {
         return SaucerNativeLoader.getBackend().getType();
     }
 
+    /**
+     * @return The version of the Saucer native library.
+     */
     @JavascriptGetter("version")
     public static String version() {
         return ntv_app.N.saucer_version();

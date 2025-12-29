@@ -2,13 +2,21 @@ package app.saucer.webview.scheme;
 
 import java.io.InputStream;
 
+import org.jetbrains.annotations.Nullable;
+
 import co.casterlabs.commons.io.streams.StreamUtil;
 import lombok.NonNull;
 
 @FunctionalInterface
 public interface SaucerSchemeHandler {
 
-    public SaucerSchemeResponse handle(SaucerSchemeRequest request) throws Throwable;
+    /**
+     * Handles a custom scheme request.
+     * 
+     * @return A response, or null to indicate that the request could not be
+     *         handled.
+     */
+    public @Nullable SaucerSchemeResponse handle(SaucerSchemeRequest request) throws Throwable;
 
     public static SaucerSchemeHandler fromResources(@NonNull Class<?> clazz) {
         return fromResources(clazz, "");

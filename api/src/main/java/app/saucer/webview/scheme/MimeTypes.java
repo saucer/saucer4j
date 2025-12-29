@@ -7,6 +7,9 @@ import org.jetbrains.annotations.Nullable;
 
 import lombok.NonNull;
 
+/**
+ * A utility class for handling MIME types based on file extensions.
+ */
 public final class MimeTypes {
     private static Map<String, String> mimeTypes = new HashMap<>();
     static {
@@ -458,19 +461,29 @@ public final class MimeTypes {
         mimeTypes.put("zsh", "text/x-script.zsh");
     }
 
-    public static @NonNull String getMimeForType(@Nullable String type) {
-        if (type == null) {
+    /**
+     * Returns the MIME type for the given file extension.
+     */
+    public static @NonNull String getMimeForType(@Nullable String ext) {
+        if (ext == null) {
             return "application/octet-stream";
         } else {
-            return mimeTypes.getOrDefault(type.toLowerCase(), "application/octet-stream");
+            return mimeTypes.getOrDefault(ext.toLowerCase(), "application/octet-stream");
         }
     }
 
+    /**
+     * Returns the MIME type for the given filename or path.
+     */
     public static @NonNull String getMimeForFile(@NonNull String nameOrPath) {
         String fileExtension = getFileExtension(nameOrPath);
         return getMimeForType(fileExtension);
     }
 
+    /**
+     * Splits the given filename or path and returns the file extension in
+     * lowercase.
+     */
     public static String getFileExtension(@NonNull String nameOrPath) {
         String[] pathParts = nameOrPath.split("[/\\\\]");
 

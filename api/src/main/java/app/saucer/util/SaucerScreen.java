@@ -12,7 +12,12 @@ import co.casterlabs.rakurai.json.annotating.JsonSerializer;
 import co.casterlabs.rakurai.json.element.JsonElement;
 import co.casterlabs.rakurai.json.element.JsonObject;
 import lombok.NonNull;
+import lombok.ToString;
 
+/**
+ * Represents a screen/monitor connected to the system.
+ */
+@ToString
 @JsonClass(serializer = SaucerScreenSerializer.class)
 public class SaucerScreen extends SaucerBoxedType<saucer_screen> {
 
@@ -25,10 +30,18 @@ public class SaucerScreen extends SaucerBoxedType<saucer_screen> {
         super($ref, autoFree);
     }
 
+    /**
+     * @return The name of the screen.
+     */
+    @ToString.Include
     public String name() {
         return ntv_app.N.saucer_screen_name($ref);
     }
 
+    /**
+     * @return The size of the screen.
+     */
+    @ToString.Include
     public SaucerSize size() {
         IntByReference widthRef = new IntByReference();
         IntByReference heightRef = new IntByReference();
@@ -36,11 +49,24 @@ public class SaucerScreen extends SaucerBoxedType<saucer_screen> {
         return new SaucerSize(widthRef.getValue(), heightRef.getValue());
     }
 
+    /**
+     * @return The position of the screen.
+     */
+    @ToString.Include
     public SaucerPosition position() {
         IntByReference xRef = new IntByReference();
         IntByReference yRef = new IntByReference();
         ntv_app.N.saucer_screen_position($ref, xRef, yRef);
         return new SaucerPosition(xRef.getValue(), yRef.getValue());
+    }
+
+    /**
+     * @return The bounds of the screen.
+     */
+    public SaucerRectangle bounds() {
+        SaucerSize size = this.size();
+        SaucerPosition position = this.position();
+        return new SaucerRectangle(position.x, position.y, size.width, size.height);
     }
 
 }

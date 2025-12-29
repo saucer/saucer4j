@@ -132,6 +132,9 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
         instances.add(this);
     }
 
+    /**
+     * Creates a new SaucerWindow.
+     */
     public static SaucerWindow create() {
         IntByReference error = new IntByReference();
         saucer_window nativeWindow = ntv_window.N.saucer_window_new(SaucerApp.ntv_app(), error);
@@ -143,10 +146,24 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
         return new SaucerWindow(nativeWindow);
     }
 
+    /**
+     * Creates a new SaucerWebview as a child of this SaucerWindow with default
+     * options.
+     * 
+     * @return the created SaucerWebview.
+     */
     public SaucerWebview createWebview() {
         return this.createWebview(null);
     }
 
+    /**
+     * Creates a new SaucerWebview as a child of this SaucerWindow with custom
+     * options.
+     * 
+     * @param  optionsEditor a consumer that edits the default options.
+     * 
+     * @return               the created SaucerWebview.
+     */
     public SaucerWebview createWebview(Consumer<SaucerWebviewOptions> optionsEditor) {
         SaucerWebviewOptions options = new SaucerWebviewOptions($ref);
         if (optionsEditor != null) {
@@ -191,6 +208,11 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
     /* ------------------------------------ */
     /* ------------------------------------ */
 
+    /**
+     * Dispatches a runnable to be executed asynchronously on a separate thread.
+     * 
+     * @param runnable the runnable to execute.
+     */
     public void dispatchAsync(@NonNull Runnable runnable) {
         this.asyncExecutor.submit(runnable);
     }
@@ -221,7 +243,7 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
     /**
      * Focuses Saucer, bringing it into the foreground.
      * 
-     * @return
+     * @return this instance, for chaining.
      */
     @JavascriptFunction
     public SaucerWindow focus() {
@@ -240,7 +262,7 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
     /**
      * Whether or not to minimize (true) or restore (false)
      * 
-     * @return
+     * @return this instance, for chaining.
      */
     @JavascriptSetter("minimized")
     public SaucerWindow minimized(boolean b) {
@@ -259,7 +281,7 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
     /**
      * Whether or not to maximize (true) or restore (false)
      * 
-     * @return
+     * @return this instance, for chaining.
      */
     @JavascriptSetter("maximized")
     public SaucerWindow maximized(boolean b) {
@@ -278,7 +300,7 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
     /**
      * Enables (true) or disables (false) the resizing of Saucer.
      * 
-     * @return
+     * @return this instance, for chaining.
      */
     @JavascriptSetter("resizable")
     public SaucerWindow resizable(boolean b) {
@@ -297,7 +319,7 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
     /**
      * Sets whether or not Saucer is in fullscreen mode.
      * 
-     * @return
+     * @return this instance, for chaining.
      */
     @JavascriptSetter("fullscreen")
     public SaucerWindow fullscreen(boolean b) {
@@ -316,7 +338,7 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
     /**
      * Sets whether or not Saucer is always on top of every other window.
      * 
-     * @return
+     * @return this instance, for chaining.
      */
     @JavascriptSetter("alwaysOnTop")
     public SaucerWindow alwaysOnTop(boolean b) {
@@ -337,7 +359,7 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
      * Enables (true) or disables (false) click-through for Saucer (i.e mouse events
      * pass through it).
      * 
-     * @return
+     * @return this instance, for chaining.
      */
     @JavascriptSetter("clickThrough")
     public SaucerWindow clickThrough(boolean b) {
@@ -364,6 +386,8 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
 
     /**
      * Sets the title of the Saucer window.
+     * 
+     * @return this instance, for chaining.
      */
     @JavascriptSetter("title")
     public SaucerWindow title(@NonNull String title) {
@@ -371,6 +395,9 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
         return this;
     }
 
+    /**
+     * @return the background color of the Saucer window.
+     */
     @JavascriptGetter("backgroundColor")
     public SaucerColor backgroundColor() {
         ByteByReference rRef = new ByteByReference();
@@ -388,6 +415,11 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
         );
     }
 
+    /**
+     * Sets the background color of the Saucer window.
+     * 
+     * @return this instance, for chaining.
+     */
     @JavascriptSetter("backgroundColor")
     public SaucerWindow backgroundColor(@NonNull SaucerColor color) {
         ntv_window.N.saucer_window_set_background(
@@ -413,7 +445,7 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
      * Enables (true) or disables (false) Saucer's window decorations (i.e the title
      * bar).
      * 
-     * @return
+     * @return this instance, for chaining.
      */
     @JavascriptSetter("decorations")
     public SaucerWindow decorations(@NonNull SaucerWindowDecoration value) {
@@ -435,6 +467,8 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
 
     /**
      * Sets the size of the Saucer window.
+     * 
+     * @return this instance, for chaining.
      */
     @JavascriptSetter("size")
     public SaucerWindow size(@NonNull SaucerSize size) {
@@ -456,6 +490,8 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
 
     /**
      * Sets the minimum allowed size of the Saucer window.
+     * 
+     * @return this instance, for chaining.
      */
     @JavascriptSetter("minSize")
     public SaucerWindow minSize(@NonNull SaucerSize size) {
@@ -477,6 +513,8 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
 
     /**
      * Sets the maximum allowed size of the Saucer window.
+     * 
+     * @return this instance, for chaining.
      */
     @JavascriptSetter("maxSize")
     public SaucerWindow maxSize(@NonNull SaucerSize size) {
@@ -484,6 +522,9 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
         return this;
     }
 
+    /**
+     * @return the position of the Saucer window.
+     */
     @JavascriptGetter("position")
     public SaucerPosition position() {
         IntByReference xRef = new IntByReference();
@@ -493,12 +534,20 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
         return new SaucerPosition(xRef.getValue(), yRef.getValue());
     }
 
+    /**
+     * Sets the position of the Saucer window.
+     * 
+     * @return this instance, for chaining.
+     */
     @JavascriptSetter("position")
     public SaucerWindow position(@NonNull SaucerPosition position) {
         ntv_window.N.saucer_window_set_position($ref, position.x, position.y);
         return this;
     }
 
+    /**
+     * @return the screen that Saucer is currently on.
+     */
     @JavascriptGetter("screen")
     public SaucerScreen screen() {
         saucer_screen $screen = ntv_window.N.saucer_window_screen($ref);
@@ -509,7 +558,7 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
      * Hides Saucer, this causes the window to disappear from the taskbar and the
      * user will no longer be able to view the app no matter what they do.
      * 
-     * @return
+     * @return this instance, for chaining.
      * 
      * @see    #show()
      */
@@ -522,7 +571,7 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
     /**
      * Unhides Saucer.
      * 
-     * @return
+     * @return this instance, for chaining.
      * 
      * @see    #hide()
      */
@@ -535,7 +584,9 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
     /**
      * Changes the application's icon (e.g what you see in the dock/taskbar).
      * 
-     * @see {@link SaucerWebview#getFavicon()}
+     * @return this instance, for chaining.
+     * 
+     * @see    {@link SaucerWebview#getFavicon()}
      */
     public SaucerWindow icon(@NonNull SaucerIcon icon) {
         ntv_window.N.saucer_window_set_icon($ref, SaucerBoxedType.ntv(icon));

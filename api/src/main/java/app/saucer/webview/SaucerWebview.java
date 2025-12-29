@@ -39,8 +39,8 @@ import app.saucer.ntv.ntv_webview.saucer_webview_event_title;
 import app.saucer.ntv.documentation.BeforeInit;
 import app.saucer.ntv.util.SaucerBoxedType;
 import app.saucer.ntv.util.size_t;
-import app.saucer.util.SaucerBounds;
 import app.saucer.util.SaucerColor;
+import app.saucer.util.SaucerRectangle;
 import app.saucer.util.SaucerUrl;
 import app.saucer.webview.bridge.SaucerBridge;
 import app.saucer.webview.bridge.SaucerMessages;
@@ -201,6 +201,8 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
 
     /**
      * Navigates the webview to the given URL.
+     * 
+     * @return this instance, for chaining.
      */
     @JavascriptSetter("url")
     public SaucerWebview url(@NonNull SaucerUrl url) {
@@ -208,11 +210,17 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
         return this;
     }
 
+    /**
+     * @return the current favicon of the webview.
+     */
     public SaucerIcon favicon() {
         saucer_icon $icon = ntv_webview.N.saucer_webview_favicon($ref);
         return new SaucerIcon($icon, true);
     }
 
+    /**
+     * @return the current title of the webview.
+     */
     @JavascriptGetter("title")
     public String title() {
         size_t.ByReference sizeRef = new size_t.ByReference();
@@ -227,22 +235,38 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
         return new String(buffer, StandardCharsets.UTF_8);
     }
 
+    /**
+     * @return true if the dev tools are visible.
+     */
     @JavascriptGetter("devtoolsVisible")
     public boolean isDevToolsVisible() {
         return ntv_webview.N.saucer_webview_dev_tools($ref);
     }
 
+    /**
+     * Sets whether the dev tools are visible.
+     * 
+     * @return this instance, for chaining.
+     */
     @JavascriptSetter("devtoolsVisible")
     public SaucerWebview devToolsVisible(boolean visible) {
         ntv_webview.N.saucer_webview_set_dev_tools($ref, visible);
         return this;
     }
 
+    /**
+     * @return true if the context menu is allowed.
+     */
     @JavascriptGetter("contextMenu")
     public boolean isContextMenuAllowed() {
         return ntv_webview.N.saucer_webview_context_menu($ref);
     }
 
+    /**
+     * Sets whether the context menu is allowed.
+     * 
+     * @return this instance, for chaining.
+     */
     @JavascriptSetter("contextMenu")
     public SaucerWebview contextMenuAllowed(boolean enabled) {
         ntv_webview.N.saucer_webview_set_context_menu($ref, enabled);
@@ -261,7 +285,7 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
     /**
      * Forces the `prefers-color-scheme` media query to `dark` if true.
      * 
-     * @return
+     * @return   this instance, for chaining.
      * 
      * @implNote For Qt6, a version of 6.7 or greater is required for this to work.
      */
@@ -271,6 +295,9 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
         return this;
     }
 
+    /**
+     * @return the background color of the webview.
+     */
     @JavascriptGetter("backgroundColor")
     public SaucerColor backgroundColor() {
         ByteByReference rRef = new ByteByReference();
@@ -288,6 +315,11 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
         );
     }
 
+    /**
+     * Sets the background color of the webview.
+     * 
+     * @return this instance, for chaining.
+     */
     @JavascriptSetter("backgroundColor")
     public SaucerWebview backgroundColor(@NonNull SaucerColor color) {
         ntv_webview.N.saucer_webview_set_background(
@@ -300,8 +332,11 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
         return this;
     }
 
+    /**
+     * @return the bounds of the webview within its parent window.
+     */
     @JavascriptGetter("bounds")
-    public SaucerBounds bounds() {
+    public SaucerRectangle bounds() {
         IntByReference xRef = new IntByReference();
         IntByReference yRef = new IntByReference();
         IntByReference wRef = new IntByReference();
@@ -309,7 +344,7 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
 
         ntv_webview.N.saucer_webview_bounds($ref, xRef, yRef, wRef, hRef);
 
-        return new SaucerBounds(
+        return new SaucerRectangle(
             xRef.getValue(),
             yRef.getValue(),
             wRef.getValue(),
@@ -317,8 +352,14 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
         );
     }
 
+    /**
+     * Sets the bounds of the webview within its parent window. If null, the webview
+     * will be set to fill the entire window.
+     * 
+     * @return this instance, for chaining.
+     */
     @JavascriptSetter("bounds")
-    public SaucerWebview bounds(@Nullable SaucerBounds bounds) {
+    public SaucerWebview bounds(@Nullable SaucerRectangle bounds) {
         if (bounds == null) {
             ntv_webview.N.saucer_webview_reset_bounds($ref);
             return this;
@@ -334,18 +375,33 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
         return this;
     }
 
+    /**
+     * Navigates back in the webview's history.
+     * 
+     * @return this instance, for chaining.
+     */
     @JavascriptFunction("back")
     public SaucerWebview back() {
         ntv_webview.N.saucer_webview_back($ref);
         return this;
     }
 
+    /**
+     * Navigates forward in the webview's history.
+     * 
+     * @return this instance, for chaining.
+     */
     @JavascriptFunction("forward")
     public SaucerWebview forward() {
         ntv_webview.N.saucer_webview_forward($ref);
         return this;
     }
 
+    /**
+     * Reloads the current page.
+     * 
+     * @return this instance, for chaining.
+     */
     @JavascriptFunction("reload")
     public SaucerWebview reload() {
         ntv_webview.N.saucer_webview_reload($ref);
@@ -358,6 +414,12 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
 
     /**
      * Allows you to serve custom webpages from your own resources.
+     * 
+     * @param  name the scheme name to handle. Must have been registered via
+     *              {@link #registerCustomScheme(String)} before any webviews were
+     *              created.
+     * 
+     * @return      this instance, for chaining.
      */
     public SaucerWebview addSchemeHandler(@NonNull String name, @NonNull SaucerSchemeHandler handler) {
         assert !this.schemeHandlers.containsKey(name) : "You can only add one handler per scheme. Did you mean to call removeSchemeHandler() first?";
@@ -368,6 +430,13 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
         return this;
     }
 
+    /**
+     * Removes a previously added scheme handler.
+     * 
+     * @param  name the scheme name to stop handling.
+     * 
+     * @return      this instance, for chaining.
+     */
     public SaucerWebview removeSchemeHandler(@NonNull String name, @NonNull SaucerSchemeHandler handler) {
         if (!this.schemeHandlers.containsKey(name)) return this; // Silently fail.
         ntv_webview.N.saucer_webview_remove_scheme($ref, name);

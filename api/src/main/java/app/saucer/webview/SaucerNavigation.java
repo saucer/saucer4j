@@ -23,12 +23,18 @@ public final class SaucerNavigation extends SaucerBoxedType<saucer_navigation> {
     /* ------------------------------------ */
     /* ------------------------------------ */
 
+    /**
+     * @return the target URL of the navigation.
+     */
     @ToString.Include
     public SaucerUrl targetUrl() {
         saucer_url $url = ntv_navigation.N.saucer_navigation_url($ref);
         return new SaucerUrl($url, false);
     }
 
+    /**
+     * @return the type of navigation (new window or redirection).
+     */
     @ToString.Include
     public NavigationType type() {
         if (ntv_navigation.N.saucer_navigation_new_window($ref)) {
@@ -38,6 +44,10 @@ public final class SaucerNavigation extends SaucerBoxedType<saucer_navigation> {
         }
     }
 
+    /**
+     * @return true if the navigation was initiated by a user action (e.g. clicking
+     *         a link), false if it was automatic (e.g. redirection).
+     */
     @ToString.Include
     public boolean wasUserInitiated() {
         return ntv_navigation.N.saucer_navigation_user_initiated($ref);

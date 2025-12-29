@@ -20,6 +20,9 @@ import co.casterlabs.rakurai.json.element.JsonString;
 import co.casterlabs.rakurai.json.serialization.JsonParseException;
 import lombok.NonNull;
 
+/**
+ * Represents a URL in Saucer.
+ */
 @JsonClass(serializer = SaucerUrlSerializer.class)
 public final class SaucerUrl extends SaucerBoxedType<saucer_url> {
 
@@ -38,6 +41,9 @@ public final class SaucerUrl extends SaucerBoxedType<saucer_url> {
         return new SaucerUrl(cpy, true);
     }
 
+    /**
+     * Parses a file path into a SaucerUrl.
+     */
     public static SaucerUrl from(@NonNull File file) {
         IntByReference error = new IntByReference(0);
         saucer_url $ref = ntv_url.N.saucer_url_new_from(file.getAbsolutePath(), error);
@@ -49,6 +55,9 @@ public final class SaucerUrl extends SaucerBoxedType<saucer_url> {
         return new SaucerUrl($ref, true);
     }
 
+    /**
+     * Parses a string into a SaucerUrl.
+     */
     public static SaucerUrl parse(@NonNull String url) {
         IntByReference error = new IntByReference(0);
         saucer_url $ref = ntv_url.N.saucer_url_new_parse(url, error);
@@ -64,6 +73,9 @@ public final class SaucerUrl extends SaucerBoxedType<saucer_url> {
     /* ------------------------------------ */
     /* ------------------------------------ */
 
+    /**
+     * @return the path component of the URL.
+     */
     public String path() {
         size_t.ByReference sizeRef = new size_t.ByReference();
 
@@ -77,6 +89,9 @@ public final class SaucerUrl extends SaucerBoxedType<saucer_url> {
         return new String(buffer, StandardCharsets.UTF_8);
     }
 
+    /**
+     * @return the scheme component of the URL.
+     */
     public String scheme() {
         size_t.ByReference sizeRef = new size_t.ByReference();
 
@@ -164,6 +179,9 @@ public final class SaucerUrl extends SaucerBoxedType<saucer_url> {
         return new String(buffer, StandardCharsets.UTF_8);
     }
 
+    /**
+     * @return the full URL as a string.
+     */
     @Override
     public String toString() {
         size_t.ByReference sizeRef = new size_t.ByReference();

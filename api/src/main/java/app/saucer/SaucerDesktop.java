@@ -9,10 +9,18 @@ import lombok.NonNull;
 @SuppressWarnings("deprecation")
 public final class SaucerDesktop {
 
+    /**
+     * Opens the specified URI using the system's default application.
+     * 
+     * @param uri The URI to open.
+     */
     public static void open(@NonNull String uri) {
         ntv_desktop.N.saucer_desktop_open(SaucerApp.ntv_desktop(), uri);
     }
 
+    /**
+     * @return The current mouse position on the desktop.
+     */
     public static SaucerPosition mousePosition() {
         IntByReference xRef = new IntByReference();
         IntByReference yRef = new IntByReference();

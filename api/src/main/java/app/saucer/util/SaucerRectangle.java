@@ -14,11 +14,14 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 
+/**
+ * Represents a rectangle.
+ */
 @ToString
 @EqualsAndHashCode
 @AllArgsConstructor
 @JsonClass(serializer = SaucerBoundsSerializer.class)
-public final class SaucerBounds {
+public final class SaucerRectangle {
     public final int x;
     public final int y;
     public final int width;
@@ -26,10 +29,10 @@ public final class SaucerBounds {
 
 }
 
-class SaucerBoundsSerializer implements JsonSerializer<SaucerBounds> {
+class SaucerBoundsSerializer implements JsonSerializer<SaucerRectangle> {
 
     @Override
-    public @Nullable SaucerBounds deserialize(@NonNull JsonElement value, @NonNull Class<?> type, @NonNull Rson rson) throws JsonParseException {
+    public @Nullable SaucerRectangle deserialize(@NonNull JsonElement value, @NonNull Class<?> type, @NonNull Rson rson) throws JsonParseException {
         // array syntax: [x,y,width,height]
         // object syntax: {x,y,width,height}
 
@@ -37,7 +40,7 @@ class SaucerBoundsSerializer implements JsonSerializer<SaucerBounds> {
             JsonArray arr = value.getAsArray();
             assert arr.size() == 4 : new JsonParseException("Array must be 4 elements.");
 
-            return new SaucerBounds(
+            return new SaucerRectangle(
                 arr.getNumber(0).intValue(),
                 arr.getNumber(1).intValue(),
                 arr.getNumber(2).intValue(),
@@ -49,7 +52,7 @@ class SaucerBoundsSerializer implements JsonSerializer<SaucerBounds> {
             JsonObject obj = value.getAsObject();
             assert obj.containsKey("x") && obj.containsKey("y") && obj.containsKey("width") && obj.containsKey("height") : new JsonParseException("Object must have `x`, `y`, `width` and `height` properties.");
 
-            return new SaucerBounds(
+            return new SaucerRectangle(
                 obj.getNumber("x").intValue(),
                 obj.getNumber("y").intValue(),
                 obj.getNumber("width").intValue(),
@@ -62,7 +65,7 @@ class SaucerBoundsSerializer implements JsonSerializer<SaucerBounds> {
 
     @Override
     public JsonElement serialize(@NonNull Object v, @NonNull Rson rson) {
-        SaucerBounds value = (SaucerBounds) v;
+        SaucerRectangle value = (SaucerRectangle) v;
         return new JsonObject()
             .put("x", value.x)
             .put("y", value.y)
