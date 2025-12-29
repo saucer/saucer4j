@@ -2,6 +2,7 @@ package app.saucer;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.Future;
 import java.util.function.Supplier;
 
 import com.sun.jna.ptr.IntByReference;
@@ -145,7 +146,7 @@ public final class SaucerApp {
     /**
      * Synchronously dispatches the provided task on the main run thread.
      * 
-     * @see #dispatch()
+     * @see #dispatch(Supplier)
      */
     public static void dispatch(@NonNull Runnable task) {
         dispatch(() -> {
@@ -158,7 +159,7 @@ public final class SaucerApp {
      * Synchronously dispatches the provided task on the main run thread, returning
      * the result.
      * 
-     * @see #dispatch()
+     * @see #dispatch(Runnable)
      */
     @SneakyThrows
     public static <T> T dispatch(@NonNull Supplier<T> task) {
@@ -169,7 +170,7 @@ public final class SaucerApp {
         }
 
         CompletableFuture<T> future = new CompletableFuture<>();
-        saucer_post_callback callback = (_unused) -> { // will not be gc'd because future is referenced
+        saucer_post_callback callback = (_unused) -> { // will not be gc'd because future is join()'d
             try {
                 future.complete(task.get());
             } catch (Throwable t) {
@@ -184,6 +185,42 @@ public final class SaucerApp {
         } catch (CompletionException e) {
             throw e.getCause();
         }
+    }
+
+    /**
+     * Asynchronously dispatches the provided task on the main run thread.
+     * 
+     * @see #dispatchAsync(Supplier)
+     */
+    public static void dispatchAsync(@NonNull Runnable task) {
+        dispatchAsync(() -> {
+            task.run();
+            return null;
+        });
+    }
+
+    /**
+     * Asynchronously dispatches the provided task on the main run thread, returning
+     * the result.
+     * 
+     * @see #dispatchAsync(Runnable)
+     */
+    @SneakyThrows
+    public static <T> Future<T> dispatchAsync(@NonNull Supplier<T> task) {
+        checkState();
+
+        CompletableFuture<T> future = new CompletableFuture<>();
+        saucer_post_callback callback = (_unused) -> { // will not be gc'd because future is referenced
+            try {
+                future.complete(task.get());
+            } catch (Throwable t) {
+                future.completeExceptionally(t);
+            }
+        };
+
+        Future<T> result = new _SaucerFuture<>(future, callback);
+        ntv_app.N.saucer_application_post($app, callback, null);
+        return result;
     }
 
     /* ------------------------------------ */
