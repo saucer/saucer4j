@@ -2,7 +2,6 @@ package app.saucer.ntv;
 
 import com.sun.jna.Callback;
 import com.sun.jna.Library;
-import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
 import app.saucer.ntv.util.SaucerNativeLoader;
@@ -108,7 +107,7 @@ public interface ntv_app extends Library {
 
     public boolean saucer_application_thread_safe(saucer_application arg0);
 
-    public void saucer_application_screens(saucer_application arg0, Pointer arg1, size_t.ByReference size);
+    public void saucer_application_screens(saucer_application arg0, saucer_screen[] arg1, size_t.ByReference size);
 
     public void saucer_application_post(saucer_application arg0, saucer_post_callback arg1, Callback userdata);
 

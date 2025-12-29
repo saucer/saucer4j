@@ -10,6 +10,7 @@ import app.saucer.ntv.ntv_app;
 import app.saucer.ntv.ntv_app.saucer_application;
 import app.saucer.ntv.ntv_app.saucer_application_options;
 import app.saucer.ntv.ntv_app.saucer_post_callback;
+import app.saucer.ntv.ntv_app.saucer_screen;
 import app.saucer.ntv.ntv_desktop.saucer_desktop;
 import app.saucer.ntv.ntv_loop;
 import app.saucer.ntv.ntv_loop.saucer_loop;
@@ -17,9 +18,11 @@ import app.saucer.ntv.backends.SaucerBackend;
 import app.saucer.ntv.backends.SaucerBackendType;
 import app.saucer.ntv.documentation.InternalUseOnly;
 import app.saucer.ntv.util.SaucerNativeLoader;
+import app.saucer.ntv.util.size_t;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 
+@SuppressWarnings("deprecation")
 public final class SaucerApp {
     private static saucer_application $app;
     private static saucer_desktop $desktop;
@@ -178,6 +181,23 @@ public final class SaucerApp {
     /* ------------------------------------ */
     /* ------------------------------------ */
 
+    public static SaucerScreen[] screens() {
+        size_t.ByReference sizeRef = new size_t.ByReference();
+
+        // First call to get the size
+        ntv_app.N.saucer_application_screens($app, null, sizeRef);
+
+        // Second call to get the actual string
+        saucer_screen[] buffer = new saucer_screen[sizeRef.getValue().intValue()];
+        ntv_app.N.saucer_application_screens($app, buffer, sizeRef);
+
+        SaucerScreen[] boxed = new SaucerScreen[buffer.length];
+        for (int i = 0; i < buffer.length; i++) {
+            boxed[i] = new SaucerScreen(buffer[i], true);
+        }
+        return boxed;
+    }
+
     public static String getArchTarget() {
         return SaucerBackend.getArchTarget();
     }
@@ -187,10 +207,12 @@ public final class SaucerApp {
         return SaucerBackend.getSystemTarget();
     }
 
+    @JavascriptGetter("backendType")
     public static SaucerBackendType getBackendType() {
         return SaucerNativeLoader.getBackend().getType();
     }
 
+    @JavascriptGetter("version")
     public static String getVersion() {
         return ntv_app.N.saucer_version();
     }

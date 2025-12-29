@@ -2,6 +2,7 @@ package app.saucer.ntv;
 
 import com.sun.jna.Callback;
 import com.sun.jna.Library;
+import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
 
 import app.saucer.ntv.ntv_app.saucer_application;
@@ -121,7 +122,7 @@ public interface ntv_window extends Library {
 
     public void saucer_window_title(saucer_window arg0, /*string*/byte[] arg1, size_t.ByReference arg2);
 
-    public void saucer_window_background(saucer_window arg0, byte[] r, byte[] g, byte[] b, byte[] a);
+    public void saucer_window_background(saucer_window arg0, ByteByReference r, ByteByReference g, ByteByReference b, ByteByReference a);
 
     public int saucer_window_decorations(saucer_window arg0);
 

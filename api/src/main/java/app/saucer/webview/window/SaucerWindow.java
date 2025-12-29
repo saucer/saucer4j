@@ -11,14 +11,17 @@ import java.util.function.Supplier;
 import org.jetbrains.annotations.Nullable;
 
 import com.sun.jna.Callback;
+import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
 
 import app.saucer.SaucerApp;
+import app.saucer.SaucerScreen;
 import app.saucer.bridge.JavascriptFunction;
 import app.saucer.bridge.JavascriptGetter;
 import app.saucer.bridge.JavascriptObject;
 import app.saucer.bridge.JavascriptSetter;
 import app.saucer.ntv.ntv_app.saucer_policy;
+import app.saucer.ntv.ntv_app.saucer_screen;
 import app.saucer.ntv.ntv_webview;
 import app.saucer.ntv.ntv_webview.saucer_webview;
 import app.saucer.ntv.ntv_webview.saucer_webview_options;
@@ -34,6 +37,8 @@ import app.saucer.ntv.ntv_window.saucer_window_event_minimize;
 import app.saucer.ntv.ntv_window.saucer_window_event_resize;
 import app.saucer.ntv.util.SaucerBoxedType;
 import app.saucer.ntv.util.size_t;
+import app.saucer.util.SaucerColor;
+import app.saucer.util.SaucerPosition;
 import app.saucer.util.SaucerSize;
 import app.saucer.webview.SaucerWebview;
 import app.saucer.webview.SaucerWebviewOptions;
@@ -342,7 +347,33 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
         ntv_window.N.saucer_window_set_title($ref, title);
     }
 
-    // TODO background.
+    @JavascriptGetter("backgroundColor")
+    public SaucerColor backgroundColor() {
+        ByteByReference rRef = new ByteByReference();
+        ByteByReference gRef = new ByteByReference();
+        ByteByReference bRef = new ByteByReference();
+        ByteByReference aRef = new ByteByReference();
+
+        ntv_window.N.saucer_window_background($ref, rRef, gRef, bRef, aRef);
+
+        return new SaucerColor(
+            Byte.toUnsignedInt(rRef.getValue()),
+            Byte.toUnsignedInt(gRef.getValue()),
+            Byte.toUnsignedInt(bRef.getValue()),
+            Byte.toUnsignedInt(aRef.getValue())
+        );
+    }
+
+    @JavascriptSetter("backgroundColor")
+    public void setBackgroundColor(@NonNull SaucerColor color) {
+        ntv_window.N.saucer_window_set_background(
+            $ref,
+            (byte) color.red,
+            (byte) color.green,
+            (byte) color.blue,
+            (byte) color.alpha
+        );
+    }
 
     /**
      * @return whether or not Saucer has decorations (i.e the title bar).
@@ -422,8 +453,25 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
         ntv_window.N.saucer_window_set_max_size($ref, size.width, size.height);
     }
 
-    // TODO position
-    // TODO screen
+    @JavascriptGetter("position")
+    public SaucerPosition getPosition() {
+        IntByReference xRef = new IntByReference();
+        IntByReference yRef = new IntByReference();
+
+        ntv_window.N.saucer_window_position($ref, xRef, yRef);
+        return new SaucerPosition(xRef.getValue(), yRef.getValue());
+    }
+
+    @JavascriptSetter("position")
+    public void setPosition(@NonNull SaucerPosition position) {
+        ntv_window.N.saucer_window_set_position($ref, position.x, position.y);
+    }
+
+    @JavascriptGetter("screen")
+    public SaucerScreen screen() {
+        saucer_screen $screen = ntv_window.N.saucer_window_screen($ref);
+        return new SaucerScreen($screen, true);
+    }
 
     /**
      * Hides Saucer, this causes the window to disappear from the taskbar and the

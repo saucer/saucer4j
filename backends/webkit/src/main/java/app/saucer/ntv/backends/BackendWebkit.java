@@ -2,8 +2,6 @@ package app.saucer.ntv.backends;
 
 import java.io.IOException;
 
-import app.saucer.ntv.backends.SaucerBackend;
-import app.saucer.ntv.backends.SaucerBackendType;
 import app.saucer.ntv.backends.SaucerBackend.FindThisSaucerBackend;
 
 @FindThisSaucerBackend(0)
