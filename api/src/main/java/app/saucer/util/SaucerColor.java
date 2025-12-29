@@ -1,7 +1,5 @@
 package app.saucer.util;
 
-import java.awt.Color;
-
 import org.jetbrains.annotations.Nullable;
 
 import co.casterlabs.rakurai.json.Rson;
@@ -33,14 +31,6 @@ public final class SaucerColor {
         this.green = green;
         this.blue = blue;
         this.alpha = alpha;
-    }
-
-    public SaucerColor(@NonNull Color awt) {
-        this(awt.getRed(), awt.getGreen(), awt.getBlue(), awt.getAlpha());
-    }
-
-    public Color toAWT() {
-        return new Color(this.red, this.blue, this.green, this.alpha);
     }
 
 }
