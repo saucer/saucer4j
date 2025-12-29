@@ -22,14 +22,15 @@ public class UndecoratedExample {
                                                       // need this feature and if your environments support it.
         );
 
-        window.setDecorations(SaucerWindowDecoration.PARTIAL);
-        webview.setContextMenuAllowed(true); // Allow the right-click menu.
+        webview
+            .addSchemeHandler("app", SaucerSchemeHandler.fromResources(UndecoratedExample.class)) // Read the contents from our resources.
+            .contextMenuAllowed(true) // Allow the right-click menu.
+            .url(SaucerUrl.parse("app://authority/UndecoratedExample.html"));
 
-        webview.addSchemeHandler("app", SaucerSchemeHandler.fromResources(UndecoratedExample.class)); // Read the contents from our resources.
-        webview.setUrl(SaucerUrl.parse("app://authority/UndecoratedExample.html"));
-
-        window.show();
-        window.focus();
+        window
+            .decorations(SaucerWindowDecoration.PARTIAL)
+            .show()
+            .focus();
 
         SaucerApp.run(); // This blocks until the last window is closed.
     }

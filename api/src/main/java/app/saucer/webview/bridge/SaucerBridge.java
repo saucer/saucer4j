@@ -60,9 +60,9 @@ public final class SaucerBridge {
             String.format(
                 init_fmt,
                 new JsonObject()
-                    .put("archTarget", SaucerApp.getArchTarget())
-                    .put("systemTarget", SaucerApp.getSystemTarget())
-                    .put("backend", SaucerApp.getBackendType().toString())
+                    .put("archTarget", SaucerApp.archTarget())
+                    .put("systemTarget", SaucerApp.systemTarget())
+                    .put("backend", SaucerApp.backendType().toString())
             ),
             SaucerLoadTime.DOM_CREATION,
             true,

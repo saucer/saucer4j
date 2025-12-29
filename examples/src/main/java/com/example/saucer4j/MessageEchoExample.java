@@ -12,7 +12,6 @@ public class MessageEchoExample {
 
     public static void main(String[] args) throws IOException {
         SaucerApp.initialize("com.example.saucer4j", true);
-
         SaucerWebview.registerCustomScheme("app");
 
         SaucerWindow window = SaucerWindow.create();
@@ -25,13 +24,14 @@ public class MessageEchoExample {
             webview.messages.emit(data); // Echo it back.
         });
 
-        webview.setContextMenuAllowed(true); // Allow the right-click menu.
+        webview
+            .addSchemeHandler("app", SaucerSchemeHandler.fromResources(MessageEchoExample.class)) // Read the contents from our resources.
+            .contextMenuAllowed(true) // Allow the right-click menu.
+            .url(SaucerUrl.parse("app://authority/MessageEchoExample.html"));
 
-        webview.addSchemeHandler("app", SaucerSchemeHandler.fromResources(MessageEchoExample.class)); // Read the contents from our resources.
-        webview.setUrl(SaucerUrl.parse("app://authority/MessageEchoExample.html"));
-
-        window.show();
-        window.focus();
+        window
+            .show()
+            .focus();
 
         SaucerApp.run(); // This blocks until the last window is closed.
     }

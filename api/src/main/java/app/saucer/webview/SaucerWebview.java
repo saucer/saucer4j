@@ -53,6 +53,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 /**
  * @apiNote This class is not thread-safe. You must call it from the main thread
@@ -61,6 +62,7 @@ import lombok.Setter;
  */
 @SuppressWarnings("deprecation")
 @JavascriptObject
+@Accessors(fluent = true, chain = true)
 public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
     private static boolean alreadyLoaded = false;
 
@@ -186,7 +188,7 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
      * @return the current URL the webview is navigated to.
      */
     @JavascriptGetter("url")
-    public SaucerUrl currentUrl() {
+    public SaucerUrl url() {
         IntByReference error = new IntByReference(0);
         saucer_url $url = ntv_webview.N.saucer_webview_url($ref, error);
 
@@ -201,8 +203,9 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
      * Navigates the webview to the given URL.
      */
     @JavascriptSetter("url")
-    public void setUrl(@NonNull SaucerUrl url) {
+    public SaucerWebview url(@NonNull SaucerUrl url) {
         ntv_webview.N.saucer_webview_set_url($ref, SaucerBoxedType.ntv(url));
+        return this;
     }
 
     public SaucerIcon favicon() {
@@ -230,8 +233,9 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
     }
 
     @JavascriptSetter("devtoolsVisible")
-    public void setDevToolsVisible(boolean open) {
-        ntv_webview.N.saucer_webview_set_dev_tools($ref, open);
+    public SaucerWebview devToolsVisible(boolean visible) {
+        ntv_webview.N.saucer_webview_set_dev_tools($ref, visible);
+        return this;
     }
 
     @JavascriptGetter("contextMenu")
@@ -240,8 +244,9 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
     }
 
     @JavascriptSetter("contextMenu")
-    public void setContextMenuAllowed(boolean enabled) {
+    public SaucerWebview contextMenuAllowed(boolean enabled) {
         ntv_webview.N.saucer_webview_set_context_menu($ref, enabled);
+        return this;
     }
 
     /**
@@ -256,11 +261,14 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
     /**
      * Forces the `prefers-color-scheme` media query to `dark` if true.
      * 
+     * @return
+     * 
      * @implNote For Qt6, a version of 6.7 or greater is required for this to work.
      */
     @JavascriptSetter("forceDark")
-    public void setForceDarkEnabled(boolean enabled) {
+    public SaucerWebview forceDarkEnabled(boolean enabled) {
         ntv_webview.N.saucer_webview_set_force_dark($ref, enabled);
+        return this;
     }
 
     @JavascriptGetter("backgroundColor")
@@ -281,7 +289,7 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
     }
 
     @JavascriptSetter("backgroundColor")
-    public void setBackgroundColor(@NonNull SaucerColor color) {
+    public SaucerWebview backgroundColor(@NonNull SaucerColor color) {
         ntv_webview.N.saucer_webview_set_background(
             $ref,
             (byte) color.red,
@@ -289,6 +297,7 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
             (byte) color.blue,
             (byte) color.alpha
         );
+        return this;
     }
 
     @JavascriptGetter("bounds")
@@ -309,10 +318,10 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
     }
 
     @JavascriptSetter("bounds")
-    public void setBounds(@Nullable SaucerBounds bounds) {
+    public SaucerWebview bounds(@Nullable SaucerBounds bounds) {
         if (bounds == null) {
             ntv_webview.N.saucer_webview_reset_bounds($ref);
-            return;
+            return this;
         }
 
         ntv_webview.N.saucer_webview_set_bounds(
@@ -322,21 +331,25 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
             bounds.width,
             bounds.height
         );
+        return this;
     }
 
     @JavascriptFunction("back")
-    public void back() {
+    public SaucerWebview back() {
         ntv_webview.N.saucer_webview_back($ref);
+        return this;
     }
 
     @JavascriptFunction("forward")
-    public void forward() {
+    public SaucerWebview forward() {
         ntv_webview.N.saucer_webview_forward($ref);
+        return this;
     }
 
     @JavascriptFunction("reload")
-    public void reload() {
+    public SaucerWebview reload() {
         ntv_webview.N.saucer_webview_reload($ref);
+        return this;
     }
 
     /* ------------------------------------ */
@@ -346,18 +359,20 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
     /**
      * Allows you to serve custom webpages from your own resources.
      */
-    public void addSchemeHandler(@NonNull String name, @NonNull SaucerSchemeHandler handler) {
+    public SaucerWebview addSchemeHandler(@NonNull String name, @NonNull SaucerSchemeHandler handler) {
         assert !this.schemeHandlers.containsKey(name) : "You can only add one handler per scheme. Did you mean to call removeSchemeHandler() first?";
         assert customSchemes.contains(name) : "You must register your scheme via Saucer.registerCustomScheme()";
         saucer_scheme_handler handlerNtv = new SaucerSchemeWrapper(handler);
         ntv_webview.N.saucer_webview_handle_scheme($ref, name, handlerNtv);
         this.schemeHandlers.put(name, handlerNtv);
+        return this;
     }
 
-    public void removeSchemeHandler(@NonNull String name, @NonNull SaucerSchemeHandler handler) {
-        if (!this.schemeHandlers.containsKey(name)) return; // Silently fail.
+    public SaucerWebview removeSchemeHandler(@NonNull String name, @NonNull SaucerSchemeHandler handler) {
+        if (!this.schemeHandlers.containsKey(name)) return this; // Silently fail.
         ntv_webview.N.saucer_webview_remove_scheme($ref, name);
         this.schemeHandlers.remove(name);
+        return this;
     }
 
     @RequiredArgsConstructor

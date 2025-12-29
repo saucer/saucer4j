@@ -14,7 +14,6 @@ public class FullEmbeddedSiteExample {
 
     public static void main(String[] args) throws IOException {
         SaucerApp.initialize("com.example.saucer4j", true);
-
         SaucerWebview.registerCustomScheme("app");
 
         SaucerWindow window = SaucerWindow.create();
@@ -23,27 +22,27 @@ public class FullEmbeddedSiteExample {
                                                       // need this feature and if your environments support it.
         );
 
-        webview.setListener(new SaucerWebviewListener() {
-            @Override
-            public void onTitle(String newTitle) {
-                window.setTitle("FullEmbeddedSiteExample - " + newTitle);
-            }
-
-            @Override
-            public void onFavicon(SaucerIcon newIcon) {
-                if (!newIcon.isEmpty()) {
-                    window.setIcon(newIcon);
+        webview
+            .listener(new SaucerWebviewListener() {
+                @Override
+                public void onTitle(String newTitle) {
+                    window.title("FullEmbeddedSiteExample - " + newTitle);
                 }
-            }
-        });
 
-        webview.setContextMenuAllowed(false);
+                @Override
+                public void onFavicon(SaucerIcon newIcon) {
+                    if (!newIcon.isEmpty()) {
+                        window.icon(newIcon);
+                    }
+                }
+            })
+            .addSchemeHandler("app", SaucerSchemeHandler.fromResources(FullEmbeddedSiteExample.class, "/full")) // Scan for files under the name `/full` in the current jar.
+            .contextMenuAllowed(false)
+            .url(SaucerUrl.parse("app://authority/index.html")); // Tell Saucer to serve the index file.
 
-        webview.addSchemeHandler("app", SaucerSchemeHandler.fromResources(FullEmbeddedSiteExample.class, "/full"));  // Scan for files under the name `/full` in the current jar.
-        webview.setUrl(SaucerUrl.parse("app://authority/index.html")); // Tell Saucer to serve the index file.
-
-        window.show();
-        window.focus();
+        window
+            .show()
+            .focus();
 
         SaucerApp.run(); // This blocks until the last window is closed.
     }

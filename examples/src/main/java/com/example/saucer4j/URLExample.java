@@ -19,11 +19,13 @@ public class URLExample {
                                                       // need this feature and if your environments support it.
         );
 
-        webview.setContextMenuAllowed(true); // Allow the right-click menu.
-        webview.setUrl(SaucerUrl.parse("https://duckduckgo.com"));
+        webview
+            .contextMenuAllowed(true) // Allow the right-click menu.
+            .url(SaucerUrl.parse("https://duckduckgo.com"));
 
-        window.show();
-        window.focus();
+        window
+            .show()
+            .focus();
 
         SaucerApp.run(); // This blocks until the last window is closed.
     }

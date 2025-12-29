@@ -45,6 +45,7 @@ import app.saucer.webview.SaucerWebviewOptions;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 /**
  * @apiNote This class is not thread-safe. You must call it from the main thread
@@ -53,6 +54,7 @@ import lombok.Setter;
  */
 @JavascriptObject
 @SuppressWarnings("deprecation")
+@Accessors(fluent = true, chain = true)
 public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
     private static final Set<SaucerWindow> instances = new HashSet<>();
 
@@ -218,10 +220,13 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
 
     /**
      * Focuses Saucer, bringing it into the foreground.
+     * 
+     * @return
      */
     @JavascriptFunction
-    public void focus() {
+    public SaucerWindow focus() {
         ntv_window.N.saucer_window_focus($ref);
+        return this;
     }
 
     /**
@@ -234,10 +239,13 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
 
     /**
      * Whether or not to minimize (true) or restore (false)
+     * 
+     * @return
      */
     @JavascriptSetter("minimized")
-    public void setMinimized(boolean b) {
+    public SaucerWindow minimized(boolean b) {
         ntv_window.N.saucer_window_set_minimized($ref, b);
+        return this;
     }
 
     /**
@@ -250,10 +258,13 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
 
     /**
      * Whether or not to maximize (true) or restore (false)
+     * 
+     * @return
      */
     @JavascriptSetter("maximized")
-    public void setMaximized(boolean b) {
+    public SaucerWindow maximized(boolean b) {
         ntv_window.N.saucer_window_set_maximized($ref, b);
+        return this;
     }
 
     /**
@@ -266,10 +277,13 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
 
     /**
      * Enables (true) or disables (false) the resizing of Saucer.
+     * 
+     * @return
      */
     @JavascriptSetter("resizable")
-    public void setResizable(boolean b) {
+    public SaucerWindow resizable(boolean b) {
         ntv_window.N.saucer_window_set_resizable($ref, b);
+        return this;
     }
 
     /**
@@ -282,10 +296,13 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
 
     /**
      * Sets whether or not Saucer is in fullscreen mode.
+     * 
+     * @return
      */
     @JavascriptSetter("fullscreen")
-    public void setFullscreen(boolean b) {
+    public SaucerWindow fullscreen(boolean b) {
         ntv_window.N.saucer_window_set_fullscreen($ref, b);
+        return this;
     }
 
     /**
@@ -298,10 +315,13 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
 
     /**
      * Sets whether or not Saucer is always on top of every other window.
+     * 
+     * @return
      */
     @JavascriptSetter("alwaysOnTop")
-    public void setAlwaysOnTop(boolean b) {
+    public SaucerWindow alwaysOnTop(boolean b) {
         ntv_window.N.saucer_window_set_always_on_top($ref, b);
+        return this;
     }
 
     /**
@@ -316,17 +336,20 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
     /**
      * Enables (true) or disables (false) click-through for Saucer (i.e mouse events
      * pass through it).
+     * 
+     * @return
      */
     @JavascriptSetter("clickThrough")
-    public void setClickThrough(boolean b) {
+    public SaucerWindow clickThrough(boolean b) {
         ntv_window.N.saucer_window_set_always_on_top($ref, b);
+        return this;
     }
 
     /**
      * @return the title of the Saucer window.
      */
     @JavascriptGetter("title")
-    public String getTitle() {
+    public String title() {
         size_t.ByReference sizeRef = new size_t.ByReference();
 
         // First call to get the size
@@ -343,8 +366,9 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
      * Sets the title of the Saucer window.
      */
     @JavascriptSetter("title")
-    public void setTitle(@NonNull String title) {
+    public SaucerWindow title(@NonNull String title) {
         ntv_window.N.saucer_window_set_title($ref, title);
+        return this;
     }
 
     @JavascriptGetter("backgroundColor")
@@ -365,7 +389,7 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
     }
 
     @JavascriptSetter("backgroundColor")
-    public void setBackgroundColor(@NonNull SaucerColor color) {
+    public SaucerWindow backgroundColor(@NonNull SaucerColor color) {
         ntv_window.N.saucer_window_set_background(
             $ref,
             (byte) color.red,
@@ -373,13 +397,14 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
             (byte) color.blue,
             (byte) color.alpha
         );
+        return this;
     }
 
     /**
      * @return whether or not Saucer has decorations (i.e the title bar).
      */
     @JavascriptGetter("decorations")
-    public SaucerWindowDecoration getDecorations() {
+    public SaucerWindowDecoration decorations() {
         int val = ntv_window.N.saucer_window_decorations($ref);
         return SaucerWindowDecoration.LUT[val];
     }
@@ -387,17 +412,20 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
     /**
      * Enables (true) or disables (false) Saucer's window decorations (i.e the title
      * bar).
+     * 
+     * @return
      */
     @JavascriptSetter("decorations")
-    public void setDecorations(SaucerWindowDecoration value) {
+    public SaucerWindow decorations(@NonNull SaucerWindowDecoration value) {
         ntv_window.N.saucer_window_set_decorations($ref, value.nativeValue);
+        return this;
     }
 
     /**
      * @return the size of the Saucer window.
      */
     @JavascriptGetter("size")
-    public SaucerSize getSize() {
+    public SaucerSize size() {
         IntByReference widthRef = new IntByReference();
         IntByReference heightRef = new IntByReference();
 
@@ -409,15 +437,16 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
      * Sets the size of the Saucer window.
      */
     @JavascriptSetter("size")
-    public void setSize(@NonNull SaucerSize size) {
+    public SaucerWindow size(@NonNull SaucerSize size) {
         ntv_window.N.saucer_window_set_size($ref, size.width, size.height);
+        return this;
     }
 
     /**
      * @return the minimum allowed size of the Saucer window.
      */
     @JavascriptGetter("minSize")
-    public SaucerSize getMinSize() {
+    public SaucerSize minSize() {
         IntByReference widthRef = new IntByReference();
         IntByReference heightRef = new IntByReference();
 
@@ -429,15 +458,16 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
      * Sets the minimum allowed size of the Saucer window.
      */
     @JavascriptSetter("minSize")
-    public void setMinSize(@NonNull SaucerSize size) {
+    public SaucerWindow minSize(@NonNull SaucerSize size) {
         ntv_window.N.saucer_window_set_min_size($ref, size.width, size.height);
+        return this;
     }
 
     /**
      * @return the maximum allowed size of the Saucer window.
      */
     @JavascriptGetter("maxSize")
-    public SaucerSize getMaxSize() {
+    public SaucerSize maxSize() {
         IntByReference widthRef = new IntByReference();
         IntByReference heightRef = new IntByReference();
 
@@ -449,12 +479,13 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
      * Sets the maximum allowed size of the Saucer window.
      */
     @JavascriptSetter("maxSize")
-    public void setMaxSize(@NonNull SaucerSize size) {
+    public SaucerWindow maxSize(@NonNull SaucerSize size) {
         ntv_window.N.saucer_window_set_max_size($ref, size.width, size.height);
+        return this;
     }
 
     @JavascriptGetter("position")
-    public SaucerPosition getPosition() {
+    public SaucerPosition position() {
         IntByReference xRef = new IntByReference();
         IntByReference yRef = new IntByReference();
 
@@ -463,8 +494,9 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
     }
 
     @JavascriptSetter("position")
-    public void setPosition(@NonNull SaucerPosition position) {
+    public SaucerWindow position(@NonNull SaucerPosition position) {
         ntv_window.N.saucer_window_set_position($ref, position.x, position.y);
+        return this;
     }
 
     @JavascriptGetter("screen")
@@ -477,21 +509,27 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
      * Hides Saucer, this causes the window to disappear from the taskbar and the
      * user will no longer be able to view the app no matter what they do.
      * 
-     * @see #show()
+     * @return
+     * 
+     * @see    #show()
      */
     @JavascriptFunction
-    public void hide() {
+    public SaucerWindow hide() {
         ntv_window.N.saucer_window_hide($ref);
+        return this;
     }
 
     /**
      * Unhides Saucer.
      * 
-     * @see #hide()
+     * @return
+     * 
+     * @see    #hide()
      */
     @JavascriptFunction
-    public void show() {
+    public SaucerWindow show() {
         ntv_window.N.saucer_window_show($ref);
+        return this;
     }
 
     /**
@@ -499,8 +537,9 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
      * 
      * @see {@link SaucerWebview#getFavicon()}
      */
-    public void setIcon(@NonNull SaucerIcon icon) {
+    public SaucerWindow icon(@NonNull SaucerIcon icon) {
         ntv_window.N.saucer_window_set_icon($ref, SaucerBoxedType.ntv(icon));
+        return this;
     }
 
 }

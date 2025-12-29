@@ -16,7 +16,6 @@ public class BridgeExample {
 
     public static void main(String[] args) throws IOException {
         SaucerApp.initialize("com.example.saucer4j", true);
-
         SaucerWebview.registerCustomScheme("app");
 
         SaucerWindow window = SaucerWindow.create();
@@ -27,13 +26,14 @@ public class BridgeExample {
 
         webview.bridge.defineObject("Example", new BridgeObjectExample(webview));
 
-        webview.setContextMenuAllowed(true); // Allow the right-click menu.
+        webview
+            .addSchemeHandler("app", SaucerSchemeHandler.fromResources(BridgeExample.class)) // Read the contents from our resources.
+            .contextMenuAllowed(true) // Allow the right-click menu.
+            .url(SaucerUrl.parse("app://authority/BridgeExample.html"));
 
-        webview.addSchemeHandler("app", SaucerSchemeHandler.fromResources(BridgeExample.class)); // Read the contents from our resources.
-        webview.setUrl(SaucerUrl.parse("app://authority/BridgeExample.html"));
-
-        window.show();
-        window.focus();
+        window
+            .show()
+            .focus();
 
         SaucerApp.run(); // This blocks until the last window is closed.
     }
@@ -75,7 +75,7 @@ public class BridgeExample {
 
         @JavascriptFunction
         public void openDevTools() {
-            this.webview.setDevToolsVisible(true);
+            this.webview.devToolsVisible(true);
         }
 
     }

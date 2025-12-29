@@ -20,25 +20,26 @@ public class IconAndTitleExample {
                                                       // need this feature and if your environments support it.
         );
 
-        webview.setListener(new SaucerWebviewListener() {
-            @Override
-            public void onTitle(String newTitle) {
-                window.setTitle(newTitle);
-            }
-
-            @Override
-            public void onFavicon(SaucerIcon newIcon) {
-                if (!newIcon.isEmpty()) {
-                    window.setIcon(newIcon);
+        webview
+            .listener(new SaucerWebviewListener() {
+                @Override
+                public void onTitle(String newTitle) {
+                    window.title(newTitle);
                 }
-            }
-        });
 
-        webview.setContextMenuAllowed(true); // Allow the right-click menu.
-        webview.setUrl(SaucerUrl.parse("https://google.com"));
+                @Override
+                public void onFavicon(SaucerIcon newIcon) {
+                    if (!newIcon.isEmpty()) {
+                        window.icon(newIcon);
+                    }
+                }
+            })
+            .contextMenuAllowed(true) // Allow the right-click menu.
+            .url(SaucerUrl.parse("https://google.com"));
 
-        window.show();
-        window.focus();
+        window
+            .show()
+            .focus();
 
         SaucerApp.run(); // This blocks until the last window is closed.
     }

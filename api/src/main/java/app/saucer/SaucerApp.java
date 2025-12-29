@@ -204,23 +204,23 @@ public final class SaucerApp {
     }
 
     @JavascriptGetter("archTarget")
-    public static String getArchTarget() {
+    public static String archTarget() {
         return SaucerBackend.getArchTarget();
     }
 
     @SneakyThrows
     @JavascriptGetter("systemTarget")
-    public static String getSystemTarget() {
+    public static String systemTarget() {
         return SaucerBackend.getSystemTarget();
     }
 
     @JavascriptGetter("backendType")
-    public static SaucerBackendType getBackendType() {
+    public static SaucerBackendType backendType() {
         return SaucerNativeLoader.getBackend().getType();
     }
 
     @JavascriptGetter("version")
-    public static String getVersion() {
+    public static String version() {
         return ntv_app.N.saucer_version();
     }
 

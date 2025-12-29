@@ -10,7 +10,6 @@ import app.saucer.ntv.ntv_stash;
 import app.saucer.ntv.ntv_stash.saucer_stash;
 import app.saucer.ntv.ntv_url.saucer_url;
 import app.saucer.ntv.documentation.InternalUseOnly;
-import app.saucer.ntv.documentation.RequiresFree;
 import app.saucer.ntv.util.SaucerBoxedType;
 import app.saucer.ntv.util.size_t;
 import app.saucer.util.SaucerUrl;
@@ -56,12 +55,8 @@ public final class SaucerSchemeRequest extends SaucerBoxedType<saucer_scheme_req
     }
 
     public byte[] content() {
-        @RequiresFree
-        saucer_stash stash = ntv_scheme.N.saucer_scheme_request_content($ref);
-        try {
+        try (saucer_stash stash = ntv_scheme.N.saucer_scheme_request_content($ref)) {
             return ntv_stash.N.saucer_stash_data(stash);
-        } finally {
-            ntv_stash.N.saucer_stash_free(stash);
         }
     }
 
