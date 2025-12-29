@@ -15,7 +15,6 @@ import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
 
 import app.saucer.SaucerApp;
-import app.saucer.SaucerScreen;
 import app.saucer.bridge.JavascriptFunction;
 import app.saucer.bridge.JavascriptGetter;
 import app.saucer.bridge.JavascriptObject;
@@ -39,6 +38,7 @@ import app.saucer.ntv.util.SaucerBoxedType;
 import app.saucer.ntv.util.size_t;
 import app.saucer.util.SaucerColor;
 import app.saucer.util.SaucerPosition;
+import app.saucer.util.SaucerScreen;
 import app.saucer.util.SaucerSize;
 import app.saucer.webview.SaucerWebview;
 import app.saucer.webview.SaucerWebviewOptions;

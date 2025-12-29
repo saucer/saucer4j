@@ -1,4 +1,4 @@
-package app.saucer;
+package app.saucer.util;
 
 import com.sun.jna.ptr.IntByReference;
 
@@ -6,8 +6,6 @@ import app.saucer.ntv.ntv_app;
 import app.saucer.ntv.ntv_app.saucer_screen;
 import app.saucer.ntv.documentation.InternalUseOnly;
 import app.saucer.ntv.util.SaucerBoxedType;
-import app.saucer.util.SaucerPosition;
-import app.saucer.util.SaucerSize;
 import co.casterlabs.rakurai.json.Rson;
 import co.casterlabs.rakurai.json.annotating.JsonClass;
 import co.casterlabs.rakurai.json.annotating.JsonSerializer;

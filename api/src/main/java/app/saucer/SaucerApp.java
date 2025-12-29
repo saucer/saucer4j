@@ -21,6 +21,7 @@ import app.saucer.ntv.backends.SaucerBackendType;
 import app.saucer.ntv.documentation.InternalUseOnly;
 import app.saucer.ntv.util.SaucerNativeLoader;
 import app.saucer.ntv.util.size_t;
+import app.saucer.util.SaucerScreen;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 
