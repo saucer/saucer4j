@@ -5,13 +5,18 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.Future;
 import java.util.function.Supplier;
 
+import org.jetbrains.annotations.Nullable;
+
 import com.sun.jna.ptr.IntByReference;
 
 import app.saucer.bridge.JavascriptGetter;
 import app.saucer.bridge.JavascriptObject;
 import app.saucer.ntv.ntv_app;
 import app.saucer.ntv.ntv_app.saucer_application;
+import app.saucer.ntv.ntv_app.saucer_application_event;
+import app.saucer.ntv.ntv_app.saucer_application_event_quit;
 import app.saucer.ntv.ntv_app.saucer_application_options;
+import app.saucer.ntv.ntv_app.saucer_policy;
 import app.saucer.ntv.ntv_app.saucer_post_callback;
 import app.saucer.ntv.ntv_app.saucer_screen;
 import app.saucer.ntv.ntv_desktop.saucer_desktop;
@@ -24,16 +29,31 @@ import app.saucer.ntv.util.SaucerNativeLoader;
 import app.saucer.ntv.util.size_t;
 import app.saucer.util.SaucerScreen;
 import lombok.NonNull;
+import lombok.Setter;
 import lombok.SneakyThrows;
+import lombok.experimental.Accessors;
 
 @JavascriptObject
 @SuppressWarnings("deprecation")
+@Accessors(fluent = true, chain = true)
 public final class SaucerApp {
     private static saucer_application $app;
     private static saucer_desktop $desktop;
     private static saucer_loop $loop;
 
     private static Thread mainThread;
+
+    private static @Setter @Nullable SaucerAppListener listener;
+
+    private static final saucer_application_event_quit quitCallback = (_unused1, _unused2) -> {
+        if (listener != null && listener.shouldAvoidQuitting()) {
+            return saucer_policy.BLOCK;
+        }
+        if (listener != null) {
+            listener.onQuit();
+        }
+        return saucer_policy.ALLOW;
+    };
 
     @Deprecated
     @InternalUseOnly
@@ -99,6 +119,8 @@ public final class SaucerApp {
 
             $loop = ntv_loop.N.saucer_loop_new($app);
             mainThread = Thread.currentThread();
+
+            ntv_app.N.saucer_application_on($app, saucer_application_event.QUIT, quitCallback, false, null);
         }
     }
 

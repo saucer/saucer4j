@@ -48,7 +48,7 @@ public interface ntv_app extends Library {
     }
 
     public static interface saucer_application_event_quit extends Callback {
-        void callback(saucer_application arg0, Callback arg1);
+        /*saucer_policy*/ int callback(saucer_application arg0, Callback arg1);
     }
 
     public static interface saucer_post_callback extends Callback {
