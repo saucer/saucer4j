@@ -2,8 +2,6 @@ package app.saucer.ntv.backends;
 
 import java.io.IOException;
 
-import app.saucer.ntv.backends.SaucerBackend;
-import app.saucer.ntv.backends.SaucerBackendType;
 import app.saucer.ntv.backends.SaucerBackend.FindThisSaucerBackend;
 
 @FindThisSaucerBackend(2) // Should be higher than Qt6
@@ -28,10 +26,12 @@ public class BackendWebKitGtk extends SaucerBackend {
     @Override
     protected String[] supportedArchTargets() {
         return new String[] {
+                "x86",
                 "x86_64",
-                "aarch64",
                 "arm",
-                "ppc64le"
+                "aarch64",
+                "ppc64le",
+                "s390x"
         };
     }
 
