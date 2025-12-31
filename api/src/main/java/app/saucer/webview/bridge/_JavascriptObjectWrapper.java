@@ -20,6 +20,7 @@ import app.saucer.bridge.JavascriptGetter;
 import app.saucer.bridge.JavascriptSetter;
 import app.saucer.bridge.JavascriptValue;
 import app.saucer.bridge.Mutable;
+import app.saucer.webview.bridge._ObjectDescription._PropertyDescription;
 import co.casterlabs.rakurai.json.Rson;
 import co.casterlabs.rakurai.json.TypeToken;
 import co.casterlabs.rakurai.json.element.JsonArray;
@@ -37,6 +38,8 @@ class _JavascriptObjectWrapper {
     private final Map<String, Consumer<JsonElement>> setters;
     private final Map<String, MethodWrapper> functions;
 
+    final _ObjectDescription description;
+
     _JavascriptObjectWrapper(String path, Class<?> objClass, Object obj) {
         this.path = path;
 
@@ -48,19 +51,38 @@ class _JavascriptObjectWrapper {
         // Register field getters/setters first. This is so method-based getters/setters
         // can override field-based ones.
 
-        for (Field f : _Reflection.getAllFields(objClass)) {
-            if (f.isAnnotationPresent(JavascriptValue.class)) {
-                JavascriptValue annotation = f.getDeclaredAnnotation(JavascriptValue.class);
-                String name = annotation.value().isEmpty() ? f.getName() : annotation.value();
+        if (SaucerBridge.GENERATE_TYPESCRIPT_DEFINITIONS) {
+            this.description = new _ObjectDescription(this.path);
+        } else {
+            this.description = null;
+        }
 
-                if (annotation.allowGet()) {
-                    getters.put(name, new FieldGetter<>(obj, f));
+        for (Field f : _Reflection.getAllFields(objClass)) {
+            if (!f.isAnnotationPresent(JavascriptValue.class)) continue;
+
+            JavascriptValue annotation = f.getDeclaredAnnotation(JavascriptValue.class);
+            String name = annotation.value().isEmpty() ? f.getName() : annotation.value();
+
+            if (SaucerBridge.GENERATE_TYPESCRIPT_DEFINITIONS) {
+                this.description.properties.put(name, new _PropertyDescription(f.getType()));
+            }
+
+            if (annotation.allowGet()) {
+                getters.put(name, new FieldGetter<>(obj, f));
+                if (SaucerBridge.GENERATE_TYPESCRIPT_DEFINITIONS) {
+                    this.description.properties.get(name).readable = true;
                 }
-                if (annotation.allowSet()) {
-                    setters.put(name, new FieldSetter<>(obj, f));
+            }
+            if (annotation.allowSet()) {
+                setters.put(name, new FieldSetter<>(obj, f));
+                if (SaucerBridge.GENERATE_TYPESCRIPT_DEFINITIONS) {
+                    this.description.properties.get(name).writable = true;
                 }
-                if (annotation.watchForMutate()) {
-                    mutableFields.add(new MutableField(name, obj, f));
+            }
+            if (annotation.watchForMutate()) {
+                mutableFields.add(new MutableField(name, obj, f));
+                if (SaucerBridge.GENERATE_TYPESCRIPT_DEFINITIONS) {
+                    this.description.properties.get(name).watchable = true;
                 }
             }
         }
@@ -70,11 +92,22 @@ class _JavascriptObjectWrapper {
                 JavascriptGetter annotation = m.getDeclaredAnnotation(JavascriptGetter.class);
                 String name = annotation.value().isEmpty() ? m.getName() : annotation.value();
 
+                if (SaucerBridge.GENERATE_TYPESCRIPT_DEFINITIONS) {
+                    this.description.properties.putIfAbsent(name, new _PropertyDescription(m.getReturnType()));
+                    this.description.properties.get(name).readable = true;
+                }
+
                 getters.put(name, new MethodGetter(obj, m));
             }
+
             if (m.isAnnotationPresent(JavascriptSetter.class)) {
                 JavascriptSetter annotation = m.getDeclaredAnnotation(JavascriptSetter.class);
                 String name = annotation.value().isEmpty() ? m.getName() : annotation.value();
+
+                if (SaucerBridge.GENERATE_TYPESCRIPT_DEFINITIONS) {
+                    this.description.properties.putIfAbsent(name, new _PropertyDescription(m.getParameters()[0].getType()));
+                    this.description.properties.get(name).writable = true;
+                }
 
                 setters.put(name, new MethodSetter(obj, m));
             }
@@ -83,7 +116,11 @@ class _JavascriptObjectWrapper {
                 JavascriptFunction annotation = m.getDeclaredAnnotation(JavascriptFunction.class);
                 String name = annotation.value().isEmpty() ? m.getName() : annotation.value();
 
-                functions.put(name, new MethodWrapper(obj, m));
+                if (SaucerBridge.GENERATE_TYPESCRIPT_DEFINITIONS) {
+                    this.description.methods.put(name, new _ObjectDescription._MethodDescription(m, annotation.ignoreReturn()));
+                }
+
+                functions.put(name, new MethodWrapper(obj, m, annotation.ignoreReturn()));
             }
         }
 
@@ -173,9 +210,9 @@ class _JavascriptObjectWrapper {
         private final Method m;
 
         private final TypeToken<?>[] parameterTypes;
-        private final boolean isVoid;
+        private final boolean noReturn;
 
-        private MethodWrapper(Object obj, Method m) {
+        private MethodWrapper(Object obj, Method m, boolean noReturn) {
             this.obj = obj;
             this.m = m;
 
@@ -187,7 +224,7 @@ class _JavascriptObjectWrapper {
                 this.parameterTypes[i] = TypeToken.of(parameters[i]);
             }
 
-            this.isVoid = this.m.getReturnType() == Void.class;
+            this.noReturn = noReturn || this.m.getReturnType() == Void.class || this.m.getReturnType() == void.class;
         }
 
         @SneakyThrows
@@ -206,7 +243,7 @@ class _JavascriptObjectWrapper {
             try {
                 Object result = this.m.invoke(this.obj, args);
 
-                if (this.isVoid) {
+                if (this.noReturn) {
                     return null; // undefined (aka, void)
                 } else {
                     return Rson.DEFAULT.toJson(result);

@@ -99,6 +99,14 @@ Object.defineProperty(SAUCER, "openLinkInSystemBrowser", {
 	configurable: true,
 });
 
+Object.defineProperty(SAUCER, "generateTypescriptDefinitions", {
+	value: function () {
+		return RPC.sendWithPromise({ type: "GENERATE_TS_DEFINITIONS" });
+	},
+	writable: false,
+	configurable: true,
+});
+
 Object.defineProperty(SAUCER, "MUTATION_POLL_RATE", {
 	value: 150,
 	writable: true,

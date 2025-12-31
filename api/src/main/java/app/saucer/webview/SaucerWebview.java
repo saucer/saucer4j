@@ -162,7 +162,7 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
      * Frees the webview and its resources. Additionally, the webview will be
      * removed from it's parent window.
      */
-    @JavascriptFunction
+    @JavascriptFunction(ignoreReturn = true)
     public void destroy() {
         if (this.isClosed) return;
         this.isClosed = true;
@@ -380,7 +380,7 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
      * 
      * @return this instance, for chaining.
      */
-    @JavascriptFunction("back")
+    @JavascriptFunction(ignoreReturn = true)
     public SaucerWebview back() {
         ntv_webview.N.saucer_webview_back($ref);
         return this;
@@ -391,7 +391,7 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
      * 
      * @return this instance, for chaining.
      */
-    @JavascriptFunction("forward")
+    @JavascriptFunction(ignoreReturn = true)
     public SaucerWebview forward() {
         ntv_webview.N.saucer_webview_forward($ref);
         return this;
@@ -402,7 +402,7 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
      * 
      * @return this instance, for chaining.
      */
-    @JavascriptFunction("reload")
+    @JavascriptFunction(ignoreReturn = true)
     public SaucerWebview reload() {
         ntv_webview.N.saucer_webview_reload($ref);
         return this;

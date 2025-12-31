@@ -42,4 +42,10 @@ public @interface JavascriptFunction {
 
     String value() default "";
 
+    /**
+     * @return If true, then the return value of this function will be ignored and
+     *         not serialized.
+     */
+    boolean ignoreReturn() default false;
+
 }

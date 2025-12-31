@@ -198,7 +198,7 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
      * Frees the window and its resources. Additionally, all child webviews will be
      * destroyed as well.
      */
-    @JavascriptFunction
+    @JavascriptFunction(ignoreReturn = true)
     public void destroy() {
         cleanup();
         $ref.close();
@@ -245,7 +245,7 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
      * 
      * @return this instance, for chaining.
      */
-    @JavascriptFunction
+    @JavascriptFunction(ignoreReturn = true)
     public SaucerWindow focus() {
         ntv_window.N.saucer_window_focus($ref);
         return this;
@@ -562,7 +562,7 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
      * 
      * @see    #show()
      */
-    @JavascriptFunction
+    @JavascriptFunction(ignoreReturn = true)
     public SaucerWindow hide() {
         ntv_window.N.saucer_window_hide($ref);
         return this;
@@ -575,7 +575,7 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
      * 
      * @see    #hide()
      */
-    @JavascriptFunction
+    @JavascriptFunction(ignoreReturn = true)
     public SaucerWindow show() {
         ntv_window.N.saucer_window_show($ref);
         return this;

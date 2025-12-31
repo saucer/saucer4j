@@ -4,7 +4,10 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.function.Supplier;
@@ -19,11 +22,13 @@ import app.saucer.ntv.ntv_webview;
 import app.saucer.ntv.ntv_webview.saucer_webview;
 import app.saucer.ntv.ntv_webview.saucer_webview_event;
 import app.saucer.ntv.ntv_webview.saucer_webview_event_message;
+import app.saucer.ntv.backends.SaucerBackendType;
 import app.saucer.ntv.documentation.InternalUseOnly;
 import app.saucer.ntv.util.SaucerBoxedType;
 import app.saucer.ntv.util.SaucerResourceUtil;
 import app.saucer.ntv.util.size_t;
 import app.saucer.webview.SaucerWebview;
+import app.saucer.webview.window.SaucerWindowDecoration;
 import co.casterlabs.rakurai.json.Rson;
 import co.casterlabs.rakurai.json.element.JsonElement;
 import co.casterlabs.rakurai.json.element.JsonObject;
@@ -40,11 +45,13 @@ public final class SaucerBridge {
     private static final String init_fmt = SaucerResourceUtil.loadResourceString("webview/bridge/init_fmt.js");
     private static final String ipc_object_fmt = SaucerResourceUtil.loadResourceString("webview/bridge/ipc_object_fmt.js");
 
-    private final SaucerWebview webview;
+    static final boolean GENERATE_TYPESCRIPT_DEFINITIONS = Boolean.getBoolean("saucer.generate_typescript_definitions");
 
+    private final SaucerWebview webview;
     private final saucer_webview_event_message messageCallback = this::onMessage;
 
-    private Map<String, _JavascriptObjectWrapper> objects = new LinkedHashMap<>();
+    private final Map<String, _JavascriptObjectWrapper> objects = new LinkedHashMap<>();
+    private final List<_ObjectDescription> objectDescriptions = new ArrayList<>();
 
     /**
      * @deprecated Native interop only.
@@ -147,6 +154,12 @@ public final class SaucerBridge {
                             break;
                         }
 
+                        case "GENERATE_TS_DEFINITIONS": {
+                            String definitions = this.generateTypeScriptDefinitions();
+                            returnValue = new JsonString(definitions);
+                            break;
+                        }
+
                         default:
                             throw new IllegalArgumentException("Unrecognized call: " + message);
                     }
@@ -220,8 +233,16 @@ public final class SaucerBridge {
      * 
      * @return     this instance, for chaining.
      */
-    @SneakyThrows
     public SaucerBridge defineObject(@NonNull String name, @NonNull Object obj) {
+        _JavascriptObjectWrapper wrapper = this.internal_defineObject(name, obj);
+        if (GENERATE_TYPESCRIPT_DEFINITIONS) {
+            this.objectDescriptions.add(wrapper.description);
+        }
+        return this;
+    }
+
+    @SneakyThrows
+    private _JavascriptObjectWrapper internal_defineObject(String name, Object obj) {
         Class<?> clazz;
         if (obj instanceof Class<?>) {
             clazz = (Class<?>) obj;
@@ -251,17 +272,18 @@ public final class SaucerBridge {
         // Look for sub-objects and register them.
         // Note that this recurses until there are no more sub-objects.
         for (Field f : _Reflection.getAllFields(clazz)) {
-            if (Modifier.isStatic(f.getModifiers())) {
-                continue;
-            }
+            if (Modifier.isStatic(f.getModifiers())) continue;
+            if (!f.getType().isAnnotationPresent(JavascriptObject.class)) continue;
 
-            if (f.getType().isAnnotationPresent(JavascriptObject.class)) {
-                f.setAccessible(true);
-                this.defineObject(name + "." + f.getName(), f.get(obj));
+            f.setAccessible(true);
+
+            _JavascriptObjectWrapper sub = this.internal_defineObject(name + "." + f.getName(), f.get(obj));
+            if (GENERATE_TYPESCRIPT_DEFINITIONS) {
+                wrapper.description.subObjects.add(sub.description);
             }
         }
 
-        return this;
+        return wrapper;
     }
 
     /**
@@ -302,6 +324,69 @@ public final class SaucerBridge {
         this.objects.clear();
         this.injectBase();
         return this;
+    }
+
+    private String generateTypeScriptDefinitions() {
+        if (!GENERATE_TYPESCRIPT_DEFINITIONS) {
+            throw new IllegalStateException("TypeScript definition generation is disabled. (Set -Dsaucer.generate_typescript_definitions=true to enable it)");
+        }
+
+        List<String> lines = new ArrayList<>();
+
+        lines.add("// Auto-generated Saucer Bridge Definitions");
+        lines.add(String.format("// Generated on %s", Instant.now().toString()));
+        lines.add("");
+
+        lines.add("export declare type MutationListenerId = any;");
+        lines.add("declare interface MutationObject<M> {");
+        lines.add("    onMutate(propertyName: M, handler: (newValue: any) => void): MutationListenerId;");
+        lines.add("    offMutate(id: MutationListenerId): void;");
+        lines.add("}");
+
+        // NB: Keep these in sync with their Java counterparts!
+
+        lines.add("export declare type SaucerUrl = string;");
+        lines.add(String.format("export declare type SaucerWindowDecoration = '%s';", String.join("' | '", names(SaucerWindowDecoration.values()))));
+        lines.add(String.format("export declare type SaucerBackendType = '%s';", String.join("' | '", names(SaucerBackendType.values()))));
+
+        lines.add("export declare interface SaucerColor { r: number; g: number; b: number; a: number; }");
+        lines.add("export declare interface SaucerSize { width: number; height: number; }");
+        lines.add("export declare interface SaucerPosition { x: number; y: number; }");
+        lines.add("export declare interface SaucerRectangle { x: number; y: number; width: number; height: number; }");
+        lines.add("export declare interface SaucerScreen { name: string; size: SaucerSize; position: SaucerPosition; }");
+
+        lines.add("");
+
+        for (_ObjectDescription objDesc : this.objectDescriptions) {
+            lines.add(objDesc.generateTypescriptDefinition());
+        }
+
+        lines.add("");
+
+        lines.add("declare global {");
+        lines.add("    interface Window {");
+
+        final List<String> SPECIAL_KEYS = List.of("saucer.window", "saucer.webview", "saucer.app");
+
+        for (_ObjectDescription objDesc : this.objectDescriptions) {
+            if (SPECIAL_KEYS.contains(objDesc.path)) continue;
+            lines.add(String.format("        readonly %s: %s;", objDesc.path, objDesc.path));
+        }
+
+        lines.add("        saucer: { window: saucer_window, webview: saucer_webview, app: saucer_app}");
+
+        lines.add("    }");
+        lines.add("}");
+
+        return String.join("\n", lines);
+    }
+
+    private static List<String> names(Enum<?>[] enums) {
+        List<String> names = new ArrayList<>();
+        for (Enum<?> e : enums) {
+            names.add(e.name());
+        }
+        return names;
     }
 
 }
