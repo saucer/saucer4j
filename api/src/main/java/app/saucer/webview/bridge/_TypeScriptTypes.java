@@ -21,27 +21,29 @@ class _TypeScriptTypes {
      * @return The TypeScript type name corresponding to the given Java class.
      */
     static String getTypeName(ClassLoader loader, Class<?> clazz, @Nullable Type generic) {
+        // @formatter:off
         if (clazz == boolean.class) return "boolean";
-        if (clazz == int.class) return "number";
-        if (clazz == byte.class) return "number";
-        if (clazz == char.class) return "number";
-        if (clazz == short.class) return "number";
-        if (clazz == long.class) return "number";
-        if (clazz == float.class) return "number";
-        if (clazz == double.class) return "number";
-        if (clazz == void.class) return "void";
+        if (clazz == int.class)     return "number";
+        if (clazz == byte.class)    return "number";
+        if (clazz == char.class)    return "number";
+        if (clazz == short.class)   return "number";
+        if (clazz == long.class)    return "number";
+        if (clazz == float.class)   return "number";
+        if (clazz == double.class)  return "number";
+        if (clazz == void.class)    return "void";
 
         if (clazz == Boolean.class) return "boolean";
-        if (clazz == Void.class) return "void";
-        if (clazz == Object.class) return "any";
+        if (clazz == Void.class)    return "void";
+        if (clazz == Object.class)  return "any";
 
-        if (clazz == JsonNull.class) return "null";
-        if (clazz == JsonArray.class) return "any[]";
-        if (clazz == JsonObject.class) return "Record<string, any>";
-        if (clazz == JsonString.class) return "string";
-        if (clazz == JsonNumber.class) return "number";
+        if (clazz == JsonNull.class)    return "null";
+        if (clazz == JsonArray.class)   return "any[]";
+        if (clazz == JsonObject.class)  return "Record<string, any>";
+        if (clazz == JsonString.class)  return "string";
+        if (clazz == JsonNumber.class)  return "number";
         if (clazz == JsonBoolean.class) return "boolean";
         if (clazz == JsonElement.class) return "any";
+        // @formatter:on
 
         if (CharSequence.class.isAssignableFrom(clazz)) {
             return "string";
