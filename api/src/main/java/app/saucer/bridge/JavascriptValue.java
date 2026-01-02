@@ -59,4 +59,10 @@ public @interface JavascriptValue {
      */
     boolean watchForMutate() default false;
 
+    /**
+     * The type to document for this field when generating TypeScript definitions.
+     * Only necessary if you are using Mutable<T> or another wrapper type.
+     */
+    Class<?> typeToDocument() default void.class;
+
 }

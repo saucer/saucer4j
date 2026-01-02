@@ -22,13 +22,11 @@ import app.saucer.ntv.ntv_webview;
 import app.saucer.ntv.ntv_webview.saucer_webview;
 import app.saucer.ntv.ntv_webview.saucer_webview_event;
 import app.saucer.ntv.ntv_webview.saucer_webview_event_message;
-import app.saucer.ntv.backends.SaucerBackendType;
 import app.saucer.ntv.documentation.InternalUseOnly;
 import app.saucer.ntv.util.SaucerBoxedType;
 import app.saucer.ntv.util.SaucerResourceUtil;
 import app.saucer.ntv.util.size_t;
 import app.saucer.webview.SaucerWebview;
-import app.saucer.webview.window.SaucerWindowDecoration;
 import co.casterlabs.rakurai.json.Rson;
 import co.casterlabs.rakurai.json.element.JsonElement;
 import co.casterlabs.rakurai.json.element.JsonObject;
@@ -338,7 +336,7 @@ public final class SaucerBridge {
         lines.add("");
 
         lines.add("export declare type MutationListenerId = any;");
-        lines.add("declare interface MutationObject<M> {");
+        lines.add("export declare interface MutationObject<M> {");
         lines.add("    onMutate(propertyName: M, handler: (newValue: any) => void): MutationListenerId;");
         lines.add("    offMutate(id: MutationListenerId): void;");
         lines.add("}");
@@ -346,8 +344,6 @@ public final class SaucerBridge {
         // NB: Keep these in sync with their Java counterparts!
 
         lines.add("export declare type SaucerUrl = string;");
-        lines.add(String.format("export declare type SaucerWindowDecoration = '%s';", String.join("' | '", names(SaucerWindowDecoration.values()))));
-        lines.add(String.format("export declare type SaucerBackendType = '%s';", String.join("' | '", names(SaucerBackendType.values()))));
 
         lines.add("export declare interface SaucerColor { r: number; g: number; b: number; a: number; }");
         lines.add("export declare interface SaucerSize { width: number; height: number; }");
@@ -363,30 +359,27 @@ public final class SaucerBridge {
 
         lines.add("");
 
-        lines.add("declare global {");
-        lines.add("    interface Window {");
-
         final List<String> SPECIAL_KEYS = List.of("saucer.window", "saucer.webview", "saucer.app");
+
+        lines.add("declare global {");
+        for (_ObjectDescription objDesc : this.objectDescriptions) {
+            if (SPECIAL_KEYS.contains(objDesc.path)) continue;
+            lines.add(String.format("    const %s: %s;", objDesc.path, objDesc.path));
+        }
+        lines.add("    const saucer: { window: saucer_window, webview: saucer_webview, app: saucer_app}");
+
+        lines.add("    interface Window {");
 
         for (_ObjectDescription objDesc : this.objectDescriptions) {
             if (SPECIAL_KEYS.contains(objDesc.path)) continue;
             lines.add(String.format("        readonly %s: %s;", objDesc.path, objDesc.path));
         }
-
-        lines.add("        saucer: { window: saucer_window, webview: saucer_webview, app: saucer_app}");
+        lines.add("        readonly saucer: { window: saucer_window, webview: saucer_webview, app: saucer_app}");
 
         lines.add("    }");
         lines.add("}");
 
         return String.join("\n", lines);
-    }
-
-    private static List<String> names(Enum<?>[] enums) {
-        List<String> names = new ArrayList<>();
-        for (Enum<?> e : enums) {
-            names.add(e.name());
-        }
-        return names;
     }
 
 }

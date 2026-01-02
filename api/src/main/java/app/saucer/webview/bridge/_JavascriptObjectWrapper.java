@@ -3,6 +3,7 @@ package app.saucer.webview.bridge;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -64,7 +65,10 @@ class _JavascriptObjectWrapper {
             String name = annotation.value().isEmpty() ? f.getName() : annotation.value();
 
             if (SaucerBridge.GENERATE_TYPESCRIPT_DEFINITIONS) {
-                this.description.properties.put(name, new _PropertyDescription(f.getType()));
+                Class<?> typeToDocument = annotation.typeToDocument() == void.class ? f.getType() : annotation.typeToDocument();
+                Type genericType = annotation.typeToDocument() == void.class ? f.getGenericType() : null;
+
+                this.description.properties.put(name, new _PropertyDescription(typeToDocument, genericType));
             }
 
             if (annotation.allowGet()) {
@@ -93,7 +97,7 @@ class _JavascriptObjectWrapper {
                 String name = annotation.value().isEmpty() ? m.getName() : annotation.value();
 
                 if (SaucerBridge.GENERATE_TYPESCRIPT_DEFINITIONS) {
-                    this.description.properties.putIfAbsent(name, new _PropertyDescription(m.getReturnType()));
+                    this.description.properties.putIfAbsent(name, new _PropertyDescription(m.getReturnType(), m.getGenericReturnType()));
                     this.description.properties.get(name).readable = true;
                 }
 
@@ -105,7 +109,10 @@ class _JavascriptObjectWrapper {
                 String name = annotation.value().isEmpty() ? m.getName() : annotation.value();
 
                 if (SaucerBridge.GENERATE_TYPESCRIPT_DEFINITIONS) {
-                    this.description.properties.putIfAbsent(name, new _PropertyDescription(m.getParameters()[0].getType()));
+                    Class<?> clazz = m.getParameters()[0].getType();
+                    Type genericType = m.getParameters()[0].getParameterizedType();
+
+                    this.description.properties.putIfAbsent(name, new _PropertyDescription(clazz, genericType));
                     this.description.properties.get(name).writable = true;
                 }
 
