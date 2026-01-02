@@ -1,13 +1,11 @@
 package app.saucer.webview.bridge;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.jetbrains.annotations.Nullable;
 
 class _ObjectDescription {
     final String path;
@@ -27,18 +25,13 @@ class _ObjectDescription {
             if (noReturn) {
                 this.returnType = "void";
             } else {
-                this.returnType = _TypeScriptTypes.getTypeName(
-                    method.getDeclaringClass().getClassLoader(),
-                    method.getReturnType(),
-                    method.getGenericReturnType()
-                );
+                this.returnType = _TypeScriptTypes.getReturnType(method);
             }
 
             for (int i = 0; i < method.getParameterTypes().length; i++) {
-                Class<?> paramType = method.getParameterTypes()[i];
-                Type genericParamType = method.getGenericParameterTypes()[i];
                 String paramName = method.getParameters()[0].getName();
-                this.parameterTypes.add(new _ParameterDescription(paramName, paramType, genericParamType));
+                String type = _TypeScriptTypes.getParameterType(method, i);
+                this.parameterTypes.add(new _ParameterDescription(paramName, type));
             }
         }
     }
@@ -47,13 +40,9 @@ class _ObjectDescription {
         final String name;
         final String type;
 
-        _ParameterDescription(String name, Class<?> clazz, @Nullable Type genericType) {
+        _ParameterDescription(String name, String type) {
             this.name = name;
-            this.type = _TypeScriptTypes.getTypeName(
-                clazz.getClassLoader(),
-                clazz,
-                genericType
-            );
+            this.type = type;
         }
     }
 
@@ -63,12 +52,12 @@ class _ObjectDescription {
         boolean writable;
         boolean watchable;
 
-        _PropertyDescription(Class<?> clazz, @Nullable Type genericType) {
-            this.type = _TypeScriptTypes.getTypeName(
-                clazz.getClassLoader(),
-                clazz,
-                genericType
-            );
+        _PropertyDescription(String type) {
+            this.type = type;
+        }
+
+        _PropertyDescription(Field field) {
+            this.type = _TypeScriptTypes.getType(field);
         }
     }
 
