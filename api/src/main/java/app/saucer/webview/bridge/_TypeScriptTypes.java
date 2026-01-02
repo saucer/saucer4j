@@ -7,6 +7,14 @@ import java.util.Map;
 
 import org.jetbrains.annotations.Nullable;
 
+import co.casterlabs.rakurai.json.element.JsonArray;
+import co.casterlabs.rakurai.json.element.JsonBoolean;
+import co.casterlabs.rakurai.json.element.JsonElement;
+import co.casterlabs.rakurai.json.element.JsonNull;
+import co.casterlabs.rakurai.json.element.JsonNumber;
+import co.casterlabs.rakurai.json.element.JsonObject;
+import co.casterlabs.rakurai.json.element.JsonString;
+
 class _TypeScriptTypes {
 
     /**
@@ -22,8 +30,18 @@ class _TypeScriptTypes {
         if (clazz == float.class) return "number";
         if (clazz == double.class) return "number";
         if (clazz == void.class) return "void";
+
         if (clazz == Boolean.class) return "boolean";
         if (clazz == Void.class) return "void";
+        if (clazz == Object.class) return "any";
+
+        if (clazz == JsonNull.class) return "null";
+        if (clazz == JsonArray.class) return "any[]";
+        if (clazz == JsonObject.class) return "Record<string, any>";
+        if (clazz == JsonString.class) return "string";
+        if (clazz == JsonNumber.class) return "number";
+        if (clazz == JsonBoolean.class) return "boolean";
+        if (clazz == JsonElement.class) return "any";
 
         if (CharSequence.class.isAssignableFrom(clazz)) {
             return "string";
