@@ -58,7 +58,7 @@ import lombok.experimental.Accessors;
 public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
     private static final Set<SaucerWindow> instances = new HashSet<>();
 
-    private final ExecutorService asyncExecutor = Executors.newSingleThreadExecutor();
+    private final ExecutorService asyncExecutor;
     private final Set<SaucerWebview> webviews = new HashSet<>();
 
     private @Setter @Nullable SaucerWindowListener listener;
@@ -130,6 +130,12 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
         ntv_window.N.saucer_window_on($ref, saucer_window_event.CLOSE, this.closeRequestCallback, false, null);
 
         instances.add(this);
+
+        this.asyncExecutor = Executors.newCachedThreadPool((r) -> {
+            Thread t = new Thread(r);
+            t.setName("SaucerWindow - AsyncExecutor #" + t.getId());
+            return t;
+        });
     }
 
     /**
