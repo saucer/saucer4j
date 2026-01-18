@@ -1,6 +1,7 @@
 package app.saucer.ntv.util;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -17,13 +18,14 @@ import com.sun.jna.Native;
 
 import app.saucer.ntv.backends.SaucerBackend;
 import app.saucer.ntv.backends.SaucerBackend.FindThisSaucerBackend;
+import app.saucer.ntv.backends.SaucerBackendType;
 import lombok.Getter;
 import lombok.NonNull;
 
 public class SaucerNativeLoader {
     private static DummyLibrary mainSaucerLib = null;
 
-    private static @Getter SaucerBackend backend;
+    private static @Getter SaucerBackend backend = new DummyBackend();
 
     private static Map<String, String> ep = new HashMap<>();
 
@@ -135,6 +137,35 @@ public class SaucerNativeLoader {
         } catch (Throwable t) {
             throw new RuntimeException("An error occurred whilst loading Saucer natives", t);
         }
+    }
+
+    private static class DummyBackend extends SaucerBackend {
+
+        @Override
+        protected boolean checkDependencies() throws IOException {
+            return true;
+        }
+
+        @Override
+        protected String[] supportedSystemTargets() {
+            return new String[0];
+        }
+
+        @Override
+        protected String[] supportedArchTargets() {
+            return new String[0];
+        }
+
+        @Override
+        public SaucerBackendType getType() {
+            return SaucerBackendType.CUSTOM;
+        }
+
+        @Override
+        public String getBuildType() {
+            return "dummy";
+        }
+
     }
 
 }
