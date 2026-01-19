@@ -124,7 +124,7 @@ public class Bundler {
                 // Extract the bundle.
                 new File(runtimeFolder, "Contents/MacOS").mkdirs();
                 new File(runtimeFolder, "Contents/Resources").mkdirs();
-                Files.move(new File(runtimeFolder, "Contents/Home").toPath(), new File(runtimeFolder, "Contents/Resources/runtime").toPath());
+                Files.move(new File(runtimeFolder, "Contents/Home").toPath(), new File(runtimeFolder, "Contents/MacOS/runtime").toPath());
 
                 FileUtil.deleteRecursively(new File(runtimeFolder, "Contents/Resources/runtime/man")); // Delete any manpages. (macOS)
                 FileUtil.deleteRecursively(new File(runtimeFolder, "Contents/Resources/runtime/docs")); // Delete any manpages. (macOS)
@@ -144,7 +144,7 @@ public class Bundler {
 
     private void processIncludes() {
         boolean makeMacOSBundle = this.buildOptions.getTargetOS() == BuildTargetOS.macos && this.buildOptions.getSubsystem() == BuildExecutableSubsystem.window;
-        File includesFolder = makeMacOSBundle ? new File(this.buildFolder, "Contents/Resources") : this.buildFolder;
+        File includesFolder = makeMacOSBundle ? new File(this.buildFolder, "Contents/MacOS") : this.buildFolder;
 
         Bundler.LOGGER.info("includes -> Gathering dependencies...");
         for (String dependency : this.buildOptions.getDependencies()) {
@@ -208,7 +208,7 @@ public class Bundler {
 
     private void create() {
         boolean makeMacOSBundle = this.buildOptions.getTargetOS() == BuildTargetOS.macos && this.buildOptions.getSubsystem() == BuildExecutableSubsystem.window;
-        File resourcesFolder = makeMacOSBundle ? new File(this.buildFolder, "Contents/Resources") : this.buildFolder;
+        File resourcesFolder = makeMacOSBundle ? new File(this.buildFolder, "Contents/MacOS") : this.buildFolder;
 
         try {
             Bundler.LOGGER.info("create -> Building arguments...");
@@ -314,12 +314,14 @@ public class Bundler {
             try {
                 Icon icon = Icon.from(this.buildOptions.getIcon());
                 switch (this.buildOptions.getTargetOS()) {
-                    case macos:
+                    case macos: {
+                        File iconFile = makeMacOSBundle ? new File(resourcesFolder, "../Resources/icons.icns") : new File(resourcesFolder, "/icons.icns");
                         Files.write(
-                            new File(resourcesFolder, "icon.icns").toPath(),
+                            iconFile.toPath(),
                             icon.toIcns()
                         );
                         break;
+                    }
 
 //                    case aix:
                     case gnulinux:
