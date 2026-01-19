@@ -14,21 +14,25 @@ echo "Building for $ZIG_TARGET..."
 
 if [ $2 = "windows" ]; then
     EXEC_EXT=".exe"
-    INCLUDES="-I_include/JNI -I_include/JNI/win32"
+    INCLUDES="-I$JAVA_HOME/include/win32"
     EXTRA_ARGS="/SUBSYSTEM:WINDOWS -s -luser32 -lshell32"
 elif [ $2 = "linux" ]; then
     EXEC_EXT=""
-    INCLUDES="-I_include/JNI -I_include/JNI/linux -lpthread"
+    INCLUDES="-I$JAVA_HOME/include/linux -lpthread"
     EXTRA_ARGS=""
-elif [ $2 = "macos" ]; then
+elif [ $2 = "macos" -o $2 = "macoscross"  ]; then
     EXEC_EXT=""
-    # You can use https://github.com/hexops-graveyard/sdk-macos-12.0 to get framework headers on Linux.
-    INCLUDES="-I_include/JNI -I_include/JNI/darwin -lpthread" #  -F/home/ubuntu/include/sdk-macos-12.0-main/root/System/Library/Frameworks -framework CoreFoundation
+    INCLUDES="-I$JAVA_HOME/include/darwin -lpthread"
     EXTRA_ARGS=""
+fi
+
+if [ $2 = "macoscross" ]; then
+    # You can use https://github.com/hexops-graveyard/sdk-macos-12.0 to get framework headers on Linux.
+    INCLUDES="$INCLUDES -F/home/ubuntu/include/sdk-macos-12.0-main/root/System/Library/Frameworks -framework CoreFoundation"
 fi
 
 rm -rf "build/$ZIG_TARGET"
 mkdir -p "build/$ZIG_TARGET"
-zig cc -target $ZIG_TARGET $INCLUDES $EXTRA_ARGS $SOURCES -o "build/$ZIG_TARGET/launcher$EXEC_EXT"
+zig cc -target $ZIG_TARGET -I$JAVA_HOME/include $INCLUDES $EXTRA_ARGS $SOURCES -o "build/$ZIG_TARGET/launcher$EXEC_EXT"
 
 echo "Finished building $ZIG_TARGET!"
