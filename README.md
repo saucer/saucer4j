@@ -5,7 +5,7 @@
 </div>
 
 <p align="center"> 
-    Java Bindings for <a href="https://github.con/saucer/sacuer">saucer</a>
+    Java Bindings for <a href="https://github.com/saucer/saucer">saucer</a>
 </p>
 
 ---
