@@ -1,14 +1,12 @@
-#include "dyn.h"
+#include "util/dyn.h"
 
-#if defined(_WIN32)
+#include <stdio.h>
 #include <windows.h>
 #include <libloaderapi.h>
 #include <fileapi.h>
-#include <stdio.h>
 
-#include "strings.h"
-
-#define FULL_PATH_LEN 32767
+#include "util/strings.h"
+#include "platform/win32/strings.h"
 
 bool dyn_add_dir(char *path)
 {
@@ -16,7 +14,7 @@ bool dyn_add_dir(char *path)
     if (AddDllDirectory(widened_path) == 0)
     {
         printf("Failed to add DLL directory '%s': %lu.\n", path, GetLastError());
-        return false; // Early return.
+        return false;
     }
 
     // We have to preload all of the DLLs to avoid issues with AWT not being able to find them later.
@@ -33,13 +31,12 @@ bool dyn_add_dir(char *path)
     do
     {
         char *partial_path = finder_data.cFileName;
-        char *full_path = strings_concat(path, strings_concat("\\", partial_path)); // This is disgusting, idc.
+        char *full_path = strings_concat(path, strings_concat("\\", partial_path));
 
         if (LoadLibraryExA(full_path, NULL, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS) == NULL &&
             LoadLibraryExA(partial_path, NULL, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS) == NULL)
         {
             printf("Failed to load library '%s': %lu, ignoring.\n", full_path, GetLastError());
-            // return false;
         }
     } while (FindNextFileA(finder, &finder_data));
 
@@ -56,25 +53,3 @@ DYNSymbol dyn_symbol(DYNHandle handle, char *name)
 {
     return GetProcAddress((HMODULE)handle, name);
 }
-
-#else
-
-#include <dlfcn.h>
-
-bool dyn_add_dir(char *path)
-{
-    // NOOP
-    return true;
-}
-
-DYNHandle dyn_load(char *path)
-{
-    return dlopen(path, RTLD_LAZY);
-}
-
-DYNSymbol dyn_symbol(DYNHandle handle, char *name)
-{
-    return dlsym((void *)handle, name);
-}
-
-#endif
