@@ -37,29 +37,33 @@ public interface ntv_desktop extends Library {
 
     public saucer_picker_options saucer_picker_options_new();
 
-    public int saucer_picker_options_free(saucer_picker_options arg0);
+    public void saucer_picker_options_free(saucer_picker_options arg0);
 
-    public saucer_desktop saucer_desktop_new(saucer_application arg0);
-
-    public int saucer_picker_options_set_initial(saucer_picker_options arg0, String arg1);
+    public void saucer_picker_options_set_initial(saucer_picker_options arg0, String arg1);
 
     /**
      * @remark Expects the filters in the format of: "filter1\0filter2\0filter3\0"
      */
-    public int saucer_picker_options_set_filters(saucer_picker_options arg0, String arg1, size_t arg2);
+    public void saucer_picker_options_set_filters(saucer_picker_options arg0, String arg1, size_t arg2);
 
-    public int saucer_desktop_free(saucer_desktop arg0);
+    public void saucer_desktop_free(saucer_desktop arg0);
 
-    public int saucer_desktop_mouse_position(saucer_desktop arg0, IntByReference x, IntByReference y);
+    public saucer_desktop saucer_desktop_new(saucer_application arg0);
 
-    public int saucer_picker_pick_file(saucer_desktop arg0, saucer_picker_options arg1, /*string*/byte[] arg2, size_t.ByReference arg3, IntByReference error);
+    public void saucer_desktop_mouse_position(saucer_desktop arg0, IntByReference x, IntByReference y);
 
-    public int saucer_picker_pick_folder(saucer_desktop arg0, saucer_picker_options arg1, /*string*/byte[] arg2, size_t.ByReference arg3, IntByReference error);
+    /** @note The pointer passed to @param {error} can be null */
+    public void saucer_picker_pick_file(saucer_desktop arg0, saucer_picker_options arg1, /*string*/byte[] arg2, size_t.ByReference arg3, IntByReference error);
 
-    public int saucer_picker_pick_files(saucer_desktop arg0, saucer_picker_options arg1, /*string*/byte[] arg2, size_t.ByReference arg3, IntByReference error);
+    /** @note The pointer passed to @param {error} can be null */
+    public void saucer_picker_pick_folder(saucer_desktop arg0, saucer_picker_options arg1, /*string*/byte[] arg2, size_t.ByReference arg3, IntByReference error);
 
-    public int saucer_picker_save(saucer_desktop arg0, saucer_picker_options arg1, /*string*/byte[] arg2, size_t.ByReference arg3, IntByReference error);
+    /** @note The pointer passed to @param {error} can be null */
+    public void saucer_picker_pick_files(saucer_desktop arg0, saucer_picker_options arg1, /*string*/byte[] arg2, size_t.ByReference arg3, IntByReference error);
 
-    public int saucer_desktop_open(saucer_desktop arg0, String arg1);
+    /** @note The pointer passed to @param {error} can be null */
+    public void saucer_picker_save(saucer_desktop arg0, saucer_picker_options arg1, /*string*/byte[] arg2, size_t.ByReference arg3, IntByReference error);
+
+    public void saucer_desktop_open(saucer_desktop arg0, String arg1);
 
 }

@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.sun.jna.Callback;
+import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
 
@@ -64,45 +64,45 @@ public final class SaucerWindow extends SaucerBoxedType<saucer_window> {
     private @Setter @Nullable SaucerWindowListener listener;
     private @Getter boolean isClosed = false;
 
-    private final saucer_window_event_decorated decoratedCallback = (saucer_window _unused, /*saucer_window_decoration*/int val, Callback _unused2) -> {
+    private final saucer_window_event_decorated decoratedCallback = (saucer_window _unused, /*saucer_window_decoration*/int val, Pointer _unused2) -> {
         if (this.listener != null) {
             SaucerWindowDecoration decoration = SaucerWindowDecoration.LUT[val];
             this.listener.onDecorated(decoration);
         }
     };
 
-    private final saucer_window_event_maximize maximizeCallback = (saucer_window _unused, boolean b, Callback _unused2) -> {
+    private final saucer_window_event_maximize maximizeCallback = (saucer_window _unused, boolean b, Pointer _unused2) -> {
         if (this.listener != null) {
             this.listener.onMaximize(b);
         }
     };
 
-    private final saucer_window_event_minimize minimizeCallback = (saucer_window _unused, boolean b, Callback _unused2) -> {
+    private final saucer_window_event_minimize minimizeCallback = (saucer_window _unused, boolean b, Pointer _unused2) -> {
         if (this.listener != null) {
             this.listener.onMinimize(b);
         }
     };
 
-    private final saucer_window_event_closed closedCallback = (saucer_window _unused, Callback _unused2) -> {
+    private final saucer_window_event_closed closedCallback = (saucer_window _unused, Pointer _unused2) -> {
         this.cleanup();
         if (this.listener != null) {
             this.listener.onClosed();
         }
     };
 
-    private final saucer_window_event_resize resizeCallback = (saucer_window _unused, int w, int h, Callback _unused2) -> {
+    private final saucer_window_event_resize resizeCallback = (saucer_window _unused, int w, int h, Pointer _unused2) -> {
         if (this.listener != null) {
             this.listener.onResize(w, h);
         }
     };
 
-    private final saucer_window_event_focus focusCallback = (saucer_window _unused, boolean b, Callback _unused2) -> {
+    private final saucer_window_event_focus focusCallback = (saucer_window _unused, boolean b, Pointer _unused2) -> {
         if (this.listener != null) {
             this.listener.onFocus(b);
         }
     };
 
-    private final saucer_window_event_close closeRequestCallback = (saucer_window _unused, Callback _unused2) -> {
+    private final saucer_window_event_close closeRequestCallback = (saucer_window _unused, Pointer _unused2) -> {
         if (this.listener != null) {
             if (this.listener.shouldAvoidClosing()) {
                 return saucer_policy.BLOCK;

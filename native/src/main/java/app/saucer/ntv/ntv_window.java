@@ -2,6 +2,7 @@ package app.saucer.ntv;
 
 import com.sun.jna.Callback;
 import com.sun.jna.Library;
+import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
 
@@ -28,31 +29,31 @@ public interface ntv_window extends Library {
     }
 
     public static interface saucer_window_event_decorated extends Callback {
-        void callback(saucer_window arg0, /*saucer_window_decoration*/int arg1, Callback arg2);
+        void callback(saucer_window arg0, /*saucer_window_decoration*/int arg1, Pointer arg2);
     }
 
     public static interface saucer_window_event_maximize extends Callback {
-        void callback(saucer_window arg0, boolean arg1, Callback arg2);
+        void callback(saucer_window arg0, boolean arg1, Pointer arg2);
     }
 
     public static interface saucer_window_event_minimize extends Callback {
-        void callback(saucer_window arg0, boolean arg1, Callback arg2);
+        void callback(saucer_window arg0, boolean arg1, Pointer arg2);
     }
 
     public static interface saucer_window_event_closed extends Callback {
-        void callback(saucer_window arg0, Callback arg1);
+        void callback(saucer_window arg0, Pointer arg1);
     }
 
     public static interface saucer_window_event_resize extends Callback {
-        void callback(saucer_window arg0, int arg1, int arg2, Callback arg3);
+        void callback(saucer_window arg0, int arg1, int arg2, Pointer arg3);
     }
 
     public static interface saucer_window_event_focus extends Callback {
-        void callback(saucer_window arg0, boolean arg1, Callback arg2);
+        void callback(saucer_window arg0, boolean arg1, Pointer arg2);
     }
 
     public static interface saucer_window_event_close extends Callback {
-        int callback(saucer_window arg0, Callback arg1);
+        /*saucer_policy*/int callback(saucer_window arg0, Pointer arg1);
     }
 
     public static class saucer_window_edge {
@@ -102,6 +103,7 @@ public interface ntv_window extends Library {
 
     public void saucer_window_free(saucer_window arg0);
 
+    /** @note The pointer passed to @param {error} can be null */
     public saucer_window saucer_window_new(saucer_application arg0, IntByReference error);
 
     public boolean saucer_window_visible(saucer_window arg0);
@@ -176,9 +178,9 @@ public interface ntv_window extends Library {
 
     public void saucer_window_set_position(saucer_window arg0, int x, int y);
 
-    public size_t saucer_window_on(saucer_window arg0, /*saucer_window_event*/int arg1, Callback callback, boolean clearable, Callback userdata);
+    public size_t saucer_window_on(saucer_window arg0, /*saucer_window_event*/int arg1, Callback callback, boolean clearable, Pointer userdata);
 
-    public void saucer_window_once(saucer_window arg0, /*saucer_window_event*/int arg1, Callback callback, Callback userdata);
+    public void saucer_window_once(saucer_window arg0, /*saucer_window_event*/int arg1, Callback callback, Pointer userdata);
 
     public void saucer_window_off(saucer_window arg0, /*saucer_window_event*/int arg1, size_t arg2);
 
@@ -188,6 +190,6 @@ public interface ntv_window extends Library {
      * @note Please refer to the documentation in `application.h` on how to use this
      *       function.
      */
-    public void saucer_window_native(saucer_window arg0, size_t arg1, Callback arg2, size_t.ByReference arg3);
+    public void saucer_window_native(saucer_window arg0, size_t arg1, Pointer arg2, size_t.ByReference arg3);
 
 }

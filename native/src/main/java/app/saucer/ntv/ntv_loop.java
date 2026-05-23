@@ -21,14 +21,14 @@ public interface ntv_loop extends Library {
         }
     }
 
-    public int saucer_loop_free(saucer_loop arg0);
+    public void saucer_loop_free(saucer_loop arg0);
 
     public saucer_loop saucer_loop_new(saucer_application arg0);
 
-    public int saucer_loop_run(saucer_loop arg0);
+    public void saucer_loop_run(saucer_loop arg0);
 
-    public int saucer_loop_iteration(saucer_loop arg0);
+    public void saucer_loop_iteration(saucer_loop arg0);
 
-    public int saucer_loop_quit(saucer_loop arg0);
+    public void saucer_loop_quit(saucer_loop arg0);
 
 }

@@ -2,6 +2,7 @@ package app.saucer.ntv;
 
 import com.sun.jna.Callback;
 import com.sun.jna.Library;
+import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
 
@@ -48,15 +49,15 @@ public interface ntv_webview extends Library {
      *         finishes. To keep it around, it has to be explictly copied!
      */
     public static interface saucer_webview_event_permission extends Callback {
-        int callback(saucer_webview arg0, saucer_permission_request arg1, Callback arg2);
+        /*saucer_status*/int callback(saucer_webview arg0, saucer_permission_request arg1, Pointer arg2);
     }
 
     public static interface saucer_webview_event_fullscreen extends Callback {
-        int callback(saucer_webview arg0, boolean arg1, Callback arg2);
+        /*saucer_policy*/int callback(saucer_webview arg0, boolean arg1, Pointer arg2);
     }
 
     public static interface saucer_webview_event_dom_ready extends Callback {
-        void callback(saucer_webview arg0, Callback arg1);
+        void callback(saucer_webview arg0, Pointer arg1);
     }
 
     /**
@@ -64,7 +65,7 @@ public interface ntv_webview extends Library {
      *         keep it around, it has to be explictly copied!
      */
     public static interface saucer_webview_event_navigated extends Callback {
-        void callback(saucer_webview arg0, saucer_url arg1, Callback arg2);
+        void callback(saucer_webview arg0, saucer_url arg1, Pointer arg2);
     }
 
     /**
@@ -72,11 +73,11 @@ public interface ntv_webview extends Library {
      *         finishes. It cannot be copied.
      */
     public static interface saucer_webview_event_navigate extends Callback {
-        int callback(saucer_webview arg0, saucer_navigation arg1, Callback arg2);
+        /*saucer_policy*/int callback(saucer_webview arg0, saucer_navigation arg1, Pointer arg2);
     }
 
     public static interface saucer_webview_event_message extends Callback {
-        void callback(saucer_webview arg0, String arg1, size_t arg2, Callback arg3);
+        /*saucer_status*/int callback(saucer_webview arg0, String arg1, size_t arg2, Pointer arg3);
     }
 
     /**
@@ -84,7 +85,7 @@ public interface ntv_webview extends Library {
      *         keep it around, it has to be explictly copied!
      */
     public static interface saucer_webview_event_request extends Callback {
-        void callback(saucer_webview arg0, saucer_url arg1, Callback arg2);
+        void callback(saucer_webview arg0, saucer_url arg1, Pointer arg2);
     }
 
     /**
@@ -92,15 +93,15 @@ public interface ntv_webview extends Library {
      *         keep it around, it has to be explictly copied!
      */
     public static interface saucer_webview_event_favicon extends Callback {
-        void callback(saucer_webview arg0, saucer_icon arg1, Callback arg2);
+        void callback(saucer_webview arg0, saucer_icon arg1, Pointer arg2);
     }
 
     public static interface saucer_webview_event_title extends Callback {
-        void callback(saucer_webview arg0, String arg1, size_t arg2, Callback arg3);
+        void callback(saucer_webview arg0, String arg1, size_t arg2, Pointer arg3);
     }
 
     public static interface saucer_webview_event_load extends Callback {
-        void callback(saucer_webview arg0, /*saucer_state*/int arg1, Callback arg2);
+        void callback(saucer_webview arg0, /*saucer_state*/int arg1, Pointer arg2);
     }
 
     public static class saucer_state {
@@ -112,9 +113,9 @@ public interface ntv_webview extends Library {
 
     public static class saucer_status {
 
-        public static final int ANDLED = 0;
+        public static final int HANDLED = 0;
 
-        public static final int NHANDLED = 1;
+        public static final int UNHANDLED = 1;
     };
 
     public static class saucer_script_time {
@@ -165,9 +166,10 @@ public interface ntv_webview extends Library {
 
     public void saucer_webview_free(saucer_webview arg0);
 
+    /** @note The pointer passed to @param {error} can be null */
     public saucer_webview saucer_webview_new(saucer_webview_options arg0, IntByReference error);
 
-    public saucer_url saucer_webview_url(saucer_webview arg0, IntByReference error);
+    public saucer_url saucer_webview_url(saucer_webview arg0);
 
     public saucer_icon saucer_webview_favicon(saucer_webview arg0);
 
@@ -223,13 +225,13 @@ public interface ntv_webview extends Library {
 
     public void saucer_webview_uninject(saucer_webview arg0, size_t arg1);
 
-    public void saucer_webview_handle_scheme(saucer_webview arg0, String arg1, saucer_scheme_handler arg2);
+    public void saucer_webview_handle_scheme(saucer_webview arg0, String arg1, saucer_scheme_handler arg2, Pointer userdata);
 
     public void saucer_webview_remove_scheme(saucer_webview arg0, String arg1);
 
-    public size_t saucer_webview_on(saucer_webview arg0, /*saucer_webview_event*/int arg1, Callback callback, boolean clearable, Callback userdata);
+    public size_t saucer_webview_on(saucer_webview arg0, /*saucer_webview_event*/int arg1, Callback callback, boolean clearable, Pointer userdata);
 
-    public void saucer_webview_once(saucer_webview arg0, /*saucer_webview_event*/int arg1, Callback callback, Callback userdata);
+    public void saucer_webview_once(saucer_webview arg0, /*saucer_webview_event*/int arg1, Callback callback, Pointer userdata);
 
     public void saucer_webview_off(saucer_webview arg0, /*saucer_webview_event*/int arg1, size_t arg2);
 
@@ -241,6 +243,6 @@ public interface ntv_webview extends Library {
      * @note Please refer to the documentation in `application.h` on how to use this
      *       function.
      */
-    public void saucer_webview_native(saucer_webview arg0, size_t arg1, Callback arg2, size_t.ByReference arg3);
+    public void saucer_webview_native(saucer_webview arg0, size_t arg1, Pointer arg2, size_t.ByReference arg3);
 
 }

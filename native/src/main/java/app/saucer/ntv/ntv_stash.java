@@ -2,6 +2,7 @@ package app.saucer.ntv;
 
 import com.sun.jna.Callback;
 import com.sun.jna.Library;
+import com.sun.jna.Pointer;
 
 import app.saucer.ntv.util.SaucerNativeLoader;
 import app.saucer.ntv.util.SaucerPointerType;
@@ -23,7 +24,7 @@ public interface ntv_stash extends Library {
     }
 
     public static interface saucer_stash_lazy_callback extends Callback {
-        void callback(Callback arg0);
+        saucer_stash callback(Pointer arg0);
     }
 
     public byte[] saucer_stash_data(saucer_stash arg0);
@@ -38,7 +39,7 @@ public interface ntv_stash extends Library {
 
     public saucer_stash saucer_stash_new_view(byte[] arg0, size_t arg1);
 
-    public saucer_stash saucer_stash_new_lazy(saucer_stash_lazy_callback arg0, Callback userdata);
+    public saucer_stash saucer_stash_new_lazy(saucer_stash_lazy_callback arg0, Pointer userdata);
 
     public saucer_stash saucer_stash_new_from_str(String arg0);
 

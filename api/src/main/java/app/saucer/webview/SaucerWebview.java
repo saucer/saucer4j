@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.sun.jna.Callback;
+import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
 
@@ -82,13 +82,13 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
     // TODO saucer_webview_event_permission
     // TODO saucer_webview_event_fullscreen
 
-    private final saucer_webview_event_dom_ready domReadyCallback = (saucer_webview _unused, Callback _unused2) -> {
+    private final saucer_webview_event_dom_ready domReadyCallback = (saucer_webview _unused, Pointer _unused2) -> {
         if (this.listener != null) {
             this.listener.onDomReady();
         }
     };
 
-    private final saucer_webview_event_navigated navigatedCallback = (saucer_webview _unused, saucer_url url, Callback _unused2) -> {
+    private final saucer_webview_event_navigated navigatedCallback = (saucer_webview _unused, saucer_url url, Pointer _unused2) -> {
         if (this.listener != null) {
             SaucerUrl boxed = new SaucerUrl(url, false);
             SaucerBoxedType.noFree(boxed); // Prevent double-free.
@@ -96,7 +96,7 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
         }
     };
 
-    private final saucer_webview_event_navigate navigateCallback = (saucer_webview _unused, saucer_navigation nav, Callback _unused2) -> {
+    private final saucer_webview_event_navigate navigateCallback = (saucer_webview _unused, saucer_navigation nav, Pointer _unused2) -> {
         if (this.listener != null) {
             SaucerNavigation boxed = new SaucerNavigation(nav, false);
             if (!this.listener.onNavigate(boxed)) {
@@ -110,20 +110,20 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
     // saucer_webview_event_message is handled in SaucerBridge.
     // TODO saucer_webview_event_request
 
-    private final saucer_webview_event_favicon faviconCallback = (saucer_webview _unused, saucer_icon icon, Callback _unused2) -> {
+    private final saucer_webview_event_favicon faviconCallback = (saucer_webview _unused, saucer_icon icon, Pointer _unused2) -> {
         if (this.listener != null) {
             SaucerIcon boxed = new SaucerIcon(icon, false);
             this.listener.onFavicon(boxed);
         }
     };
 
-    private final saucer_webview_event_title titleCallback = (saucer_webview _unused, String title, size_t arg2, Callback _unused2) -> {
+    private final saucer_webview_event_title titleCallback = (saucer_webview _unused, String title, size_t arg2, Pointer _unused2) -> {
         if (this.listener != null) {
             this.listener.onTitle(title);
         }
     };
 
-    private final saucer_webview_event_load loadCallback = (saucer_webview _unused, /*saucer_state*/int arg1, Callback _unused2) -> {
+    private final saucer_webview_event_load loadCallback = (saucer_webview _unused, /*saucer_state*/int arg1, Pointer _unused2) -> {
         if (this.listener != null) {
             SaucerWebviewLoadState state = SaucerWebviewLoadState.LUT[arg1];
             this.listener.onLoad(state);
@@ -189,13 +189,7 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
      */
     @JavascriptGetter("url")
     public SaucerUrl url() {
-        IntByReference error = new IntByReference(0);
-        saucer_url $url = ntv_webview.N.saucer_webview_url($ref, error);
-
-        if (error.getValue() != 0) {
-            throw new IllegalStateException("Failed to get current URL (error code " + error.getValue() + ")");
-        }
-
+        saucer_url $url = ntv_webview.N.saucer_webview_url($ref);
         return new SaucerUrl($url, true);
     }
 
@@ -425,7 +419,7 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
         assert !this.schemeHandlers.containsKey(name) : "You can only add one handler per scheme. Did you mean to call removeSchemeHandler() first?";
         assert customSchemes.contains(name) : "You must register your scheme via Saucer.registerCustomScheme()";
         saucer_scheme_handler handlerNtv = new SaucerSchemeWrapper(handler);
-        ntv_webview.N.saucer_webview_handle_scheme($ref, name, handlerNtv);
+        ntv_webview.N.saucer_webview_handle_scheme($ref, name, handlerNtv, null);
         this.schemeHandlers.put(name, handlerNtv);
         return this;
     }
@@ -449,7 +443,7 @@ public final class SaucerWebview extends SaucerBoxedType<saucer_webview> {
         private final SaucerSchemeHandler handler;
 
         @Override
-        public void callback(saucer_scheme_request req, saucer_scheme_executor exec) {
+        public void callback(saucer_scheme_request req, saucer_scheme_executor exec, Pointer _unused) {
             try {
                 SaucerSchemeRequest boxedReq = new SaucerSchemeRequest(req, false);
                 SaucerSchemeResponse boxedRes = this.handler.handle(boxedReq); // Saucer copies the data internally, so we let the GC clean this up.

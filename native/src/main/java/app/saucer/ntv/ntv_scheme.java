@@ -2,6 +2,7 @@ package app.saucer.ntv;
 
 import com.sun.jna.Callback;
 import com.sun.jna.Library;
+import com.sun.jna.Pointer;
 
 import app.saucer.ntv.ntv_stash.saucer_stash;
 import app.saucer.ntv.ntv_url.saucer_url;
@@ -49,7 +50,7 @@ public interface ntv_scheme extends Library {
     }
 
     public static interface saucer_scheme_handler extends Callback {
-        void callback(saucer_scheme_request arg0, saucer_scheme_executor arg1);
+        void callback(saucer_scheme_request arg0, saucer_scheme_executor arg1, Pointer arg2);
     }
 
     public static class saucer_scheme_error {

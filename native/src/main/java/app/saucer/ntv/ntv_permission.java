@@ -1,7 +1,7 @@
 package app.saucer.ntv;
 
-import com.sun.jna.Callback;
 import com.sun.jna.Library;
+import com.sun.jna.Pointer;
 
 import app.saucer.ntv.ntv_url.saucer_url;
 import app.saucer.ntv.util.SaucerNativeLoader;
@@ -62,6 +62,6 @@ public interface ntv_permission extends Library {
      * @note Please refer to the documentation in `application.h` on how to use this
      *       function.
      */
-    public void saucer_permission_request_native(saucer_permission_request arg0, size_t arg1, Callback arg2, size_t.ByReference arg3);
+    public void saucer_permission_request_native(saucer_permission_request arg0, size_t arg1, Pointer arg2, size_t.ByReference arg3);
 
 }

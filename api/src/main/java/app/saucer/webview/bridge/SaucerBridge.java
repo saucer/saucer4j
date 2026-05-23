@@ -12,13 +12,14 @@ import java.util.Map;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.function.Supplier;
 
-import com.sun.jna.Callback;
+import com.sun.jna.Pointer;
 
 import app.saucer.SaucerApp;
 import app.saucer.SaucerDesktop;
 import app.saucer.bridge.JavascriptFunction;
 import app.saucer.bridge.JavascriptObject;
 import app.saucer.ntv.ntv_webview;
+import app.saucer.ntv.ntv_webview.saucer_status;
 import app.saucer.ntv.ntv_webview.saucer_webview;
 import app.saucer.ntv.ntv_webview.saucer_webview_event;
 import app.saucer.ntv.ntv_webview.saucer_webview_event_message;
@@ -83,9 +84,9 @@ public final class SaucerBridge {
         this.defineObject("saucer.app", SaucerApp.class);
     }
 
-    private boolean onMessage(saucer_webview _unused, String raw, size_t _unused2, Callback _unused3) {
+    private int onMessage(saucer_webview _unused, String raw, size_t _unused2, Pointer _unused3) {
         if (this.webview.isClosed()) {
-            return true;
+            return saucer_status.HANDLED;
         }
 
         JsonObject message;
@@ -93,7 +94,7 @@ public final class SaucerBridge {
             message = Rson.DEFAULT.fromJson(raw, JsonObject.class).getObject("message");
         } catch (Throwable t) {
             t.printStackTrace();
-            return false;
+            return saucer_status.UNHANDLED;
         }
 
         try {
@@ -207,7 +208,7 @@ public final class SaucerBridge {
             // Executor has been shut down, ignore
         }
 
-        return true;
+        return saucer_status.HANDLED;
     }
 
     /* ------------------------------------ */

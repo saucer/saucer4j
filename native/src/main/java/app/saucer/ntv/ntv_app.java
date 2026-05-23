@@ -2,6 +2,7 @@ package app.saucer.ntv;
 
 import com.sun.jna.Callback;
 import com.sun.jna.Library;
+import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
 import app.saucer.ntv.util.SaucerNativeLoader;
@@ -48,19 +49,19 @@ public interface ntv_app extends Library {
     }
 
     public static interface saucer_application_event_quit extends Callback {
-        /*saucer_policy*/ int callback(saucer_application arg0, Callback arg1);
+        /*saucer_policy*/int callback(saucer_application arg0, Pointer arg1);
     }
 
     public static interface saucer_post_callback extends Callback {
-        void callback(Callback arg0);
+        void callback(Pointer arg0);
     }
 
     public static interface saucer_run_callback extends Callback {
-        void callback(saucer_application arg0, Callback arg1);
+        void callback(saucer_application arg0, Pointer arg1);
     }
 
     public static interface saucer_finish_callback extends Callback {
-        void callback(saucer_application arg0, Callback arg1);
+        void callback(saucer_application arg0, Pointer arg1);
     }
 
     public static class saucer_policy {
@@ -109,7 +110,7 @@ public interface ntv_app extends Library {
 
     public void saucer_application_screens(saucer_application arg0, saucer_screen[] arg1, size_t.ByReference size);
 
-    public void saucer_application_post(saucer_application arg0, saucer_post_callback arg1, Callback userdata);
+    public void saucer_application_post(saucer_application arg0, saucer_post_callback arg1, Pointer userdata);
 
     public void saucer_application_quit(saucer_application arg0);
 
@@ -119,11 +120,11 @@ public interface ntv_app extends Library {
      *       app->finish()` is called internally, afterwards, the finish callback is
      *       invoked. @attention You might want to use the loop module instead.
      */
-    public int saucer_application_run(saucer_application arg0, saucer_run_callback arg1, saucer_finish_callback arg2, Callback userdata);
+    public int saucer_application_run(saucer_application arg0, saucer_run_callback arg1, saucer_finish_callback arg2, Pointer userdata);
 
-    public size_t saucer_application_on(saucer_application arg0, /*saucer_application_event*/int arg1, Callback callback, boolean clearable, Callback userdata);
+    public size_t saucer_application_on(saucer_application arg0, /*saucer_application_event*/int arg1, Callback callback, boolean clearable, Pointer userdata);
 
-    public void saucer_application_once(saucer_application arg0, /*saucer_application_event*/int arg1, Callback callback, Callback userdata);
+    public void saucer_application_once(saucer_application arg0, /*saucer_application_event*/int arg1, Callback callback, Pointer userdata);
 
     public void saucer_application_off(saucer_application arg0, /*saucer_application_event*/int arg1, size_t arg2);
 
@@ -140,7 +141,7 @@ public interface ntv_app extends Library {
      *        again with @param {result} pointing to a buffer with sufficient size.
      *        Leave @param {size} unchanged in the second invocation.
      */
-    public void saucer_application_native(saucer_application arg0, size_t idx, Callback result, size_t.ByReference size);
+    public void saucer_application_native(saucer_application arg0, size_t idx, Pointer result, size_t.ByReference size);
 
     /** @note The returned string does not need to be free'd. */
     public String saucer_version();

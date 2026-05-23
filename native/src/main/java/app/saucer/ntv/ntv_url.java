@@ -1,7 +1,7 @@
 package app.saucer.ntv;
 
-import com.sun.jna.Callback;
 import com.sun.jna.Library;
+import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
 import app.saucer.ntv.util.SaucerNativeLoader;
@@ -27,8 +27,10 @@ public interface ntv_url extends Library {
 
     public saucer_url saucer_url_copy(saucer_url arg0);
 
+    /** @note The pointer passed to @param {error} can be null */
     public saucer_url saucer_url_new_parse(String arg0, IntByReference error);
 
+    /** @note The pointer passed to @param {error} can be null */
     public saucer_url saucer_url_new_from(String arg0, IntByReference error);
 
     public saucer_url saucer_url_new_opts(String scheme, String host, size_t.ByReference port, String path);
@@ -67,6 +69,6 @@ public interface ntv_url extends Library {
      * @note Please refer to the documentation in `application.h` on how to use this
      *       function.
      */
-    public void saucer_url_native(saucer_url arg0, size_t arg1, Callback arg2, size_t.ByReference arg3);
+    public void saucer_url_native(saucer_url arg0, size_t arg1, Pointer arg2, size_t.ByReference arg3);
 
 }

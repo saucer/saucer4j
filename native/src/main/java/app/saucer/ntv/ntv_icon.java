@@ -1,7 +1,7 @@
 package app.saucer.ntv;
 
-import com.sun.jna.Callback;
 import com.sun.jna.Library;
+import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
 import app.saucer.ntv.ntv_stash.saucer_stash;
@@ -34,14 +34,16 @@ public interface ntv_icon extends Library {
 
     public saucer_icon saucer_icon_copy(saucer_icon arg0);
 
+    /** @note The pointer passed to @param {error} can be null */
     public saucer_icon saucer_icon_new_from_file(String arg0, IntByReference error);
 
+    /** @note The pointer passed to @param {error} can be null */
     public saucer_icon saucer_icon_new_from_stash(saucer_stash arg0, IntByReference error);
 
     /**
      * @note Please refer to the documentation in `application.h` on how to use this
      *       function.
      */
-    public void saucer_icon_native(saucer_icon arg0, size_t arg1, Callback arg2, size_t.ByReference arg3);
+    public void saucer_icon_native(saucer_icon arg0, size_t arg1, Pointer arg2, size_t.ByReference arg3);
 
 }
