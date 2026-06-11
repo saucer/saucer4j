@@ -30,7 +30,7 @@ public class BackendQt6 extends SaucerBackend {
         return new String[] {
                 "x86",
                 "x86_64",
-                "aarch64"
+//                "aarch64" // TODO investigate build errors.
         };
     }
 
